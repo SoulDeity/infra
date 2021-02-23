@@ -1,0 +1,20 @@
+---
+
+- hosts: servers
+  tasks:
+    - name: import keys from github
+      authorized_key:  
+        user: "{{ ansible_user | default('souldeity') }}"
+        state: present
+        key: https://github.com/souldeity.keys
+    - name: update all packages
+      become: true
+      package:
+        name: '*'
+        state: latest
+
+#- hosts: docker
+#  vars_files:
+#    - 'vars/vault.yaml'
+#  roles:
+#    - role: ironicbadger.ansible_role_docker_compose_generator
