@@ -1,9 +1,0 @@
-- name: ensure target dir exists
-  file:
-    dest: "{{ appdata_path }}/statping/"
-    state: directory
-
-- name: install statping config file
-  template:
-    src: config.yml.j2
-    dest: "{{ appdata_path }}/statping/config.yml"
