@@ -14,6 +14,8 @@
           - 10-help-text
         when: ansible_distribution == 'Ubuntu'
 
+# soulpve - in progress
+# to do: mergerfs, snapraid, samba, telegraf/hddtemp
   - hosts: pve
     vars_files:
       - 'vars/vault.yaml'
@@ -43,6 +45,7 @@
       - hostname:
           name: "{{ pve_hostname }}"
 
+# soulbastion
   - hosts: bastion
     vars_files:
       - 'vars/vault.yaml'
@@ -53,6 +56,7 @@
       - role: ironicbadger.ansible_role_docker_compose_generator
         tags: compose
 
+# soulstatus - not yet implemented fully
   - hosts: status
     vars_files:
       - 'vars/vault.yaml'
