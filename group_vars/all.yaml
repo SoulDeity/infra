@@ -19,7 +19,7 @@ bash_aliases:
   - { alias: "dcporph", command: "docker-compose -f ~/docker-compose.yml --remove-orphans "}
   - { alias: "dprune", command: "docker image prune"}
   - { alias: "dprunesys", command: "docker system prune --all"}
-  - { alias: "appdata", command: "cd {{ status_appdata_path }}" }
+  - { alias: "appdata", command: "cd {{ appdata_path }}" }
 
 # grog.package
 package_list:
@@ -76,6 +76,10 @@ security_ssh_usedns: "no"
 security_autoupdate_enabled: true
 security_fail2ban_enabled: true
 security_sudoers_passwordless:
+  - "{{ main_username }}"
+
+# geerlingguy.docker
+docker_users:
   - "{{ main_username }}"
 
 # ironicbadger.docker_compose_generator

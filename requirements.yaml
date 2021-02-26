@@ -1,6 +1,7 @@
 - src: geerlingguy.docker
 - src: geerlingguy.security
 - src: geerlingguy.ntp
+- src: geerlingguy.nfs
 - src: geerlingguy.github-users
 - src: grog.package
 - src: rossmcdonald.telegraf

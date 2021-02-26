@@ -1,0 +1,70 @@
+---
+pve_ip: 192.168.1.201
+pve_hostname: souldebian
+
+# soulfigurine
+figurine_name: souldebian
+
+# ironicbadger.ansible_users
+users:
+  - username: "{{ main_username }}"
+    github_username: "{{ main_username }}"
+    name: "{{ main_username }}"
+    groups: ['wheel']
+    uid: "{{ main_uid }}"
+groups_to_create:
+  - name: "{{ main_groupname }}"
+    gid: "{{ main_gid }}"
+  - name: wheel
+
+# mergerfs
+mergerfs_mount:
+  - { path: /mnt/storage }
+
+parity_disks:
+  - /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1 /mnt/parity1 xfs defaults 0 0
+/dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part3 /mnt/disk1 xfs defaults 0 0
+/dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YFJNG6RA-part1 /mnt/disk2 xfs defaults 0 0
+/dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YFG04KBA-part1 /mnt/disk3 xfs defaults 0 0
+/dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1 /mnt/disk4 xfs defaults 0 0
+/dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YGJLAWPA-part1 /mnt/disk5 xfs defaults 0 0
+
+/dev/disk/by-id/scsi-3500605ba00483830-part1 /mnt/parity2 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba00497d10-part1 /mnt/disk6 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002c3ed8-part1 /mnt/parity3 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002c4a14-part1 /mnt/disk7 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002cb854-part1 /mnt/disk8 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002cb860-part1 /mnt/disk9 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002ee70c-part1 /mnt/disk10 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba0032e6b8-part1 /mnt/disk11 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba0048f1c4-part1 /mnt/disk12 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba00494460-part1 /mnt/disk13 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba00496f04-part1 /mnt/disk14 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba0030bb80-part1 /mnt/disk15 xfs defaults 0 0
+
+data_disks:
+  - 
+
+/dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1 /mnt/parity1 xfs defaults 0 0
+/dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part3 /mnt/disk1 xfs defaults 0 0
+/dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YFJNG6RA-part1 /mnt/disk2 xfs defaults 0 0
+/dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YFG04KBA-part1 /mnt/disk3 xfs defaults 0 0
+/dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1 /mnt/disk4 xfs defaults 0 0
+/dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YGJLAWPA-part1 /mnt/disk5 xfs defaults 0 0
+
+/dev/disk/by-id/scsi-3500605ba00483830-part1 /mnt/parity2 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba00497d10-part1 /mnt/disk6 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002c3ed8-part1 /mnt/parity3 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002c4a14-part1 /mnt/disk7 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002cb854-part1 /mnt/disk8 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002cb860-part1 /mnt/disk9 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba002ee70c-part1 /mnt/disk10 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba0032e6b8-part1 /mnt/disk11 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba0048f1c4-part1 /mnt/disk12 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba00494460-part1 /mnt/disk13 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba00496f04-part1 /mnt/disk14 xfs defaults 0 0
+/dev/disk/by-id/scsi-3500605ba0030bb80-part1 /mnt/disk15 xfs defaults 0 0
+
+# NFS
+nfs_exports: [ "/mnt/storage *(rw,sync,fsid=0,no_root_squash,no_subtree_check)" ]
+

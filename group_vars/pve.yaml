@@ -1,0 +1,125 @@
+---
+pve_ip: 192.168.1.201
+pve_hostname: soulpve
+
+# soulfigurine
+figurine_name: soulpve
+
+# grog.package
+package_list:
+  - name: git
+  - name: hddtemp
+  - name: mergerfs
+  - name: nfs-kernel-server
+  - name: python
+  - name: ssh-import-id
+  - name: xfsprogs
+
+# mergerfs
+mergerfs_mount:
+  - { path: /mnt/storage }
+
+parity_disks:
+  # Dell R710
+  - { path: /mnt/parity1, source: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1, fs: xfs, opts: defaults, content: false }
+  # NetApp
+  - { path: /mnt/parity2, source: /dev/disk/by-id/scsi-3500605ba00483830-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/parity3, source: /dev/disk/by-id/scsi-3500605ba002c3ed8-part1, fs: xfs, opts: defaults, content: false }
+
+data_disks:
+  # Dell R710
+  - { path: /mnt/disk1, source: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part3, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk2, source: /dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YFJNG6RA-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk3, source: /dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YFG04KBA-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk4, source: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk5, source: /dev/disk/by-id/ata-HITACHI_HUA723020ALA640_YGJLAWPA-part1, fs: xfs, opts: defaults, content: true }
+  # NetApp
+  - { path: /mnt/disk6, source: /dev/disk/by-id/scsi-3500605ba00497d10-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk7, source: /dev/disk/by-id/scsi-3500605ba002c4a14-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk8, source: /dev/disk/by-id/scsi-3500605ba002cb854-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk9, source: /dev/disk/by-id/scsi-3500605ba002cb860-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk10, source: /dev/disk/by-id/scsi-3500605ba002ee70c-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk11, source: /dev/disk/by-id/scsi-3500605ba0032e6b8-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk12, source: /dev/disk/by-id/scsi-3500605ba0048f1c4-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk13, source: /dev/disk/by-id/scsi-3500605ba00494460-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk14, source: /dev/disk/by-id/scsi-3500605ba00496f04-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk15, source: /dev/disk/by-id/scsi-3500605ba0030bb80-part1, fs: xfs, opts: defaults, content: true }
+
+fstab_mergerfs:
+  - { source: "/mnt/disk*", mountpoint: "/mnt/storage", fs: fuse.mergerfs, opts: "direct_io,defaults,allow_other,minfreespace=50G,fsname=mergerfs" }  
+
+### NFS Setup
+nfs_exports: [ "/mnt/storage *(rw,sync,fsid=0,no_root_squash,no_subtree_check)" ]
+
+### Snapraid Config
+snapraid_force_install: false
+snapraid_email_address: "{{ snapraid_email }}"
+snapraid_email_address_from: "{{ snapraid_email }}"
+snapraid_email_address_to: "{{ snapraid email_to }}"
+snapraid_gmail_pass: "{{ snapraid_email_password }}"
+snapraid_healthcheck_io_uuid: "{{ snapraid_healthcheck_secret }}"
+
+snapraid_config_excludes:
+  # Standard
+  - "*.unrecoverable"
+  - "/tmp/"
+  - "/lost+found/"
+  - "downloads/"
+  - "appdata/"
+  - "*.!sync"
+  - ".AppleDouble"
+  - "._AppleDouble"
+  - ".DS_Store"
+  - "._.DS_Store"
+  - ".Thumbs.db"
+  - ".fseventsd"
+  - ".Spotlight-V100"
+  - ".TemporaryItems"
+  - ".Trashes"
+  - ".AppleDB"
+  # SoulDeity
+  - "snapshots/"
+  - "Nextcloud/"
+  - "*.raw"
+  - "*.qcow2"
+  - "*.vma.dat"
+  - "*.vma.lzo"
+  - "Proxmox/"
+  - "*.srt"
+  - "/mnt/storage/transcode/"
+  - "transcode/"
+  - "docker-backup.tar.gz"
+  - "Tdarr/"
+
+# ironicbadger.docker_compose_generator
+appdata_path: /opt/appdata
+
+containers:
+  ###
+  - service_name: scrutiny-web
+    container_name: scrutiny-web
+    active: true
+    image: linuxserver/scrutiny
+    restart: unless-stopped
+    ports:
+      - 7278:8080
+    volumes:
+      - "{{ appdata_path }}/scrutiny:/config"
+    environment:
+      - SCRUTINY_WEB=true
+    include_global_env_vars: true
+  ###
+  - service_name: scrutiny-collector
+    container_name: scrutiny-collector
+    active: true
+    image: linuxserver/scrutiny
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /dev/disk:/dev/disk
+      - /run/udev:/run/udev:ro
+      - "{{ appdata_path }}/scrutiny:/config"
+    environment:
+      - SCRUTINY_COLLECTOR=true
+      - SCRUTINY_API_ENDPOINT=http://scrutiny-web:8080
+    include_global_env_vars: true
