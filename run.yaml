@@ -14,8 +14,7 @@
           - 10-help-text
         when: ansible_distribution == 'Ubuntu'
 
-# soulpve - in progress
-# to do: mergerfs, snapraid, samba, telegraf/hddtemp
+# soulpve - Proxmox host
   - hosts: pve
     vars_files:
       - 'vars/vault.yaml'
@@ -38,9 +37,13 @@
       - role: grog.package
       - role: geerlingguy.nfs
       - role: geerlingguy.docker
+      - role: ironicbadger.ansible_role_hddtemp
+      - role: rossmcdonald.telegraf
+      - role: soulpve
       - role: soulfigurine
       - role: ironicbadger.ansible_role_docker_compose_generator
         tags: compose
+      - role: ironicbadger.ansible_role_snapraid
     tasks:
       - hostname:
           name: "{{ pve_hostname }}"

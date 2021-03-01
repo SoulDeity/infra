@@ -5,6 +5,18 @@ pve_hostname: soulpve
 # soulfigurine
 figurine_name: soulpve
 
+# ironicbadger.ansible_users
+users:
+  - username: "{{ main_username }}"
+    github_username: "{{ main_username }}"
+    name: "{{ main_username }}"
+    groups: ['wheel']
+    uid: "{{ main_uid }}"
+groups_to_create:
+  - name: "{{ main_groupname }}"
+    gid: "{{ main_gid }}"
+  - name: wheel
+
 # grog.package
 package_list:
   - name: git
@@ -56,7 +68,7 @@ snapraid_force_install: false
 snapraid_email_address: "{{ snapraid_email }}"
 snapraid_email_address_from: "{{ snapraid_email }}"
 snapraid_email_address_to: "{{ snapraid email_to }}"
-snapraid_gmail_pass: "{{ snapraid_email_password }}"
+snapraid_gmail_pass: "{{ snapraid_email_password | password_hash('sha512') }}"
 snapraid_healthcheck_io_uuid: "{{ snapraid_healthcheck_secret }}"
 
 snapraid_config_excludes:
@@ -90,6 +102,10 @@ snapraid_config_excludes:
   - "transcode/"
   - "docker-backup.tar.gz"
   - "Tdarr/"
+
+# geerlingguy.docker
+docker_users:
+  - "{{ main_username }}"
 
 # ironicbadger.docker_compose_generator
 appdata_path: /opt/appdata
