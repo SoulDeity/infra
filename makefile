@@ -15,6 +15,9 @@ bcomp:
 update:
 	ansible-playbook update.yaml --limit servers --vault-password-file .vault-password
 
+docker:
+	ansible-playbook docker.yaml --vault-password-file .vault-password
+
 reqs:
 	ansible-galaxy install -r requirements.yaml
 
