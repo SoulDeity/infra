@@ -3,27 +3,13 @@ pve_ip: 192.168.1.201
 pve_hostname: soulpve
 
 # soulfigurine
-figurine_name: soulpve
-
-# ironicbadger.ansible_users
-users:
-  - username: "{{ main_username }}"
-    github_username: "{{ main_username }}"
-    name: "{{ main_username }}"
-    groups: ['wheel']
-    uid: "{{ main_uid }}"
-groups_to_create:
-  - name: "{{ main_groupname }}"
-    gid: "{{ main_gid }}"
-  - name: wheel
+figurine_name: "{{ pve_hostname }}"
 
 # grog.package
 package_list:
-  - name: git
   - name: hddtemp
   - name: mergerfs
   - name: nfs-kernel-server
-  - name: python
   - name: ssh-import-id
   - name: xfsprogs
 
@@ -103,15 +89,10 @@ snapraid_config_excludes:
   - "docker-backup.tar.gz"
   - "Tdarr/"
 
-# geerlingguy.docker
-docker_users:
-  - "{{ main_username }}"
-
 # ironicbadger.docker_compose_generator
-appdata_path: /opt/appdata
-
+compose_schema_version: 3
 containers:
-  ###
+###
   - service_name: scrutiny-web
     container_name: scrutiny-web
     active: true
@@ -124,7 +105,7 @@ containers:
     environment:
       - SCRUTINY_WEB=true
     include_global_env_vars: true
-  ###
+###
   - service_name: scrutiny-collector
     container_name: scrutiny-collector
     active: true

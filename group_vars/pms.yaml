@@ -1,10 +1,9 @@
 ---
 
-pms_ip: 192.168.1.111
 pms_hostname: soulpms
 
 # soulfigurine
-figurine_name: soulpms
+figurine_name: "{{ pms_hostname }}"
 
 # soultraefik
 traefik_file_provider: true

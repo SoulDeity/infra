@@ -1,9 +1,10 @@
 ---
 
 target_os: debian
+bastion_hostname: soulbastion
 
 # soulfigurine
-figurine_name: soulbastion
+figurine_name: "{{ bastion_hostname }}"
 
 # grog.package
 package_list:
