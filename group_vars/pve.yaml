@@ -1,6 +1,6 @@
 ---
 pve_ip: 192.168.1.201
-pve_hostname: soulpve
+pve_hostname: souldebian
 
 # soulfigurine
 figurine_name: "{{ pve_hostname }}"
