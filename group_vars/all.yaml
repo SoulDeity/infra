@@ -5,7 +5,7 @@ main_groupname: "{{ main_username }}"
 main_uid: "1000"
 main_gid: "{{ main_uid }}"
 
-# ferrarimarco.bash-aliases
+# ironicbadger.ansible_role_bash_aliases
 bash_aliases:
   - { alias: "ls", command: "ls --color=auto"}
   - { alias: "ll", command: "ls -la"}
