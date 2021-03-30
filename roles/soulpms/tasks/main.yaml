@@ -1,0 +1,17 @@
+---
+
+- name: ensure hostname is set correctly
+  hostname:
+    name: "{{ pms_hostname }}"
+
+- name: file-sharing
+  include: file-sharing.yaml
+  tags:
+    - file-sharing
+
+- name: telegraf docker fix
+  include: telegraf-fix.yaml
+
+- name: override docker service for zfs dependencies
+  include: docker-zfs-override.yaml
+  when: docker_zfs_override

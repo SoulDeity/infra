@@ -19,6 +19,12 @@ bash_aliases:
   - { alias: "dcporph", command: "docker-compose -f ~/docker-compose.yml --remove-orphans "}
   - { alias: "dprune", command: "docker image prune"}
   - { alias: "dprunesys", command: "docker system prune --all"}
+  - { alias: "bashreload", command: "source ~/.bashrc && echo Bash config reloaded;"}
+  - { alias: "ctop", command: "docker run --name ctop  -it --rm -v /var/run/docker.sock:/var/run/docker.sock http://quay.io/vektorlab/ctop "}
+  - { alias: "sshclear", command: "rm ~/.ssh/multiplex/* -f && echo SSH connection cache cleared;"}
+  - { alias: "sshlist", command: "echo Currently open ssh connections && echo && l ~/.ssh/multiplex/"}
+  - { alias: "dfclean", command: "df -h -x tmpfs -x zfs -t fuse.mergerfs -t xfs -t ext4"}
+  - { alias: "dfzfs", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4"}
   - { alias: "appdata", command: "cd {{ appdata_path }}" }
 
 # grog.package
@@ -87,8 +93,6 @@ appdata_path: /opt/appdata
 download_path: /mnt/storage/downloads
 data_path: /mnt/storage
 global_env_vars:
-#  - "UID={{ main_uid }}"
-#  - "GID={{ main_gid }}"
   - "PUID={{ main_uid }}"
   - "PGID={{ main_gid }}"
   - "TZ={{ ntp_timezone }}"
@@ -97,7 +101,7 @@ docker_compose_generator_gid: "{{ main_gid }}"
 docker_compose_generator_output_path: "/home/{{ main_username }}"
 
 # influxdb
-influxdb_ip: 192.168.1.201
+influxdb_ip: 192.168.1.253
 influxdb_port: 8086
 
 ## telegraf

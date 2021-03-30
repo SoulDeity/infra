@@ -1,0 +1,546 @@
+---
+pms_ip: 192.168.1.253
+pms_hostname: soulpms
+
+# soulfigurine
+figurine_name: "{{ pms_hostname }}"
+
+# grog.package
+package_list:
+  - name: bash-completion
+  - name: curl
+  - name: fio
+  - name: git
+  - name: hddtemp
+  - name: htop
+  - name: iftop
+  - name: intel-gpu-tools
+  - name: iotop
+  - name: lm-sensors
+  - name: mc
+  - name: mergerfs
+  - name: mutt
+  - name: ncdu
+  - name: net-tools
+  - name: nfs-kernel-server
+  - name: nmap
+  - name: nvme-cli
+  - name: openssh-server
+  - name: python
+  - name: qemu-guest-agent
+  - name: sanoid
+  - name: screen
+  - name: ssh-import-id
+  - name: smartmontools
+  - name: sudo
+  - name: tmux
+  - name: tree
+  - name: wget
+  - name: wireguard-tools
+  - name: xfsprogs
+  - name: zfsutils-linux
+
+# ironicbadger.ansible_role_bash_aliases
+bash_aliases:
+  - { alias: "ls", command: "ls --color=auto"}
+  - { alias: "ll", command: "ls -la"}
+  - { alias: "df", command: "df -h -x aufs -x tmpfs -x udev"}
+  - { alias: "du", command: "du -ch"}
+  - { alias: "c", command: "clear"}
+  - { alias: "dtail", command: "docker logs -tf --tail='50' " }
+  - { alias: "dstop", command: "docker stop `docker ps -aq`" }
+  - { alias: "drm", command: "docker rm `docker ps -aq`" }
+  - { alias: "dcp", command: "docker-compose -f ~/docker-compose.yml "}
+  - { alias: "dcporph", command: "docker-compose -f ~/docker-compose.yml --remove-orphans "}
+  - { alias: "dprune", command: "docker image prune" }
+  - { alias: "dprunesys", command: "docker system prune --all" }
+  - { alias: "dtop", command: "docker run --name ctop  -it --rm -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop"}
+  - { alias: "appdata", command: "cd /mnt/tank/appdata" }
+  - { alias: "zspace", command: "zfs list -o space" }
+  - { alias: "zsnap", command: "zfs list -t snapshot" }
+  - { alias: "dfclean", command: "df -h -x tmpfs -x zfs -t fuse.mergerfs -t xfs -t ext4"}
+  - { alias: "dfzfs", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4"}
+  - { alias: "hdtemp", command: "sudo hddtemp /dev/sd[a,b,c,d,e,f,g,h,i,j,k,l,m,n]"}
+
+# soulpms
+docker_zfs_override: true
+
+# soultraefik
+traefik_file_provider: true
+traefik_enable_dashboard: false #defaults to false
+traefik_insecure_transport: false #defaults to false
+
+# ironicbadger.docker_compose_generator
+appdata_path: /mnt/tank/appdata
+download_path: /mnt/storage/downloads
+data_path: /mnt/storage
+containers:
+###
+  - service_name: traefik
+    image: traefik
+    container_name: tr
+    hostname: tr
+    active: true
+    extra_hosts:
+      - host.docker.internal:172.17.0.1
+    volumes:
+      - "{{ appdata_path }}/traefik:/etc/traefik"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    environment:
+      - "CLOUDFLARE_EMAIL={{ secret_cloudflare_email }}"
+      - "CLOUDFLARE_API_KEY={{ secret_cloudflare_api }}"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    restart: unless-stopped
+  ###
+  - service_name: scrutiny
+    image: ghcr.io/linuxserver/scrutiny
+    container_name: scrutiny
+    hostname: scrutiny
+    active: true
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN
+    devices:
+      - /dev:/dev
+    volumes:
+      - "{{ appdata_path }}/scrutiny:/config"
+      - /run/udev:/run/udev:ro
+    environment:
+      - SCRUTINY_COLLECTOR=true
+      - SCRUTINY_WEB=true
+    ports:
+      - "7278:8080"
+    include_global_env_vars: true
+    privileged: true
+    restart: unless-stopped
+  ###
+  - service_name: plex
+    image: ghcr.io/linuxserver/plex
+    container_name: plex
+    hostname: plex
+    active: true
+    network_mode: host
+    devices:
+      - /dev/dri:/dev/dri #need to set this
+    volumes:
+      - "{{ appdata_path }}/plex:/config"
+      - /opt/appdata/plex/transcode:/transcode
+      - "{{ data_path }}:/data"
+    environment:
+      - VERSION=docker
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.plex.rule=Host(`plex.{{ secret_domain_full }}`)"
+      - traefik.http.routers.plex.entrypoints=websecure
+      - traefik.http.services.plex.loadbalancer.server.port=32400
+      - traefik.http.routers.plex.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: tautulli
+    image: ghcr.io/linuxserver/tautulli
+    container_name: tautulli
+    hostname: tautulli
+    active: true
+    depends_on:
+      - plex
+    volumes:
+      - "{{ appdata_path }}/tautulli:/config"
+      - "{{ appdata_path }}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.tautulli.rule=Host(`tautulli.{{ secret_domain_full }}`)"
+      - traefik.http.routers.tautulli.entrypoints=websecure
+      - traefik.http.services.tautulli.loadbalancer.server.port=8181
+      - traefik.http.routers.tautulli.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: nzbget 
+    image: ghcr.io/linuxserver/nzbget
+    container_name: nzbget
+    hostname: nzbget
+    active: true
+    volumes:
+      - "{{ appdata_path }}/nzbget:/config"
+      - "{{ download_path }}:/downloads"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.nzbget.rule=Host(`nzbget.{{ secret_domain_full }}`)"
+      - traefik.http.routers.nzbget.entrypoints=websecure
+      - traefik.http.services.nzbget.loadbalancer.server.port=6789
+      - traefik.http.routers.nzbget.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: nzbhydra 
+    image: ghcr.io/linuxserver/nzbhydra
+    container_name: nzbhydra
+    hostname: nzbhydra
+    active: true
+    depends_on:
+      - nzbget
+    volumes:
+      - "{{ appdata_path }}/nzbhydra:/config"
+      - "{{ download_path }}:/downloads"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.hydra.rule=Host(`hydra.{{ secret_domain_full }}`)"
+      - traefik.http.routers.hydra.entrypoints=websecure
+      - traefik.http.services.hydra.loadbalancer.server.port=5076
+      - traefik.http.routers.hydra.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: sonarr
+    image: ghcr.io/linuxserver/sonarr
+    container_name: sonarr
+    hostname: sonarr
+    active: true
+    depends_on:
+      - nzbget
+      - nzbhydra
+    volumes:
+      - "{{ appdata_path }}/sonarr:/config"
+      - "{{ download_path }}:/downloads"
+      - "{{ storage_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.sonarr.entrypoints=websecure
+      - traefik.http.services.sonarr.loadbalancer.server.port=8989
+      - traefik.http.routers.sonarr.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: radarr
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr
+    hostname: radarr
+    active: true
+    depends_on:
+      - nzbget
+      - nzbhydra
+    volumes:
+      - "{{ appdata_path }}/radarr:/config"
+      - "{{ download_path }}:/downloads"
+      - "{{ storage_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.radarr.rule=Host(`radarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.radarr.entrypoints=websecure
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+      - traefik.http.routers.radarr.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: bazarr
+    image: ghcr.io/linuxserver/bazarr
+    container_name: bazarr
+    hostname: bazarr
+    active: true
+    volumes:
+      - "{{ appdata_path }}/bazarr:/config"
+      - "{{ download_path }}:/downloads"
+      - "{{ storage_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.bazarr.rule=Host(`bazarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.bazarr.entrypoints=websecure
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+      - traefik.http.routers.bazarr.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: lidarr
+    image: ghcr.io/linuxserver/lidarr
+    container_name: lidarr
+    hostname: lidarr
+    active: true
+    depends_on:
+      - nzbget
+      - nzbhydra
+    volumes:
+      - "{{ appdata_path }}/lidarr:/config"
+      - "{{ download_path }}:/downloads"
+      - "{{ storage_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.lidarr.rule=Host(`lidarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.lidarr.entrypoints=websecure
+      - traefik.http.services.lidarr.loadbalancer.server.port=8686
+      - traefik.http.routers.lidarr.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: lazylibrarian
+    image: ghcr.io/linuxserver/lazylibrarian
+    container_name: lazylibrarian
+    hostname: lazylibrarian
+    active: true
+    depends_on:
+      - nzbget
+      - nzbhydra
+    volumes:
+      - "{{ appdata_path }}/lazylibrarian:/config"
+      - "{{ download_path }}:/downloads"
+      - "{{ storage_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.lib.rule=Host(`lib.{{ secret_domain_full }}`)"
+      - traefik.http.routers.lib.entrypoints=websecure
+      - traefik.http.services.lib.loadbalancer.server.port=5299
+      - traefik.http.routers.lib.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: ombi
+    image: ghcr.io/linuxserver/ombi:development
+    container_name: ombi
+    hostname: ombi
+    active: true
+    volumes:
+      - "{{ appdata_path }}/ombi:/config"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.ombi.rule=Host(`ombi.{{ secret_domain_full }}`)"
+      - traefik.http.routers.ombi.entrypoints=websecure
+      - traefik.http.services.ombi.loadbalancer.server.port=3579
+      - traefik.http.routers.ombi.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: organizr
+    image: organizr/organizr
+    container_name: organizr
+    hostname: organizr
+    active: true
+    volumes:
+      - "{{ appdata_path }}/organizr:/config"
+    environment:
+      - fpm=true
+      - branch=v2-master
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
+      - traefik.http.routers.main.entrypoints=websecure
+      - traefik.http.services.main.loadbalancer.server.port=80
+      - traefik.http.routers.main.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: grafana
+    image: grafana/grafana
+    container_name: grafana
+    hostname: grafana
+    active: true
+    volumes:
+      - "{{ appdata_path }}/grafana:/var/lib/grafana"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.graf.rule=Host(`graf.{{ secret_domain_full }}`)"
+      - traefik.http.routers.graf.entrypoints=websecure
+      - traefik.http.services.graf.loadbalancer.server.port=3000
+      - traefik.http.routers.graf.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: influxdb
+    image: influxdb
+    container_name: influxdb
+    hostname: influxdb
+    active: true
+    volumes:
+      - "{{ appdata_path }}/influxdb:/var/lib/influxdb"
+    ports:
+      - "8086:8086"
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: unifi-controller
+    image: ghcr.io/linuxserver/unifi-controller
+    container_name: unifi-controller
+    hostname: unifi-controller
+    active: true
+    volumes:
+      - "{{ appdata_path }}/unifi-controller:/config"
+    ports:
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      - 8443:8443
+      - 8843:8843 #optional
+      - 8880:8880 #optional
+      - 6789:6789 #optional
+      - 5514:5514 #optional
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: bitwarden
+    image: bitwardenrs/server
+    container_name: bitwarden
+    hostname: bitwarden
+    active: true
+    volumes:
+      - "{{ appdata_path }}/bitwarden:/data"
+    environment:
+      - SIGNUPS_ALLOWED=false
+      - WEBSOCKET_ENABLED=true
+      - "DOMAIN=https://vault.{{ secret_domain_full }}"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.bitwarden.rule=Host(`vault.{{ secret_domain_full }}`)"
+      - traefik.http.routers.bitwarden.entrypoints=websecure
+      - traefik.http.services.bitwarden.loadbalancer.server.port=80
+      - traefik.http.routers.bitwarden.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: nextcloud
+    image: ghcr.io/linuxserver/nextcloud
+    container_name: nextcloud
+    hostname: nextcloud
+    active: true
+    depends_on:
+      - nextcloud-db
+    volumes:
+      - "{{ appdata_path }}/nextcloud:/config"
+      - "{{ appdata_path }}/nextcloud:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.nextcloud.rule=Host(`drive.{{ secret_domain_full }}`)"
+      - traefik.http.routers.nextcloud.entrypoints=websecure
+      - traefik.http.services.nextcloud.loadbalancer.server.port=443
+      - traefik.http.routers.nextcloud.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  - service_name: nextcloud-db
+    image: ghcr.io/linuxserver/mariadb
+    container_name: nextcloud-db
+    hostname: nextcloud-db
+    active: true
+    volumes:
+      - "{{ appdata_path }}/nextcloud-db:/config"
+    environment:
+      - "MYSQL_ROOT_PASSWORD={{ secret_nextclouddb_pass }}"
+      - MYSQL_DATABASE=nextcloud-db
+      - MYSQL_USER=souldeity
+      - "MYSQL_PASSWORD={{ secret_nextclouddb_pass }}"
+    ports:
+      - "3306:3306"
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: nick-blog
+    image: wordpress
+    container_name: nick-blog
+    hostname: nick-blog
+    active: true
+    depends_on:
+      - nick-blog-db
+    volumes:
+      - "{{ appdata_path }}/nick-blog:/var/www/html"
+      - "{{ appdata_path }}/nick-blog/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini"
+    environment:
+      - WORDPRESS_DB_HOST=nick-blog-db:3307
+      - WORDPRESS_DB_NAME=nick-blog-db
+      - WORDPRESS_DB_USER=souldeity
+      - "WORDPRESS_DB_PASSWORD={{ secret_nickblogdb_pass }}"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.nickblog.rule=Host(`www.{{ secret_domain_full }}`)"
+      - traefik.http.routers.nickblog.entrypoints=websecure
+      - traefik.http.services.nickblog.loadbalancer.server.port=80
+      - traefik.http.routers.nickblog.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  - service_name: nick-blog-db
+    image: ghcr.io/linuxserver/mariadb
+    container_name: nick-blog-db
+    hostname: nick-blog-db
+    active: true
+    volumes:
+      - "{{ appdata_path }}/nick-blog-db:/config"
+    environment:
+      - "MYSQL_ROOT_PASSWORD={{ secret_nickblogdb_pass }}"
+      - MYSQL_DATABASE=nick-blog-db
+      - MYSQL_USER=souldeity
+      - "MYSQL_PASSWORD={{ secret_nickblogdb_pass }}"
+    ports:
+      - "3307:3306"
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+
+# template for docker-compose services
+#  - service_name:
+#    image:
+#    container_name:
+#    hostname:
+#    active: true
+#    volumes:
+#      - "{{ appdata_path }}/app:/config"
+#    environment:
+#      -
+#    labels:
+#      - traefik.enable=true
+#      - "traefik.http.routers.XXXX.rule=Host(`XXXX.{{ secret_domain_full }}`)"
+#      - traefik.http.routers.XXXX.entrypoints=websecure
+#      - traefik.http.services.XXXX.loadbalancer.server.port=XXXX
+#      - traefik.http.routers.XXXX.tls.certresolver=cloudflare
+#    include_global_env_vars: true
+#    restart: unless-stopped
+  ###
+
+## telegraf
+telegraf_plugins_base:
+  - name: mem
+  - name: system
+  - name: cpu
+    options:
+      percpu: "true"
+      totalcpu: "true"
+      collect_cpu_time: "false"
+      report_active: "false"
+  - name: disk
+    options:
+      ignore_fs:
+        - "tmpfs"
+        - "devtmpfs"
+        - "devfs"
+      mountpoints:
+        - "/"
+        - "/mnt/disk1"
+        - "/mnt/disk2"
+        - "/mnt/disk3"
+        - "/mnt/disk4"
+        - "/mnt/disk5"
+        - "/mnt/disk6"
+        - "/mnt/disk7"
+        - "/mnt/disk8"
+        - "/mnt/disk9"
+        - "/mnt/disk10"
+        - "/mnt/disk11"
+        - "/mnt/disk12"
+        - "/mnt/disk13"
+        - "/mnt/parity1"
+        - "/mnt/parity2"
+        - "/mnt/storage"
+        - "/mnt/tank"
+  - name: diskio
+    options:
+      skip_serial_number: "true"
+  - name: kernel
+  - name: processes
+  - name: docker
+    options:
+      endpoint: "unix:///var/run/docker.sock"
+      perdevice: "true"
+  - name: hddtemp
+  - name: net
+    options:
+      interfaces:
+        - "ens192"
