@@ -1,9 +1,9 @@
 ### Servers
-pve:
-	ansible-playbook -b run.yaml --limit pve --ask-become-pass --vault-password-file .vault-password
+pms:
+	ansible-playbook -b run.yaml --limit pms --ask-become-pass --vault-password-file .vault-password
 
 pcomp:
-	ansible-playbook run.yaml --limit pve --vault-password-file .vault-password --tags compose
+	ansible-playbook run.yaml --limit pms --vault-password-file .vault-password --tags compose
 
 bastion:
 	ansible-playbook -b run.yaml --limit bastion --ask-become-pass --vault-password-file .vault-password

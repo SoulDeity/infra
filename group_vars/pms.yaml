@@ -27,8 +27,7 @@ package_list:
   - name: nvme-cli
   - name: openssh-server
   - name: python
-  - name: qemu-guest-agent
-  - name: sanoid
+  #- name: sanoid
   - name: screen
   - name: ssh-import-id
   - name: smartmontools
@@ -36,7 +35,7 @@ package_list:
   - name: tmux
   - name: tree
   - name: wget
-  - name: wireguard-tools
+  #- name: wireguard-tools
   - name: xfsprogs
   - name: zfsutils-linux
 
@@ -177,7 +176,7 @@ containers:
     restart: unless-stopped
   ###
   - service_name: nzbhydra 
-    image: ghcr.io/linuxserver/nzbhydra
+    image: ghcr.io/linuxserver/nzbhydra2
     container_name: nzbhydra
     hostname: nzbhydra
     active: true
@@ -206,7 +205,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/sonarr:/config"
       - "{{ download_path }}:/downloads"
-      - "{{ storage_path }}:/data"
+      - "{{ data_path }}:/data"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ secret_domain_full }}`)"
@@ -227,7 +226,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/radarr:/config"
       - "{{ download_path }}:/downloads"
-      - "{{ storage_path }}:/data"
+      - "{{ data_path }}:/data"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.radarr.rule=Host(`radarr.{{ secret_domain_full }}`)"
@@ -245,7 +244,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/bazarr:/config"
       - "{{ download_path }}:/downloads"
-      - "{{ storage_path }}:/data"
+      - "{{ data_path }}:/data"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.bazarr.rule=Host(`bazarr.{{ secret_domain_full }}`)"
@@ -266,7 +265,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/lidarr:/config"
       - "{{ download_path }}:/downloads"
-      - "{{ storage_path }}:/data"
+      - "{{ data_path }}:/data"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.lidarr.rule=Host(`lidarr.{{ secret_domain_full }}`)"
@@ -287,7 +286,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/lazylibrarian:/config"
       - "{{ download_path }}:/downloads"
-      - "{{ storage_path }}:/data"
+      - "{{ data_path }}:/data"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.lib.rule=Host(`lib.{{ secret_domain_full }}`)"
@@ -426,7 +425,7 @@ containers:
       - "{{ appdata_path }}/nextcloud-db:/config"
     environment:
       - "MYSQL_ROOT_PASSWORD={{ secret_nextclouddb_pass }}"
-      - MYSQL_DATABASE=nextcloud-db
+      - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=souldeity
       - "MYSQL_PASSWORD={{ secret_nextclouddb_pass }}"
     ports:
@@ -446,7 +445,7 @@ containers:
       - "{{ appdata_path }}/nick-blog/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini"
     environment:
       - WORDPRESS_DB_HOST=nick-blog-db:3307
-      - WORDPRESS_DB_NAME=nick-blog-db
+      - WORDPRESS_DB_NAME=wordpress
       - WORDPRESS_DB_USER=souldeity
       - "WORDPRESS_DB_PASSWORD={{ secret_nickblogdb_pass }}"
     labels:
@@ -466,7 +465,7 @@ containers:
       - "{{ appdata_path }}/nick-blog-db:/config"
     environment:
       - "MYSQL_ROOT_PASSWORD={{ secret_nickblogdb_pass }}"
-      - MYSQL_DATABASE=nick-blog-db
+      - MYSQL_DATABASE=wordpress
       - MYSQL_USER=souldeity
       - "MYSQL_PASSWORD={{ secret_nickblogdb_pass }}"
     ports:
