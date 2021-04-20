@@ -1,0 +1,14 @@
+http:
+  routers:
+    router-homeassistant:
+      entryPoints:
+        - websecure
+      rule: "Host(`home.{{ secret_domain_full }}`)"
+      service: service-homeassistant
+      tls:
+        certResolver: cloudflare
+  services:
+    service-homeassistant:
+      loadBalancer:
+        servers:
+        - url: "http://192.168.1.114:8123"

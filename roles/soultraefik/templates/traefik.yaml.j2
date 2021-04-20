@@ -36,7 +36,7 @@ log:
 certificatesResolvers:
     cloudflare:
         acme:
-            email: secret_cloudflare_email
+            email: {{ secret_cloudflare_email }}
             storage: /etc/traefik/acme.json
             dnsChallenge:
                 provider: cloudflare

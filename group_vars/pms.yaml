@@ -472,6 +472,25 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: duplicati
+    image: ghcr.io/linuxserver/duplicati
+    container_name: duplicati
+    hostname: duplicati
+    active: true
+    volumes:
+      - "{{ appdata_path }}/duplicati:/config"
+      - "{{ data_path }}/Backups:/backups"
+      - "{{ data_path }}:/source/storage"
+      - /mnt/tank:/source/tank
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.duplicati.rule=Host(`bdr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.duplicati.entrypoints=websecure
+      - traefik.http.services.duplicati.loadbalancer.server.port=8200
+      - traefik.http.routers.duplicati.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
 
 # template for docker-compose services
 #  - service_name:
