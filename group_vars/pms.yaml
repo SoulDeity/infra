@@ -91,7 +91,7 @@ containers:
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
+      - "8081:8080"
     restart: unless-stopped
   ###
   - service_name: scrutiny
@@ -123,7 +123,7 @@ containers:
     active: true
     network_mode: host
     devices:
-      - /dev/dri:/dev/dri #need to set this
+      - /dev/dri:/dev/dri
     volumes:
       - "{{ appdata_path }}/plex:/config"
       - /opt/appdata/plex/transcode:/transcode
@@ -255,7 +255,7 @@ containers:
     restart: unless-stopped
   ###
   - service_name: lidarr
-    image: ghcr.io/linuxserver/lidarr
+    image: ghcr.io/linuxserver/lidarr:develop
     container_name: lidarr
     hostname: lidarr
     active: true
@@ -348,7 +348,7 @@ containers:
     restart: unless-stopped
   ###
   - service_name: influxdb
-    image: influxdb
+    image: influxdb:1.8
     container_name: influxdb
     hostname: influxdb
     active: true
@@ -399,20 +399,19 @@ containers:
     restart: unless-stopped
   ###
   - service_name: nextcloud
-    image: ghcr.io/linuxserver/nextcloud
+    image: nextcloud
     container_name: nextcloud
     hostname: nextcloud
     active: true
     depends_on:
       - nextcloud-db
     volumes:
-      - "{{ appdata_path }}/nextcloud:/config"
-      - "{{ appdata_path }}/nextcloud:/data"
+      - "{{ appdata_path }}/nextcloud:/var/www/html"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nextcloud.rule=Host(`drive.{{ secret_domain_full }}`)"
       - traefik.http.routers.nextcloud.entrypoints=websecure
-      - traefik.http.services.nextcloud.loadbalancer.server.port=443
+      - traefik.http.services.nextcloud.loadbalancer.server.port=80
       - traefik.http.routers.nextcloud.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
@@ -524,7 +523,6 @@ telegraf_plugins_base:
         - "/mnt/disk10"
         - "/mnt/disk11"
         - "/mnt/disk12"
-        - "/mnt/disk13"
         - "/mnt/parity1"
         - "/mnt/parity2"
         - "/mnt/storage"
@@ -542,4 +540,4 @@ telegraf_plugins_base:
   - name: net
     options:
       interfaces:
-        - "ens192"
+        - "eno1"
