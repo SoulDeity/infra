@@ -379,7 +379,7 @@ containers:
     restart: unless-stopped
   ###
   - service_name: bitwarden
-    image: bitwardenrs/server
+    image: vaultwarden/server
     container_name: bitwarden
     hostname: bitwarden
     active: true
@@ -433,42 +433,21 @@ containers:
     restart: unless-stopped
   ###
   - service_name: nick-blog
-    image: wordpress
+    image: ghost
     container_name: nick-blog
     hostname: nick-blog
     active: true
-    depends_on:
-      - nick-blog-db
     volumes:
-      - "{{ appdata_path }}/nick-blog:/var/www/html"
-      - "{{ appdata_path }}/nick-blog/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini"
+      - "{{ appdata_path }}/nick-blog:/var/lib/ghost/content"
     environment:
-      - WORDPRESS_DB_HOST=nick-blog-db:3307
-      - WORDPRESS_DB_NAME=wordpress
-      - WORDPRESS_DB_USER=souldeity
-      - "WORDPRESS_DB_PASSWORD={{ secret_nickblogdb_pass }}"
+      - NODE_ENV=production
+      - "url=https://blog.{{ secret_domain_full }}"
     labels:
       - traefik.enable=true
-      - "traefik.http.routers.nickblog.rule=Host(`www.{{ secret_domain_full }}`)"
+      - "traefik.http.routers.nickblog.rule=Host(`blog.{{ secret_domain_full }}`)"
       - traefik.http.routers.nickblog.entrypoints=websecure
-      - traefik.http.services.nickblog.loadbalancer.server.port=80
+      - traefik.http.services.nickblog.loadbalancer.server.port=2368
       - traefik.http.routers.nickblog.tls.certresolver=cloudflare
-    include_global_env_vars: true
-    restart: unless-stopped
-  - service_name: nick-blog-db
-    image: ghcr.io/linuxserver/mariadb
-    container_name: nick-blog-db
-    hostname: nick-blog-db
-    active: true
-    volumes:
-      - "{{ appdata_path }}/nick-blog-db:/config"
-    environment:
-      - "MYSQL_ROOT_PASSWORD={{ secret_nickblogdb_pass }}"
-      - MYSQL_DATABASE=wordpress
-      - MYSQL_USER=souldeity
-      - "MYSQL_PASSWORD={{ secret_nickblogdb_pass }}"
-    ports:
-      - "3307:3306"
     include_global_env_vars: true
     restart: unless-stopped
   ###

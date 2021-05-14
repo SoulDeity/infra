@@ -22,7 +22,7 @@ containers:
       - /lib/modules:/lib/modules
       - /usr/src:/usr/src
     environment:
-      - "PEERS=fold2 1400-L"
+      - "PEERS=fold2 1400-L soullaptop"
       - "SERVERURL={{ secret_wireguard_url }}"
       - "SERVERPORT={{ secret_wireguard_port }}"
       - "ALLOWEDIPS=0.0.0.0/0"
