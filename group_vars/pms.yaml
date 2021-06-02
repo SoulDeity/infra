@@ -407,6 +407,8 @@ containers:
       - nextcloud-db
     volumes:
       - "{{ appdata_path }}/nextcloud:/var/www/html"
+    environment:
+      - REDIS_HOST=nc-redis
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nextcloud.rule=Host(`drive.{{ secret_domain_full }}`)"
@@ -430,6 +432,14 @@ containers:
     ports:
       - "3306:3306"
     include_global_env_vars: true
+    restart: unless-stopped
+  - service_name: nc-redis
+    image: redis:6.2-alpine
+    container_name: nc-redis
+    hostname: nc-redis
+    active: true
+    volumes:
+      - "{{ appdata_path }}/redis/nextcloud:/data"
     restart: unless-stopped
   ###
   - service_name: nick-blog

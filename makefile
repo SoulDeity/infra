@@ -36,3 +36,6 @@ gitinit:
 	@./git-init.sh
 	@echo "ansible vault pre-commit hook installed"
 	@echo "don't forget to create a .vault-password too"
+
+git:
+	@./gitupdate.sh
