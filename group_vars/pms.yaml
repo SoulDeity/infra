@@ -194,6 +194,22 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: prowlarr
+    image: ghcr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    hostname: prowlarr
+    active: true
+    volumes:
+      - "{{ appdata_path }}/prowlarr:/config"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.prowlarr.rule=Host(`prow.{{ secret_domain_full }}`)"
+      - traefik.http.routers.prowlarr.entrypoints=websecure
+      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+      - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
   - service_name: sonarr
     image: ghcr.io/linuxserver/sonarr
     container_name: sonarr
