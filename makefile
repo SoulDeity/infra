@@ -5,6 +5,9 @@ pms:
 pcomp:
 	ansible-playbook run.yaml --limit pms --vault-password-file .vault-password --tags compose
 
+ptr:
+	ansible-playbook run.yaml --limit pms --vault-password-file .vault-password --tags traefik
+
 bastion:
 	ansible-playbook -b run.yaml --limit bastion --ask-become-pass --vault-password-file .vault-password
 
@@ -13,7 +16,7 @@ bcomp:
 
 ### Updates
 update:
-	ansible-playbook update.yaml --limit servers --vault-password-file .vault-password
+	ansible-playbook update.yaml --limit servers --ask-become-pass --vault-password-file .vault-password
 
 docker:
 	ansible-playbook docker.yaml --vault-password-file .vault-password

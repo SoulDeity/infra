@@ -34,7 +34,7 @@
       - role: ironicbadger.ansible_role_docker_compose_generator
         tags: compose
       - role: soultraefik
-        tags: compose
+        tags: traefik
 
 # soulbastion
   - hosts: bastion
