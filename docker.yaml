@@ -1,7 +1,6 @@
 ---
 
 - hosts: "{{host}}"
-  become: true
   vars_files:
     - 'vars/vault.yaml'
   vars_prompt:
