@@ -26,7 +26,8 @@ package_list:
   - name: nmap
   - name: nvme-cli
   - name: openssh-server
-  - name: python
+  - name: python3
+  - name: python-setuptools
   #- name: sanoid
   - name: screen
   - name: ssh-import-id

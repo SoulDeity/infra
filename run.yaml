@@ -28,8 +28,9 @@
       - role: geerlingguy.docker
       - role: grog.package
       - role: ironicbadger.ansible_role_hddtemp
-      - role: rossmcdonald.telegraf
+      #- role: rossmcdonald.telegraf
       - role: soulfigurine
+      - role: soulboot
       - role: soulpms
       - role: ironicbadger.ansible_role_docker_compose_generator
         tags: compose

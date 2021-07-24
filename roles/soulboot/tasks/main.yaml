@@ -1,0 +1,4 @@
+---
+
+- name: apprise.yaml
+  include: apprise.yaml
