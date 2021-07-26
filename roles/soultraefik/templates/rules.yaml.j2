@@ -3,7 +3,7 @@ http:
     router-homeassistant:
       entryPoints:
         - websecure
-      rule: Host(`home.{{ secret_domain_full }}`)
+      rule: "Host(`home.{{ secret_domain_full }}`)"
       service: service-homeassistant
       tls:
         certResolver: cloudflare
