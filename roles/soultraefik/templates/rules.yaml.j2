@@ -7,8 +7,19 @@ http:
       service: service-homeassistant
       tls:
         certResolver: cloudflare
+    router-guac:
+      entryPoints:
+        - websecure
+      rule: "Host(`guac.{{ secret_domain_full }}`)"
+      service: service-guac
+      tls:
+        certResolver: cloudflare
   services:
     service-homeassistant:
       loadBalancer:
         servers:
         - url: "http://192.168.1.114:8123"
+    service-guac:
+      loadBalancer:
+        servers:
+        - url: "http://192.168.1.101:8080"

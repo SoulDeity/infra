@@ -47,6 +47,7 @@ containers:
       - "{{ appdata_path }}/guacamole:/config"
     environment:
       - OPT_MYSQL=Y
+      - OPT_TOTP=Y
     ports:
       - "8080:8080"
     include_global_env_vars: true
