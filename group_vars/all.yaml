@@ -16,15 +16,6 @@ bash_aliases:
   - { alias: "dstop", command: "docker stop `docker ps -aq`"}
   - { alias: "drm", command: "docker rm `docker ps -aq`"}
   - { alias: "dcp", command: "docker-compose -f ~/docker-compose.yml "}
-  - { alias: "dcporph", command: "docker-compose -f ~/docker-compose.yml --remove-orphans "}
-  - { alias: "dprune", command: "docker image prune"}
-  - { alias: "dprunesys", command: "docker system prune --all"}
-  - { alias: "bashreload", command: "source ~/.bashrc && echo Bash config reloaded;"}
-  - { alias: "ctop", command: "docker run --name ctop  -it --rm -v /var/run/docker.sock:/var/run/docker.sock http://quay.io/vektorlab/ctop "}
-  - { alias: "sshclear", command: "rm ~/.ssh/multiplex/* -f && echo SSH connection cache cleared;"}
-  - { alias: "sshlist", command: "echo Currently open ssh connections && echo && l ~/.ssh/multiplex/"}
-  - { alias: "dfclean", command: "df -h -x tmpfs -x zfs -t fuse.mergerfs -t xfs -t ext4"}
-  - { alias: "dfzfs", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4"}
   - { alias: "appdata", command: "cd {{ appdata_path }}" }
 
 # grog.package
