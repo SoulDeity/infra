@@ -32,6 +32,7 @@
       - role: soulfigurine
       - role: soulboot
       - role: soulpms
+      - role: soulzfs
       - role: ironicbadger.ansible_role_docker_compose_generator
         tags: compose
       - role: soultraefik
