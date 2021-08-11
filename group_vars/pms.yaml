@@ -577,6 +577,22 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: grocy
+    image: ghcr.io/linuxserver/grocy
+    container_name: grocy
+    hostname: grocy
+    active: true
+    volumes:
+      - "{{ appdata_path }}/grocy:/config"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.grocy.rule=Host(`grocy.{{ secret_domain_full }}`)"
+      - traefik.http.routers.grocy.entrypoints=websecure
+      - traefik.http.services.grocy.loadbalancer.server.port=80
+      - traefik.http.routers.grocy.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
 
 # template for docker-compose services
 #  - service_name:
