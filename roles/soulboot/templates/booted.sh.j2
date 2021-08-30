@@ -1,4 +1,4 @@
 #!/bin/bash
 
 sleep 10
-/usr/bin/apprise -t "{{ ansible_hostname }} booted!" -b "{{ ansible_hostname }} just booted." discord://{{ discord_webook_id }}/{{ discord_webhook_token }}
+/usr/local/bin/apprise -t "{{ ansible_hostname }} booted!" -b "{{ ansible_hostname }} just booted." discord://{{ discord_webook_id }}/{{ discord_webhook_token }}

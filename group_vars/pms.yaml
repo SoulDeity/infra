@@ -157,6 +157,24 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: moviematch
+    image: lukechannings/moviematch:latest
+    container_name: moviematch
+    hostname: moviematch
+    active: true
+    environment:
+      - "PLEX_URL=https://plex.{{ secret_domain_full }}"
+      - "PLEX_TOKEN={{ secret_plex_token }}"
+      - LIBRARY_FILTER=Movies
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.moviematch.rule=Host(`match.{{ secret_domain_full }}`)"
+      - traefik.http.routers.moviematch.entrypoints=websecure
+      - traefik.http.services.moviematch.loadbalancer.server.port=8000
+      - traefik.http.routers.moviematch.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
   - service_name: nzbget 
     image: ghcr.io/linuxserver/nzbget
     container_name: nzbget
@@ -324,6 +342,22 @@ containers:
       - traefik.http.routers.ombi.entrypoints=websecure
       - traefik.http.services.ombi.loadbalancer.server.port=3579
       - traefik.http.routers.ombi.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: overseerr
+    image: ghcr.io/linuxserver/overseerr
+    container_name: overseerr
+    hostname: overseerr
+    active: true
+    volumes:
+      - "{{ appdata_path }}/overseerr:/config"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.overseerr.entrypoints=websecure
+      - traefik.http.services.overseerr.loadbalancer.server.port=5055
+      - traefik.http.routers.overseerr.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
