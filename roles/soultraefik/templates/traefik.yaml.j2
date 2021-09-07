@@ -48,3 +48,8 @@ certificatesResolvers:
 serversTransport:
     insecureSkipVerify: true
 {% endif %}
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12

@@ -66,7 +66,7 @@ docker_zfs_override: true
 # soultraefik
 traefik_file_provider: true
 traefik_enable_dashboard: false #defaults to false
-traefik_insecure_transport: false #defaults to false
+traefik_insecure_transport: true #defaults to false
 
 # ironicbadger.docker_compose_generator
 appdata_path: /mnt/tank/appdata
@@ -503,22 +503,24 @@ containers:
     restart: unless-stopped
   ###
   - service_name: nextcloud
-    image: nextcloud
+    image: ghcr.io/linuxserver/nextcloud:php8
     container_name: nextcloud
     hostname: nextcloud
     active: true
     depends_on:
       - nextcloud-db
+      - nc-redis
     volumes:
-      - "{{ appdata_path }}/nextcloud:/var/www/html"
-    environment:
-      - REDIS_HOST=nc-redis
+      - "{{ appdata_path }}/nextcloud:/config"
+      - "{{ appdata_path }}/nextcloud/data:/data"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nextcloud.rule=Host(`drive.{{ secret_domain_full }}`)"
-      - traefik.http.routers.nextcloud.entrypoints=websecure
-      - traefik.http.services.nextcloud.loadbalancer.server.port=80
       - traefik.http.routers.nextcloud.tls.certresolver=cloudflare
+      - traefik.http.services.nextcloud-nextcloud.loadbalancer.server.port=443
+      - traefik.http.services.nextcloud-nextcloud.loadbalancer.server.scheme=https
+      - traefik.http.middlewares.nextcloud-hsts.headers.stsseconds=15552000
+      - traefik.http.routers.nextcloud.middlewares=nextcloud-hsts@docker
     include_global_env_vars: true
     restart: unless-stopped
   - service_name: nextcloud-db
@@ -529,16 +531,16 @@ containers:
     volumes:
       - "{{ appdata_path }}/nextcloud-db:/config"
     environment:
-      - "MYSQL_ROOT_PASSWORD={{ secret_nextclouddb_pass }}"
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=souldeity
       - "MYSQL_PASSWORD={{ secret_nextclouddb_pass }}"
+      - "MYSQL_ROOT_PASSWORD={{ secret_nextclouddb_pass }}"
     ports:
       - "3306:3306"
     include_global_env_vars: true
     restart: unless-stopped
   - service_name: nc-redis
-    image: redis:6.2-alpine
+    image: redis:alpine
     container_name: nc-redis
     hostname: nc-redis
     active: true
