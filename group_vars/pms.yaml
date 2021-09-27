@@ -38,6 +38,105 @@ package_list:
   - name: xfsprogs
   - name: zfsutils-linux
 
+# ironicbadger.snapraid
+snapraid_bin_path: /usr/bin/snapraid
+snapraid_parity_disks:
+  - { path: /mnt/parity1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9MDTZ-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/parity2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults, content: false }
+snapraid_data_disks:
+  - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJNRD5W-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SH07NTC-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK2T1W-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJZ2AW-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk6, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ6LEG-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk7, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK1KPW-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk8, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9HZPZ-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk9, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SH24AMZ-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk10, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk11, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk12, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ2YGG-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk13, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part1, fs: xfs, opts: defaults, content: false }
+snapraid_content_files:
+  - path: /mnt/tank/fuse/documents/snapraid.content
+snapraid_config_excludes:
+  - "*.unrecoverable"
+  - "/tmp/"
+  - "/lost+found/"
+  - "downloads/"
+  - "appdata/"
+  - "snapshots/"
+  - "*.!sync"
+  - ".AppleDouble"
+  - "._AppleDouble"
+  - ".DS_Store"
+  - "._.DS_Store"
+  - ".Thumbs.db"
+  - ".fseventsd"
+  - ".Spotlight-V100"
+  - ".TemporaryItems"
+  - ".Trashes"
+  - ".AppleDB"
+  - "Proxmox/"
+
+fstab_mergerfs:
+  - { source: "/mnt/disk*", mountpoint: "{{ data_path }}", fs: fuse.mergerfs, opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=250G,fsname=MergerFS" }  
+
+snapraid_runner: true
+snapraid_email_address: "{{ secret_snapraid_email_address }}"
+snapraid_gmail_pass: "{{ secret_snapraid_gmail_pass }}"
+snapraid_healthcheck_io_uuid: "{{ secret_hc_snapraid_uuid }}"
+
+## telegraf
+telegraf_plugins_base:
+  - name: mem
+  - name: system
+  - name: cpu
+    options:
+      percpu: "true"
+      totalcpu: "true"
+      collect_cpu_time: "false"
+      report_active: "false"
+  - name: disk
+    options:
+      ignore_fs:
+        - "tmpfs"
+        - "devtmpfs"
+        - "devfs"
+      mountpoints:
+        - "/"
+        - "/mnt/disk1"
+        - "/mnt/disk2"
+        - "/mnt/disk3"
+        - "/mnt/disk4"
+        - "/mnt/disk5"
+        - "/mnt/disk6"
+        - "/mnt/disk7"
+        - "/mnt/disk8"
+        - "/mnt/disk9"
+        - "/mnt/disk10"
+        - "/mnt/disk11"
+        - "/mnt/disk12"
+        - "/mnt/disk13"
+        - "/mnt/parity1"
+        - "/mnt/parity2"
+        - "/mnt/storage"
+        - "/mnt/tank"
+  - name: diskio
+    options:
+      skip_serial_number: "true"
+  - name: kernel
+  - name: processes
+  - name: docker
+    options:
+      endpoint: "unix:///var/run/docker.sock"
+      perdevice: "true"
+  - name: hddtemp
+  - name: net
+    options:
+      interfaces:
+        - "eno1"
+
 # ironicbadger.ansible_role_bash_aliases
 bash_aliases:
   - { alias: "ls", command: "ls --color=auto"}
@@ -58,10 +157,12 @@ bash_aliases:
   - { alias: "zsnap", command: "zfs list -t snapshot" }
   - { alias: "dfclean", command: "df -h -x tmpfs -x zfs -t fuse.mergerfs -t xfs -t ext4"}
   - { alias: "dfzfs", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4"}
-  - { alias: "hdtemp", command: "sudo hddtemp /dev/sd[a,b,c,d,e,f,g,h,i,j,k,l,m,n]"}
+  - { alias: "hdtemp", command: "sudo hddtemp /dev/sd[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r]"}
 
 # soulpms
 docker_zfs_override: true
+extra_mountpoints:
+  - { path: "{{ data_path }}" }
 
 # soultraefik
 traefik_file_provider: true
@@ -622,52 +723,3 @@ containers:
 #    include_global_env_vars: true
 #    restart: unless-stopped
   ###
-
-## telegraf
-telegraf_plugins_base:
-  - name: mem
-  - name: system
-  - name: cpu
-    options:
-      percpu: "true"
-      totalcpu: "true"
-      collect_cpu_time: "false"
-      report_active: "false"
-  - name: disk
-    options:
-      ignore_fs:
-        - "tmpfs"
-        - "devtmpfs"
-        - "devfs"
-      mountpoints:
-        - "/"
-        - "/mnt/disk1"
-        - "/mnt/disk2"
-        - "/mnt/disk3"
-        - "/mnt/disk4"
-        - "/mnt/disk5"
-        - "/mnt/disk6"
-        - "/mnt/disk7"
-        - "/mnt/disk8"
-        - "/mnt/disk9"
-        - "/mnt/disk10"
-        - "/mnt/disk11"
-        - "/mnt/disk12"
-        - "/mnt/parity1"
-        - "/mnt/parity2"
-        - "/mnt/storage"
-        - "/mnt/tank"
-  - name: diskio
-    options:
-      skip_serial_number: "true"
-  - name: kernel
-  - name: processes
-  - name: docker
-    options:
-      endpoint: "unix:///var/run/docker.sock"
-      perdevice: "true"
-  - name: hddtemp
-  - name: net
-    options:
-      interfaces:
-        - "eno1"

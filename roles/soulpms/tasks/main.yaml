@@ -4,6 +4,11 @@
   hostname:
     name: "{{ pms_hostname }}"
 
+- name: disks
+  include: disks.yaml
+  tags:
+    - disks
+
 - name: file-sharing
   include: file-sharing.yaml
   tags:
