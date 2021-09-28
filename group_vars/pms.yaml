@@ -239,6 +239,18 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: plexmeta
+    image: meisnate12/plex-meta-manager
+    container_name: plexmeta
+    hostname: plexmeta
+    active: true
+    volumes:
+      - "{{ appdata_path }}/plexmeta/config:/config"
+    environment:
+      - PMM_TIME=01:22
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
   - service_name: tautulli
     image: ghcr.io/linuxserver/tautulli
     container_name: tautulli
