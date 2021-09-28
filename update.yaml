@@ -12,3 +12,28 @@
       package:
         name: '*'
         state: latest
+
+- hosts: pterodactyl
+  tasks:
+    - name: run self-upgrade of pterodactyl panel
+      become: true
+      command: php artisan p:upgrade
+      args:
+        chdir: /var/www/pterodactyl
+
+- hosts: wings
+  tasks:
+    - name: pull new version of pterodactyl wings
+      become: true
+      get_url: 
+        dest: /usr/local/bin/wings
+        url: https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_amd64
+        mode: '0777'
+    - name: chmod u+x the wings update
+      become: true
+      file: 
+        path: /usr/local/bin/wings
+        mode: u+x
+    - name: restart wings to apply update
+      become: true
+      command: systemctl restart wings
