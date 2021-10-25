@@ -3,7 +3,7 @@ pms:
 	ansible-playbook -b run.yaml --limit pms --ask-become-pass --vault-password-file .vault-password
 
 pcomp:
-	ansible-playbook run.yaml --limit pms --vault-password-file .vault-password --tags compose
+	ansible-playbook -b run.yaml --limit pms --ask-become-pass --vault-password-file .vault-password --tags compose
 
 ptr:
 	ansible-playbook run.yaml --limit pms --vault-password-file .vault-password --tags traefik

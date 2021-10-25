@@ -65,7 +65,6 @@ snapraid_config_excludes:
   - "/lost+found/"
   - "downloads/"
   - "appdata/"
-  - "snapshots/"
   - "*.!sync"
   - ".AppleDouble"
   - "._AppleDouble"
@@ -78,6 +77,7 @@ snapraid_config_excludes:
   - ".Trashes"
   - ".AppleDB"
   - "Proxmox/"
+  - "Backups/"
 
 fstab_mergerfs:
   - { source: "/mnt/disk*", mountpoint: "{{ data_path }}", fs: fuse.mergerfs, opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=250G,fsname=MergerFS" }  
@@ -233,9 +233,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.plex.rule=Host(`plex.{{ secret_domain_full }}`)"
-      - traefik.http.routers.plex.entrypoints=websecure
       - traefik.http.services.plex.loadbalancer.server.port=32400
-      - traefik.http.routers.plex.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -264,27 +262,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.tautulli.rule=Host(`tautulli.{{ secret_domain_full }}`)"
-      - traefik.http.routers.tautulli.entrypoints=websecure
       - traefik.http.services.tautulli.loadbalancer.server.port=8181
-      - traefik.http.routers.tautulli.tls.certresolver=cloudflare
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
-  - service_name: moviematch
-    image: lukechannings/moviematch:latest
-    container_name: moviematch
-    hostname: moviematch
-    active: true
-    environment:
-      - "PLEX_URL=https://plex.{{ secret_domain_full }}"
-      - "PLEX_TOKEN={{ secret_plex_token }}"
-      - LIBRARY_FILTER=Movies
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.moviematch.rule=Host(`match.{{ secret_domain_full }}`)"
-      - traefik.http.routers.moviematch.entrypoints=websecure
-      - traefik.http.services.moviematch.loadbalancer.server.port=8000
-      - traefik.http.routers.moviematch.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -299,9 +277,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nzbget.rule=Host(`nzbget.{{ secret_domain_full }}`)"
-      - traefik.http.routers.nzbget.entrypoints=websecure
       - traefik.http.services.nzbget.loadbalancer.server.port=6789
-      - traefik.http.routers.nzbget.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -318,9 +294,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.hydra.rule=Host(`hydra.{{ secret_domain_full }}`)"
-      - traefik.http.routers.hydra.entrypoints=websecure
       - traefik.http.services.hydra.loadbalancer.server.port=5076
-      - traefik.http.routers.hydra.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -334,9 +308,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.prowlarr.rule=Host(`prow.{{ secret_domain_full }}`)"
-      - traefik.http.routers.prowlarr.entrypoints=websecure
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
-      - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -355,9 +327,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.sonarr.entrypoints=websecure
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
-      - traefik.http.routers.sonarr.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -376,9 +346,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.radarr.rule=Host(`radarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.radarr.entrypoints=websecure
       - traefik.http.services.radarr.loadbalancer.server.port=7878
-      - traefik.http.routers.radarr.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -394,9 +362,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.bazarr.rule=Host(`bazarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.bazarr.entrypoints=websecure
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
-      - traefik.http.routers.bazarr.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -415,9 +381,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.lidarr.rule=Host(`lidarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.lidarr.entrypoints=websecure
       - traefik.http.services.lidarr.loadbalancer.server.port=8686
-      - traefik.http.routers.lidarr.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -436,9 +400,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.lib.rule=Host(`lib.{{ secret_domain_full }}`)"
-      - traefik.http.routers.lib.entrypoints=websecure
       - traefik.http.services.lib.loadbalancer.server.port=5299
-      - traefik.http.routers.lib.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -452,9 +414,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.overseerr.entrypoints=websecure
       - traefik.http.services.overseerr.loadbalancer.server.port=5055
-      - traefik.http.routers.overseerr.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -471,9 +431,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
-      - traefik.http.routers.main.entrypoints=websecure
       - traefik.http.services.main.loadbalancer.server.port=80
-      - traefik.http.routers.main.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -490,9 +448,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.graf.rule=Host(`graf.{{ secret_domain_full }}`)"
-      - traefik.http.routers.graf.entrypoints=websecure
       - traefik.http.services.graf.loadbalancer.server.port=3000
-      - traefik.http.routers.graf.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -609,9 +565,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.bitwarden.rule=Host(`vault.{{ secret_domain_full }}`)"
-      - traefik.http.routers.bitwarden.entrypoints=websecure
       - traefik.http.services.bitwarden.loadbalancer.server.port=80
-      - traefik.http.routers.bitwarden.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -674,9 +628,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nickblog.rule=Host(`blog.{{ secret_domain_full }}`)"
-      - traefik.http.routers.nickblog.entrypoints=websecure
       - traefik.http.services.nickblog.loadbalancer.server.port=2368
-      - traefik.http.routers.nickblog.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -693,9 +645,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.duplicati.rule=Host(`bdr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.duplicati.entrypoints=websecure
       - traefik.http.services.duplicati.loadbalancer.server.port=8200
-      - traefik.http.routers.duplicati.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -709,9 +659,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.grocy.rule=Host(`grocy.{{ secret_domain_full }}`)"
-      - traefik.http.routers.grocy.entrypoints=websecure
       - traefik.http.services.grocy.loadbalancer.server.port=80
-      - traefik.http.routers.grocy.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -729,9 +677,7 @@ containers:
 #    labels:
 #      - traefik.enable=true
 #      - "traefik.http.routers.XXXX.rule=Host(`XXXX.{{ secret_domain_full }}`)"
-#      - traefik.http.routers.XXXX.entrypoints=websecure
 #      - traefik.http.services.XXXX.loadbalancer.server.port=XXXX
-#      - traefik.http.routers.XXXX.tls.certresolver=cloudflare
 #    include_global_env_vars: true
 #    restart: unless-stopped
   ###

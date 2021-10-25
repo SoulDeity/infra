@@ -1,19 +1,11 @@
 http:
   routers:
     router-homeassistant:
-      entryPoints:
-        - websecure
       rule: "Host(`home.{{ secret_domain_full }}`)"
       service: service-homeassistant
-      tls:
-        certResolver: cloudflare
     router-guac:
-      entryPoints:
-        - websecure
       rule: "Host(`guac.{{ secret_domain_full }}`)"
       service: service-guac
-      tls:
-        certResolver: cloudflare
   services:
     service-homeassistant:
       loadBalancer:
