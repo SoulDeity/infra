@@ -4,6 +4,7 @@ libraries:
           - git: meisnate12/AnimeCharts
     Children Movies:
         metadata_path:
+          - file: config/movies.yml
           - git: meisnate12/IMDBGenres
           - git: meisnate12/MovieCharts
           - git: meisnate12/Movies
@@ -18,6 +19,7 @@ libraries:
           - git: meisnate12/Networks
     Movies:
         metadata_path:
+          - file: config/movies.yml
           - git: meisnate12/IMDBGenres
           - git: meisnate12/MovieCharts
           - git: meisnate12/Movies
@@ -51,12 +53,6 @@ plex:
     clean_bundles: true
     empty_trash: true
     optimize: false
-tautulli:
-    url: {{ plexmm_tautulli_url }}
-    apikey: {{ secret_tautulli_api }}
-tmdb:
-    apikey: {{ plexmm_tmdb_apikey }}
-    language: en
 trakt:
   client_id: {{ plexmm_trakt_clientid }}
   client_secret: {{ plexmm_trakt_clientsecret }}
@@ -65,5 +61,8 @@ trakt:
     token_type:
     expires_in:
     refresh_token:
-    scope:
+    scope: public
     created_at:
+tmdb:
+    apikey: {{ plexmm_tmdb_apikey }}
+    language: en
