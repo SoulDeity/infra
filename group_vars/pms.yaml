@@ -58,7 +58,7 @@ snapraid_data_disks:
   - { path: /mnt/disk12, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ2YGG-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/disk13, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part1, fs: xfs, opts: defaults, content: false }
 snapraid_content_files:
-  - path: /mnt/tank/fuse/documents/snapraid.content
+  - path: /mnt/tank/fuse/documents/.snapraid.content
 snapraid_config_excludes:
   - "*.unrecoverable"
   - "/tmp/"
@@ -148,7 +148,7 @@ bash_aliases:
   - { alias: "dstop", command: "docker stop `docker ps -aq`" }
   - { alias: "drm", command: "docker rm `docker ps -aq`" }
   - { alias: "dcp", command: "docker-compose -f ~/docker-compose.yml "}
-  - { alias: "dcporph", command: "docker-compose -f ~/docker-compose.yml --remove-orphans "}
+  - { alias: "dcporph", command: "docker-compose -f ~/docker-compose.yml up -d --remove-orphans"}
   - { alias: "dprune", command: "docker image prune" }
   - { alias: "dprunesys", command: "docker system prune --all" }
   - { alias: "dtop", command: "docker run --name ctop  -it --rm -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop"}
@@ -653,7 +653,7 @@ containers:
     image: ghcr.io/linuxserver/grocy
     container_name: grocy
     hostname: grocy
-    active: true
+    active: false
     volumes:
       - "{{ appdata_path }}/grocy:/config"
     labels:
