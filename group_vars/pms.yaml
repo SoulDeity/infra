@@ -404,6 +404,25 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: readarr
+    image: lscr.io/linuxserver/readarr:nightly
+    container_name: readarr
+    hostname: readarr
+    active: true
+    depends_on:
+      - nzbget
+      - prowlarr
+    volumes:
+      - "{{ appdata_path }}/readarr:/config"
+      - "{{ download_path }}:/downloads"
+      - "{{ data_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.readarr.rule=Host(`readarr.{{ secret_domain_full }}`)"
+      - traefik.http.services.readarr.loadbalancer.server.port=8787
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
   - service_name: overseerr
     image: ghcr.io/linuxserver/overseerr
     container_name: overseerr
@@ -653,7 +672,7 @@ containers:
     image: ghcr.io/linuxserver/grocy
     container_name: grocy
     hostname: grocy
-    active: false
+    active: true
     volumes:
       - "{{ appdata_path }}/grocy:/config"
     labels:
