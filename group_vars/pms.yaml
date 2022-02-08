@@ -156,7 +156,7 @@ bash_aliases:
   - { alias: "zspace", command: "zfs list -o space" }
   - { alias: "zsnap", command: "zfs list -t snapshot" }
   - { alias: "dfclean", command: "df -h -x tmpfs -x zfs -t fuse.mergerfs -t xfs -t ext4"}
-  - { alias: "dfzfs", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4"}
+  - { alias: "dffull", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4 -t zfs"}
   - { alias: "hdtemp", command: "sudo hddtemp /dev/sd[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r]"}
 
 # soulpms
@@ -679,6 +679,20 @@ containers:
       - traefik.enable=true
       - "traefik.http.routers.grocy.rule=Host(`grocy.{{ secret_domain_full }}`)"
       - traefik.http.services.grocy.loadbalancer.server.port=80
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: mealie
+    image: hkotel/mealie
+    container_name: mealie
+    hostname: mealie
+    active: true
+    volumes:
+      - "{{ appdata_path }}/mealie:/app/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.mealie.rule=Host(`mealie.{{ secret_domain_full }}`)"
+      - traefik.http.services.mealie.loadbalancer.server.port=80
     include_global_env_vars: true
     restart: unless-stopped
   ###
