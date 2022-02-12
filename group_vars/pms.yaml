@@ -281,23 +281,6 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
-  - service_name: nzbhydra 
-    image: ghcr.io/linuxserver/nzbhydra2
-    container_name: nzbhydra
-    hostname: nzbhydra
-    active: true
-    depends_on:
-      - nzbget
-    volumes:
-      - "{{ appdata_path }}/nzbhydra:/config"
-      - "{{ download_path }}:/downloads"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.hydra.rule=Host(`hydra.{{ secret_domain_full }}`)"
-      - traefik.http.services.hydra.loadbalancer.server.port=5076
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
   - service_name: prowlarr
     image: ghcr.io/linuxserver/prowlarr:develop
     container_name: prowlarr
@@ -319,7 +302,7 @@ containers:
     active: true
     depends_on:
       - nzbget
-      - nzbhydra
+      - prowlarr
     volumes:
       - "{{ appdata_path }}/sonarr:/config"
       - "{{ download_path }}:/downloads"
@@ -338,7 +321,7 @@ containers:
     active: true
     depends_on:
       - nzbget
-      - nzbhydra
+      - prowlarr
     volumes:
       - "{{ appdata_path }}/radarr:/config"
       - "{{ download_path }}:/downloads"
@@ -373,7 +356,7 @@ containers:
     active: true
     depends_on:
       - nzbget
-      - nzbhydra
+      - prowlarr
     volumes:
       - "{{ appdata_path }}/lidarr:/config"
       - "{{ download_path }}:/downloads"
@@ -382,25 +365,6 @@ containers:
       - traefik.enable=true
       - "traefik.http.routers.lidarr.rule=Host(`lidarr.{{ secret_domain_full }}`)"
       - traefik.http.services.lidarr.loadbalancer.server.port=8686
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
-  - service_name: lazylibrarian
-    image: ghcr.io/linuxserver/lazylibrarian
-    container_name: lazylibrarian
-    hostname: lazylibrarian
-    active: true
-    depends_on:
-      - nzbget
-      - nzbhydra
-    volumes:
-      - "{{ appdata_path }}/lazylibrarian:/config"
-      - "{{ download_path }}:/downloads"
-      - "{{ data_path }}:/data"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.lib.rule=Host(`lib.{{ secret_domain_full }}`)"
-      - traefik.http.services.lib.loadbalancer.server.port=5299
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -665,20 +629,6 @@ containers:
       - traefik.enable=true
       - "traefik.http.routers.duplicati.rule=Host(`bdr.{{ secret_domain_full }}`)"
       - traefik.http.services.duplicati.loadbalancer.server.port=8200
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
-  - service_name: grocy
-    image: ghcr.io/linuxserver/grocy
-    container_name: grocy
-    hostname: grocy
-    active: true
-    volumes:
-      - "{{ appdata_path }}/grocy:/config"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.grocy.rule=Host(`grocy.{{ secret_domain_full }}`)"
-      - traefik.http.services.grocy.loadbalancer.server.port=80
     include_global_env_vars: true
     restart: unless-stopped
   ###
