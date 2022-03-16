@@ -337,7 +337,7 @@ containers:
     image: ghcr.io/linuxserver/bazarr
     container_name: bazarr
     hostname: bazarr
-    active: true
+    active: false
     volumes:
       - "{{ appdata_path }}/bazarr:/config"
       - "{{ download_path }}:/downloads"
@@ -353,7 +353,7 @@ containers:
     image: ghcr.io/linuxserver/lidarr:develop
     container_name: lidarr
     hostname: lidarr
-    active: true
+    active: false
     depends_on:
       - nzbget
       - prowlarr
@@ -563,6 +563,8 @@ containers:
     volumes:
       - "{{ appdata_path }}/nextcloud:/config"
       - "{{ appdata_path }}/nextcloud/data:/data"
+    environment:
+      - DOCKER_MODS=theorangeone/lsio-mod-more-processes:latest
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nextcloud.rule=Host(`drive.{{ secret_domain_full }}`)"
