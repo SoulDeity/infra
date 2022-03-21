@@ -36,6 +36,8 @@
       - role: ironicbadger.ansible_role_snapraid
       - role: soulplexmeta
         tags: compose
+      - role: soulrestic
+        tags: restic
 
 # soulbastion
   - hosts: bastion

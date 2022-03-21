@@ -8,6 +8,9 @@ pcomp:
 ptr:
 	ansible-playbook run.yaml --limit pms --vault-password-file .vault-password --tags traefik
 
+prestic:
+	ansible-playbook -b run.yaml --limit pms --ask-become-pass --vault-password-file .vault-password --tags restic
+
 bastion:
 	ansible-playbook -b run.yaml --limit bastion --ask-become-pass --vault-password-file .vault-password
 

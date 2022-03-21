@@ -169,6 +169,15 @@ traefik_file_provider: true
 traefik_enable_dashboard: false #defaults to false
 traefik_insecure_transport: true #defaults to false
 
+# soulrestic
+restic_backup_locations:
+  - /mnt/tank
+restic_backup_excludes: #defaults to blank
+  - /mnt/tank/appdata/duplicati
+  - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Cache
+  - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Media
+restic_forget: false #defaults to false
+
 # ironicbadger.docker_compose_generator
 appdata_path: /mnt/tank/appdata
 download_path: /mnt/storage/downloads
@@ -621,7 +630,7 @@ containers:
     image: ghcr.io/linuxserver/duplicati
     container_name: duplicati
     hostname: duplicati
-    active: true
+    active: false
     volumes:
       - "{{ appdata_path }}/duplicati:/config"
       - "{{ data_path }}/Backups:/backups"
