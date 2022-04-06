@@ -41,12 +41,12 @@ package_list:
 # ironicbadger.snapraid
 snapraid_bin_path: /usr/bin/snapraid
 snapraid_parity_disks:
-  - { path: /mnt/parity1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9MDTZ-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/parity2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/parity1, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9LJ0AGVG-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/parity2, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MHSD18U-part1, fs: xfs, opts: defaults, content: false }
 snapraid_data_disks:
   - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJNRD5W-part1, fs: xfs, opts: defaults, content: true }
   - { path: /mnt/disk2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SH07NTC-part1, fs: xfs, opts: defaults, content: true }
-  - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults, content: true }
+  - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK2T1W-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJZ2AW-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/disk6, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ6LEG-part1, fs: xfs, opts: defaults, content: false }
@@ -57,6 +57,9 @@ snapraid_data_disks:
   - { path: /mnt/disk11, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/disk12, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ2YGG-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/disk13, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk14, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9MDTZ-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk15, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults, content: false }
+  - { path: /mnt/disk16, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MH5L4GK-part1, fs: xfs, opts: defaults, content: true }
 snapraid_content_files:
   - path: /mnt/tank/fuse/documents/.snapraid.content
 snapraid_config_excludes:
@@ -118,6 +121,9 @@ telegraf_plugins_base:
         - "/mnt/disk11"
         - "/mnt/disk12"
         - "/mnt/disk13"
+        - "/mnt/disk14"
+        - "/mnt/disk15"
+        - "/mnt/disk16"
         - "/mnt/parity1"
         - "/mnt/parity2"
         - "/mnt/storage"
@@ -411,7 +417,7 @@ containers:
     restart: unless-stopped
   ###
   - service_name: organizr
-    image: organizr/organizr
+    image: ghcr.io/organizr/organizr
     container_name: organizr
     hostname: organizr
     active: true
@@ -424,6 +430,7 @@ containers:
       - traefik.enable=true
       - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
       - traefik.http.services.main.loadbalancer.server.port=80
+      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=128000
     include_global_env_vars: true
     restart: unless-stopped
   ###
