@@ -79,6 +79,7 @@ snapraid_config_excludes:
   - ".TemporaryItems"
   - ".Trashes"
   - ".AppleDB"
+  - ".nfo"
   - "Proxmox/"
   - "Backups/"
 
@@ -662,6 +663,31 @@ containers:
       - "traefik.http.routers.mealie.rule=Host(`mealie.{{ secret_domain_full }}`)"
       - traefik.http.services.mealie.loadbalancer.server.port=80
     include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: web_recipes
+    image: vabene1111/recipes
+    active: true
+    volumes:
+      - "{{ appdata_path }}/tandoor/static:/opt/recipes/staticfiles"
+      - "{{ appdata_path }}/tandoor/media:/opt/recipes/mediafiles"
+    env_file:
+      - "{{ appdata_path }}/tandoor/docker/.env"
+    depends_on:
+      - db_recipes
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.tandoor.rule=Host(`recipes.{{ secret_domain_full }}`)"
+      - traefik.http.services.tandoor.loadbalancer.server.port=8080
+    restart: unless-stopped
+  ###
+  - service_name: db_recipes
+    image: postgres:11-alpine
+    active: true
+    volumes:
+      - "{{ appdata_path }}/tandoor/db:/var/lib/postgresql/data"
+    env_file:
+      - "{{ appdata_path }}/tandoor/docker/.env"
     restart: unless-stopped
   ###
 

@@ -22,18 +22,18 @@
       - role: geerlingguy.docker
       - role: grog.package
       - role: rossmcdonald.telegraf
-      - role: ironicbadger.ansible_role_hddtemp
-      - role: ironicbadger.ansible_role_proxmox_nag_removal
-      - role: ironicbadger.ansible_role_bash_aliases
+      - role: ironicbadger.hddtemp
+      - role: ironicbadger.proxmox_nag_removal
+      - role: ironicbadger.bash_aliases
       - role: soulfigurine
       - role: soulboot
       - role: soulpms
       - role: soulzfs
-      - role: ironicbadger.ansible_role_docker_compose_generator
+      - role: ironicbadger.docker_compose_generator
         tags: compose
       - role: soultraefik
         tags: traefik
-      - role: ironicbadger.ansible_role_snapraid
+      - role: ironicbadger.snapraid
       - role: soulplexmeta
         tags: compose
       - role: soulrestic
@@ -47,5 +47,5 @@
       - role: geerlingguy.security
       - role: geerlingguy.docker
       - role: soulfigurine
-      - role: ironicbadger.ansible_role_docker_compose_generator
+      - role: ironicbadger.docker_compose_generator
         tags: compose
