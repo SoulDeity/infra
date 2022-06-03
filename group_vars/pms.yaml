@@ -616,6 +616,27 @@ containers:
       - "{{ appdata_path }}/redis/nextcloud:/data"
     restart: unless-stopped
   ###
+  - service_name: paperless
+    image: ghcr.io/linuxserver/paperless-ngx
+    container_name: paperless
+    hostname: paperless
+    active: true
+    volumes:
+      - "{{ appdata_path }}/paperless/config:/config"
+      - "{{ appdata_path }}/paperless/data:/data"
+    environment:
+      - "PAPERLESS_SECRET_KEY={{ secret_paperless_key }}"
+      - "PAPERLESS_URL=https://paperless.{{ secret_domain_full }}"
+      - "PAPERLESS_TZ={{ ntp_timezone }}"
+      - PAPERLESS_FILENAME_FORMAT="{created_year}/{correspondent}/{created} {title}"
+      - PAPERLESS_CONSUMER_RECURSIVE=true
+      - PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS=true
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.paperless.rule=Host(`paperless.{{ secret_domain_full }}`)"
+      - traefik.http.services.paperless.loadbalancer.server.port=8000
+    include_global_env_vars: true
+    restart: unless-stopped
   - service_name: nick-blog
     image: ghost
     container_name: nick-blog
