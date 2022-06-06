@@ -1,0 +1,12 @@
+  ###
+  - service_name: influxdb
+    image: influxdb:1.8
+    container_name: influxdb
+    hostname: influxdb
+    active: true
+    volumes:
+      - "{{ appdata_path }}/influxdb:/var/lib/influxdb"
+    ports:
+      - "8086:8086"
+    include_global_env_vars: true
+    restart: unless-stopped

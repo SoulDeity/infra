@@ -1,0 +1,17 @@
+  ###
+  - service_name: grafana
+    image: grafana/grafana
+    container_name: grafana
+    hostname: grafana
+    active: true
+    depends_on:
+      - influxdb
+      - varken
+    volumes:
+      - "{{ appdata_path }}/grafana:/var/lib/grafana"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.graf.rule=Host(`graf.{{ secret_domain_full }}`)"
+      - traefik.http.services.graf.loadbalancer.server.port=3000
+    include_global_env_vars: true
+    restart: unless-stopped

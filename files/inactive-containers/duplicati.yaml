@@ -1,0 +1,17 @@
+  ###
+  - service_name: duplicati
+    image: ghcr.io/linuxserver/duplicati
+    container_name: duplicati
+    hostname: duplicati
+    active: false
+    volumes:
+      - "{{ appdata_path }}/duplicati:/config"
+      - "{{ data_path }}/Backups:/backups"
+      - "{{ data_path }}:/source/storage"
+      - /mnt/tank:/source/tank
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.duplicati.rule=Host(`bdr.{{ secret_domain_full }}`)"
+      - traefik.http.services.duplicati.loadbalancer.server.port=8200
+    include_global_env_vars: true
+    restart: unless-stopped
