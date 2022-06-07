@@ -383,6 +383,21 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: audiobookshelf
+    image: ghcr.io/advplyr/audiobookshelf
+    container_name: audiobookshelf
+    hostname: audiobookshelf
+    active: true
+    volumes:
+      - "{{ appdata_path }}/audiobookshelf/metadata:/metadata"
+      - "{{ appdata_path }}/audiobookshelf/config:/config"
+      - "{{ data_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.audiobookshelf.rule=Host(`abs.{{ secret_domain_full }}`)"
+      - traefik.http.services.audiobookshelf.loadbalancer.server.port=80
+    restart: unless-stopped
+  ###
   - service_name: readarr
     image: lscr.io/linuxserver/readarr:nightly
     container_name: readarr
