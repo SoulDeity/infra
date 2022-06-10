@@ -1,0 +1,16 @@
+  ###
+  - service_name: bazarr
+    image: ghcr.io/linuxserver/bazarr
+    container_name: bazarr
+    hostname: bazarr
+    active: true
+    volumes:
+      - "{{ appdata_path }}/bazarr:/config"
+      - "{{ download_path }}:/downloads"
+      - "{{ data_path }}:/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.bazarr.rule=Host(`bazarr.{{ secret_domain_full }}`)"
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+    include_global_env_vars: true
+    restart: unless-stopped

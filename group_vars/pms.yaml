@@ -348,41 +348,6 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
-  - service_name: bazarr
-    image: ghcr.io/linuxserver/bazarr
-    container_name: bazarr
-    hostname: bazarr
-    active: false
-    volumes:
-      - "{{ appdata_path }}/bazarr:/config"
-      - "{{ download_path }}:/downloads"
-      - "{{ data_path }}:/data"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.bazarr.rule=Host(`bazarr.{{ secret_domain_full }}`)"
-      - traefik.http.services.bazarr.loadbalancer.server.port=6767
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
-  - service_name: lidarr
-    image: ghcr.io/linuxserver/lidarr:develop
-    container_name: lidarr
-    hostname: lidarr
-    active: false
-    depends_on:
-      - nzbget
-      - prowlarr
-    volumes:
-      - "{{ appdata_path }}/lidarr:/config"
-      - "{{ download_path }}:/downloads"
-      - "{{ data_path }}:/data"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.lidarr.rule=Host(`lidarr.{{ secret_domain_full }}`)"
-      - traefik.http.services.lidarr.loadbalancer.server.port=8686
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
   - service_name: audiobookshelf
     image: ghcr.io/advplyr/audiobookshelf
     container_name: audiobookshelf
