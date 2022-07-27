@@ -17,6 +17,9 @@ bastion:
 bcomp:
 	ansible-playbook run.yaml --limit bastion --vault-password-file .vault-password --tags compose
 
+nut:
+	ansible-playbook -b run.yaml --limit nut --ask-become-pass --vault-password-file .vault-password
+
 ### Updates
 update:
 	ansible-playbook update.yaml --limit servers --ask-become-pass --vault-password-file .vault-password

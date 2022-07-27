@@ -6,10 +6,10 @@
 - src: grog.package
 - src: rossmcdonald.telegraf
 - src: ironicbadger.docker_compose_generator
-- src: ironicbadger.role_bash_aliases
+- src: ironicbadger.bash_aliases
 - src: ironicbadger.hddtemp
 - src: ironicbadger.snapraid
 - src: ironicbadger.proxmox_nag_removal
+- src: ntd.nut
 
-- src: ironicbadger.ansible_users
 - src: weareinteractive.environment

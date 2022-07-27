@@ -1,0 +1,31 @@
+---
+nut_ip: 192.168.1.150
+nut_hostname: soulnut
+
+# soulfigurine
+figurine_name: "{{ nut_hostname }}"
+
+# ntd.nut
+nut_mode: netserver
+nut_host: localhost
+nut_user: SoulDeity
+nut_password: "{{ secret_soulnut_pass }}"
+nut_role: master
+nut_packages:
+  - nut-client
+  - nut-server
+nut_services:
+  - nut-driver
+  - nut-server
+nut_ups:
+  - name: CyberPower
+    driver: usbhid-ups
+    device: auto
+    description: CyberPower 1500 UPS
+nut_ups_extra: |
+  pollinterval = 1
+  maxretry = 3
+nut_upsd_extra: |
+  LISTEN 0.0.0.0 3493
+nut_upsmon_extra: |
+  RUN_AS_USER root
