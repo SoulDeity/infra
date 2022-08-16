@@ -2,7 +2,7 @@
 target_os: debian
 bastion_hostname: soulbastion
 
-# soulfigurine
+# ironicbadger.figurine
 figurine_name: "{{ bastion_hostname }}"
 
 # grog.package

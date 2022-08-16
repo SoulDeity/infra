@@ -21,11 +21,11 @@
     roles:
       - role: geerlingguy.docker
       - role: grog.package
-      - role: rossmcdonald.telegraf
+      #- role: rossmcdonald.telegraf
       - role: ironicbadger.hddtemp
       - role: ironicbadger.proxmox_nag_removal
       - role: ironicbadger.bash_aliases
-      - role: soulfigurine
+      - role: ironicbadger.figurine
       - role: soulboot
       - role: soulpms
       - role: soulzfs
@@ -47,7 +47,7 @@
     roles:
       - role: geerlingguy.security
       - role: geerlingguy.docker
-      - role: soulfigurine
+      - role: ironicbadger.figurine
       - role: ironicbadger.docker_compose_generator
         tags: compose
 
@@ -57,6 +57,6 @@
       - 'vars/vault.yaml'
     roles:
       - role: ironicbadger.bash_aliases
-      - role: soulfigurine
+      - role: ironicbadger.figurine
       - role: soulboot
       - role: ntd.nut

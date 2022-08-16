@@ -2,7 +2,7 @@
 nut_ip: 192.168.1.150
 nut_hostname: soulnut
 
-# soulfigurine
+# ironicbadger.figurine
 figurine_name: "{{ nut_hostname }}"
 
 # ntd.nut

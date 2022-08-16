@@ -2,7 +2,7 @@
 pms_ip: 192.168.1.253
 pms_hostname: soulpms
 
-# soulfigurine
+# ironicbadger.figurine
 figurine_name: "{{ pms_hostname }}"
 
 # grog.package
