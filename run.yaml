@@ -20,6 +20,7 @@
       - 'vars/vault.yaml'
     roles:
       - role: geerlingguy.docker
+      - role: artis3n.tailscale
       - role: grog.package
       #- role: rossmcdonald.telegraf
       - role: ironicbadger.hddtemp
@@ -67,6 +68,7 @@
       - 'vars/vault.yaml'
     roles:
       - role: geerlingguy.docker_arm
+      - role: artis3n.tailscale
       - role: grog.package
       - role: ironicbadger.bash_aliases
       - role: ironicbadger.figurine
