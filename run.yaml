@@ -60,3 +60,15 @@
       - role: ironicbadger.figurine
       - role: soulboot
       - role: ntd.nut
+
+# soulnet
+  - hosts: net
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: geerlingguy.docker_arm
+      - role: grog.package
+      - role: ironicbadger.bash_aliases
+      - role: ironicbadger.figurine
+      - role: soulboot
+      - role: ironicbadger.docker_compose_generator

@@ -1,0 +1,60 @@
+---
+net_ip: 192.168.1.151
+net_hostname: soulnet
+main_username: souldeity
+
+# ironicbadger.figurine
+figurine_name: "{{ net_hostname }}"
+
+# grog.package
+package_list:
+  - name: pip
+
+# ironicbadger.docker_compose_generator
+appdata_path: "/home/{{ main_username }}/appdata"
+containers:
+###
+  - service_name: adguardhome
+    image: adguard/adguardhome
+    container_name: adguardhome
+    hostname: adguardhome
+    active: true
+    volumes:
+      - "{{ appdata_path }}/adguardhome/work:/opt/adguardhome/work"
+      - "{{ appdata_path }}/adguardhome/config:/opt/adguardhome/conf"
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 80:80/tcp
+      - 443:443/tcp
+      - 443:443/udp
+      - 3000:3000
+    include_global_env_vars: false
+    restart: unless-stopped
+  ###
+  - service_name: smokeping
+    image: ghcr.io/linuxserver/smokeping
+    container_name: smokeping
+    hostname: smokeping
+    active: true
+    volumes:
+      - "{{ appdata_path }}/smokeping/config:/config"
+      - "{{ appdata_path }}/smokeping/data:/data"
+    ports:
+      - "81:80"
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: librespeed
+    image: ghcr.io/linuxserver/librespeed
+    container_name: librespeed
+    hostname: librespeed
+    active: false
+    environment:
+      - MODE=standalone
+      - TELEMETRY=true
+      - "PASSWORD={{ secret_librespeed_pass }}"
+    ports:
+      - "82:80"
+    include_global_env_vars: true
+    restart: unless-stopped

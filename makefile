@@ -20,6 +20,9 @@ bcomp:
 nut:
 	ansible-playbook -b run.yaml --limit nut --ask-become-pass --vault-password-file .vault-password
 
+net:
+	ansible-playbook -b run.yaml --limit net --ask-become-pass --vault-password-file .vault-password
+
 ### Updates
 update:
 	ansible-playbook update.yaml --limit servers --ask-become-pass --vault-password-file .vault-password

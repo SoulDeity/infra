@@ -519,35 +519,6 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
-  - service_name: smokeping
-    image: ghcr.io/linuxserver/smokeping
-    container_name: smokeping
-    hostname: smokeping
-    active: true
-    volumes:
-      - "{{ appdata_path }}/smokeping/config:/config"
-      - "{{ appdata_path }}/smokeping/data:/data"
-    ports:
-      - "8008:80"
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
-  - service_name: librespeed
-    image: ghcr.io/linuxserver/librespeed
-    container_name: librespeed
-    hostname: librespeed
-    active: true
-    environment:
-      - MODE=standalone
-      - TELEMETRY=true
-      - "PASSWORD={{ secret_librespeed_pass }}"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.librespeed.rule=Host(`speed.{{ secret_domain_full }}`)"
-      - traefik.http.services.librespeed.loadbalancer.server.port=80
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
   - service_name: bitwarden
     image: vaultwarden/server
     container_name: bitwarden
