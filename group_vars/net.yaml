@@ -8,7 +8,9 @@ figurine_name: "{{ net_hostname }}"
 
 # grog.package
 package_list:
+  - name: dnsutils
   - name: pip
+  - name: unbound # https://docs.pi-hole.net/guides/dns/unbound/
 
 # ironicbadger.docker_compose_generator
 appdata_path: "/home/{{ main_username }}/appdata"
