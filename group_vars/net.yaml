@@ -21,16 +21,10 @@ containers:
     container_name: adguardhome
     hostname: adguardhome
     active: true
+    network_mode: host
     volumes:
       - "{{ appdata_path }}/adguardhome/work:/opt/adguardhome/work"
       - "{{ appdata_path }}/adguardhome/config:/opt/adguardhome/conf"
-    ports:
-      - 53:53/tcp
-      - 53:53/udp
-      - 80:80/tcp
-      - 443:443/tcp
-      - 443:443/udp
-      - 3000:3000
     include_global_env_vars: false
     restart: unless-stopped
   ###
