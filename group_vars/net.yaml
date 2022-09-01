@@ -32,7 +32,7 @@ containers:
     image: ghcr.io/linuxserver/smokeping
     container_name: smokeping
     hostname: smokeping
-    active: true
+    active: false
     volumes:
       - "{{ appdata_path }}/smokeping/config:/config"
       - "{{ appdata_path }}/smokeping/data:/data"
