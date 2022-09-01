@@ -15,7 +15,7 @@ appdata_path: /home/souldeity/appdata
 containers:
 ###
   - service_name: wireguard
-    image: linuxserver/wireguard
+    image: ghcr.io/linuxserver/wireguard
     container_name: wireguard
     hostname: wireguard
     active: true
@@ -24,9 +24,10 @@ containers:
       - /lib/modules:/lib/modules
       - /usr/src:/usr/src
     environment:
-      - "PEERS=fold3 1400-L soullaptop"
       - "SERVERURL={{ secret_wireguard_url }}"
       - "SERVERPORT={{ secret_wireguard_port }}"
+      - "PEERS=2"
+      - "PEERDNS=auto"
       - "ALLOWEDIPS=0.0.0.0/0"
     cap_add:
       - NET_ADMIN
@@ -42,7 +43,7 @@ containers:
     image: jasonbean/guacamole
     container_name: guac
     hostname: guac
-    active: true
+    active: false
     volumes:
       - "{{ appdata_path }}/guacamole:/config"
     environment:
