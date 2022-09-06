@@ -586,26 +586,40 @@ containers:
     restart: unless-stopped
   ###
   - service_name: paperless
-    image: ghcr.io/linuxserver/paperless-ngx
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
     container_name: paperless
     hostname: paperless
     active: true
+    depends_on:
+      - pl-redis
     volumes:
-      - "{{ appdata_path }}/paperless/config:/config"
-      - "{{ appdata_path }}/paperless/data:/data"
+      - "{{ appdata_path }}/paperless/config:/usr/src/paperless/data"
+      - "{{ appdata_path }}/paperless/data/media:/usr/src/paperless/media"
+      - "{{ appdata_path }}/paperless/data/consume:/usr/src/paperless/consume"
+      - "{{ appdata_path }}/paperless/data/export:/usr/src/paperless/export"
     environment:
       - "PAPERLESS_SECRET_KEY={{ secret_paperless_key }}"
       - "PAPERLESS_URL=https://paperless.{{ secret_domain_full }}"
-      - "PAPERLESS_TZ={{ ntp_timezone }}"
+      - "PAPERLESS_TIME_ZONE={{ ntp_timezone }}"
       - PAPERLESS_FILENAME_FORMAT="{created_year}/{correspondent}/{created} {title}"
       - PAPERLESS_CONSUMER_RECURSIVE=true
       - PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS=true
+      - PAPERLESS_REDIS=redis://pl-redis:6379
     labels:
       - traefik.enable=true
       - "traefik.http.routers.paperless.rule=Host(`paperless.{{ secret_domain_full }}`)"
       - traefik.http.services.paperless.loadbalancer.server.port=8000
-    include_global_env_vars: true
+    include_global_env_vars: false
     restart: unless-stopped
+  - service_name: pl-redis
+    image: redis:6.0
+    container_name: pl-redis
+    hostname: pl-redis
+    active: true
+    volumes:
+      - "{{ appdata_path }}/redis/paperless:/data"
+    restart: unless-stopped
+  ###
   - service_name: nick-blog
     image: ghost
     container_name: nick-blog
