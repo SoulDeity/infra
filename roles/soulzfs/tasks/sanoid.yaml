@@ -30,6 +30,7 @@
     dest: /etc/sanoid/sanoid.defaults.conf
     state: link
   become: true
+  ignore_errors: true
 
 - name: Install executables
   file:
@@ -42,12 +43,15 @@
     - findoid
     - sleepymutex
   become: true
+  ignore_errors: true
 
-- name: Install config
+- name: Configure sanoid
   template:
     src: files/sanoid.conf
     dest: /etc/sanoid/sanoid.conf
-    mode: "0755"
+    owner: root
+    group: root
+    mode: "0644"
   become: true
 
 - name: Install systemd services

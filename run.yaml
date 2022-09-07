@@ -28,18 +28,20 @@
       - role: ironicbadger.bash_aliases
       - role: ironicbadger.figurine
       - role: soulboot
-      - role: soulpms
       - role: soulzfs
+        tags: replication
+      - role: soulpms
       - role: ntd.nut
+        tags: nut
       - role: ironicbadger.docker_compose_generator
         tags: compose
       - role: soultraefik
-        tags: traefik
+        tags: compose
       - role: ironicbadger.snapraid
       - role: soulplexmeta
         tags: compose
       - role: soulrestic
-        tags: restic
+        tags: replication
 
 # soulbastion
   - hosts: bastion
