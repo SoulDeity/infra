@@ -8,6 +8,8 @@ Massive credit to [Ironicbadger](https://github.com/IronicBadger/infra), [FuzzyM
 
 Playbooks assume user has SSH with SSH Keys access from the Ansible Host to each VM/Host.
 
+Ansible [integrates](https://theorangeone.net/posts/ansible-vault-bitwarden/) with Bitwarden through its [CLI](https://bitwarden.com/help/article/cli/).
+
 ## Playbooks
 
 `run.yaml` - Main playbook that configures my servers (currently only SoulPMS and SoulBastion), reference the makefile for specific commands.

@@ -1,31 +1,31 @@
 ### Servers
 pms:
-	ansible-playbook -b run.yaml --limit pms --ask-become-pass --vault-password-file .vault-password
+	ansible-playbook -b run.yaml --limit pms --ask-become-pass
 
 pcomp:
-	ansible-playbook -b run.yaml --limit pms --ask-become-pass --vault-password-file .vault-password --tags compose
+	ansible-playbook -b run.yaml --limit pms --ask-become-pass --tags compose
 
 prepl:
-	ansible-playbook -b run.yaml --limit pms --ask-become-pass --vault-password-file .vault-password --tags replication
+	ansible-playbook -b run.yaml --limit pms --ask-become-pass --tags replication
 
 bastion:
-	ansible-playbook -b run.yaml --limit bastion --ask-become-pass --vault-password-file .vault-password
+	ansible-playbook -b run.yaml --limit bastion --ask-become-pass
 
 bcomp:
-	ansible-playbook run.yaml --limit bastion --vault-password-file .vault-password --tags compose
+	ansible-playbook run.yaml --limit bastion --tags compose
 
 nut:
-	ansible-playbook -b run.yaml --limit nut --ask-become-pass --vault-password-file .vault-password
+	ansible-playbook -b run.yaml --limit nut --ask-become-pass
 
 net:
-	ansible-playbook -b run.yaml --limit net --ask-become-pass --vault-password-file .vault-password
+	ansible-playbook -b run.yaml --limit net --ask-become-pass
 
 ### Updates
 update:
-	ansible-playbook update.yaml --limit servers --ask-become-pass --vault-password-file .vault-password
+	ansible-playbook update.yaml --limit servers --ask-become-pass
 
 docker:
-	ansible-playbook docker.yaml --vault-password-file .vault-password
+	ansible-playbook docker.yaml
 
 reqs:
 	ansible-galaxy install -r requirements.yaml
@@ -35,10 +35,10 @@ forcereqs:
 
 ### Vault
 decrypt:
-	ansible-vault decrypt --vault-password-file .vault-password vars/vault.yaml
+	ansible-vault decrypt vars/vault.yaml
 
 encrypt:
-	ansible-vault encrypt --vault-password-file .vault-password vars/vault.yaml
+	ansible-vault encrypt vars/vault.yaml
 
 ### Git
 gitinit:
