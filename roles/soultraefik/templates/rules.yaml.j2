@@ -3,15 +3,8 @@ http:
     router-homeassistant:
       rule: "Host(`home.{{ secret_domain_full }}`)"
       service: service-homeassistant
-    router-guac:
-      rule: "Host(`guac.{{ secret_domain_full }}`)"
-      service: service-guac
   services:
     service-homeassistant:
       loadBalancer:
         servers:
         - url: "http://192.168.1.114:8123"
-    service-guac:
-      loadBalancer:
-        servers:
-        - url: "http://192.168.1.101:8080"

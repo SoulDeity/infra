@@ -261,6 +261,29 @@ extra_mountpoints:
 traefik_file_provider: true
 traefik_enable_dashboard: false #defaults to false
 traefik_insecure_transport: true #defaults to false
+traefik_exposed_by_default: false
+
+## soulauthelia
+authelia_users:
+  - username: "{{ authelia_username }}"
+    displayname: "{{ authelia_displayname }}"
+    # docker run authelia/authelia:latest authelia hash-password 'yourpassword'
+    password: "{{ authelia_password }}"
+    email: "{{ authelia_email_address }}"
+    groups:
+      - admin
+      - dev
+authelia_rules:
+  - domain: "*.{{ secret_domain_full }}"
+    policy: bypass
+    resources:
+      - '^/api.*$'
+  - domain: "*.{{ secret_domain_full }}"
+    policy: two_factor
+  - domain: "plex.{{ secret_domain_full }}"
+    policy: one_factor
+  - domain: "drive.{{ secret_domain_full }}"
+    policy: bypass
 
 # soulrestic
 restic_backup_locations:
@@ -294,6 +317,32 @@ containers:
       - "80:80"
       - "443:443"
       - "8081:8080"
+    restart: unless-stopped
+  ###
+  - service_name: authelia
+    image: authelia/authelia
+    container_name: authelia
+    hostname: authelia
+    active: true
+    volumes:
+      - "{{ appdata_path }}/authelia:/config"
+    expose:
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.authelia.rule=Host(`login.{{ secret_domain_full }}`)"
+      - traefik.http.routers.authelia.tls=true
+      - traefik.http.services.authelia.loadbalancer.server.port=9091
+      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://login.{{ secret_domain_full }}/"
+      - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
+      - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email
+    restart: unless-stopped
+  - service_name: auth-redis
+    image: redis
+    container_name: auth-redis
+    hostname: auth-redis
+    active: true
+    volumes:
+      - "{{ appdata_path }}/redis/authelia:/data"
     restart: unless-stopped
   ###
   - service_name: scrutiny
@@ -378,6 +427,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nzbget.rule=Host(`nzbget.{{ secret_domain_full }}`)"
+      - traefik.http.routers.nzbget.middlewares=authelia@docker
       - traefik.http.services.nzbget.loadbalancer.server.port=6789
     include_global_env_vars: true
     restart: unless-stopped
@@ -392,6 +442,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.prowlarr.rule=Host(`prow.{{ secret_domain_full }}`)"
+      - traefik.http.routers.prowlarr.middlewares=authelia@docker
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
     include_global_env_vars: true
     restart: unless-stopped
@@ -411,6 +462,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.sonarr.middlewares=authelia@docker
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
     include_global_env_vars: true
     restart: unless-stopped
@@ -430,6 +482,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.radarr.rule=Host(`radarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.radarr.middlewares=authelia@docker
       - traefik.http.services.radarr.loadbalancer.server.port=7878
     include_global_env_vars: true
     restart: unless-stopped
@@ -464,6 +517,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.readarr.rule=Host(`readarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.readarr.middlewares=authelia@docker
       - traefik.http.services.readarr.loadbalancer.server.port=8787
     include_global_env_vars: true
     restart: unless-stopped
@@ -608,6 +662,7 @@ containers:
     labels:
       - traefik.enable=true
       - "traefik.http.routers.paperless.rule=Host(`paperless.{{ secret_domain_full }}`)"
+      - traefik.http.routers.paperless.middlewares=authelia@docker
       - traefik.http.services.paperless.loadbalancer.server.port=8000
     include_global_env_vars: false
     restart: unless-stopped
@@ -707,6 +762,7 @@ containers:
 #    labels:
 #      - traefik.enable=true
 #      - "traefik.http.routers.XXXX.rule=Host(`XXXX.{{ secret_domain_full }}`)"
+#      - traefik.http.routers.XXXX.middlewares=authelia@docker
 #      - traefik.http.services.XXXX.loadbalancer.server.port=XXXX
 #    include_global_env_vars: true
 #    restart: unless-stopped
