@@ -274,10 +274,14 @@ authelia_users:
       - admin
       - dev
 authelia_rules:
-  - domain: "*.{{ secret_domain_full }}"
+  - domain: "*.{{ secret_domain_full }}" # allows api's through
     policy: bypass
     resources:
       - '^/api.*$'
+  - domain: "*.{{ secret_domain_full }}" # allows calendar feeds through
+    policy: bypass
+    resources:
+      - '^/feed.*$'
   - domain: "*.{{ secret_domain_full }}"
     policy: two_factor
   - domain: "plex.{{ secret_domain_full }}"
