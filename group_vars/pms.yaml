@@ -752,6 +752,19 @@ containers:
     include_global_env_vars: false
     restart: unless-stopped
   ###
+  - service_name: actual
+    image: jlongster/actual-server
+    container_name: actual
+    hostname: actual
+    active: true
+    volumes:
+      - "{{ appdata_path }}/actual/server-files:/app/server-files"
+      - "{{ appdata_path }}/actual/user-files:/app/user-files"
+    ports:
+      - "5006:5006"
+    include_global_env_vars: false
+    restart: unless-stopped
+  ###
 
 # template for docker-compose services
 #  - service_name:
