@@ -1,26 +1,13 @@
 libraries:
     Anime:
         metadata_path:
-          - git: meisnate12/AnimeCharts
+          - file: config/anime.yml
     Children Movies:
         metadata_path:
           - file: config/movies.yml
-          - git: meisnate12/IMDBGenres
           - git: meisnate12/MovieCharts
-          - git: meisnate12/Movies
-          - git: meisnate12/Metadata
           - git: meisnate12/Studios
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Studio.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/DC.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/DreamWorks%20Animation.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Illumination%20Entertainment.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Marvel%20Cinematic%20Universe.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Middle%20Earth.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Parody%20Movies.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Pixar.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Sony%20Pictures%20Animation.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Walt%20Disney%20Animation.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Wizarding%20World.yml
+          - git: meisnate12/IMDBGenres
         mass_critic_rating_update: tmdb
         mass_audience_rating_update: tmdb
         split_duplicates: true
@@ -31,22 +18,9 @@ libraries:
     Movies:
         metadata_path:
           - file: config/movies.yml
-          - git: meisnate12/IMDBGenres
           - git: meisnate12/MovieCharts
-          - git: meisnate12/Movies
-          - git: meisnate12/Metadata
           - git: meisnate12/Studios
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Studio.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/DC.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/DreamWorks%20Animation.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Illumination%20Entertainment.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Marvel%20Cinematic%20Universe.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Middle%20Earth.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Parody%20Movies.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Pixar.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Sony%20Pictures%20Animation.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Walt%20Disney%20Animation.yml
-          - url: https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager-Configs/master/Frexe/Movies/Collections/Wizarding%20World.yml
+          - git: meisnate12/IMDBGenres
         mass_critic_rating_update: tmdb
         mass_audience_rating_update: tmdb
         split_duplicates: true
@@ -68,6 +42,10 @@ settings:
     show_missing: true
     save_missing: true
     run_again_delay: 2
+    missing_only_released: false
+    create_asset_folders: false
+    tvdb_language: default
+    show_missing_assets: true
 plex:
     url: {{ plexmm_plex_url }}
     token: {{ plexmm_plex_token }}
@@ -75,6 +53,9 @@ plex:
     clean_bundles: true
     empty_trash: true
     optimize: false
+tautulli:
+  url: {{ plexmm_tautulli_url }}
+  apikey: {{ secret_tautulli_api }}
 trakt:
   client_id: {{ plexmm_trakt_clientid }}
   client_secret: {{ plexmm_trakt_clientsecret }}
@@ -87,5 +68,17 @@ trakt:
     created_at:
   pin: {{ plexmm_trakt_pin }}
 tmdb:
-    apikey: {{ plexmm_tmdb_apikey }}
-    language: en
+  apikey: {{ plexmm_tmdb_apikey }}
+  language: en
+webhooks:
+  error: {{ plexmm_discord_webhook }}
+  changes: {{ plexmm_discord_webhook }}
+mal:
+  client_id: {{ plexmm_mal_clientid }}
+  client_secret: {{ plexmm_mal_clientsecret }}
+  localhost_url: {{ plexmm_mal_localhosturl }}
+  authorization:
+    access_token:
+    token_type:
+    expires_in:
+    refresh_token:
