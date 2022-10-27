@@ -596,7 +596,7 @@ containers:
     restart: unless-stopped
   ###
   - service_name: nextcloud
-    image: ghcr.io/linuxserver/nextcloud:php8
+    image: ghcr.io/linuxserver/nextcloud
     container_name: nextcloud
     hostname: nextcloud
     active: true
