@@ -83,6 +83,9 @@ snapraid_config_excludes:
   - "Proxmox/"
   - "Backups/"
 
+# NVME
+#/dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b490a15d3-part1 /mnt/nvme1 xfs defaults 0 0
+
 fstab_mergerfs:
   - { source: "/mnt/disk*", mountpoint: "{{ data_path }}", fs: fuse.mergerfs, opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=250G,fsname=MergerFS" }  
 
@@ -679,23 +682,6 @@ containers:
       - "{{ appdata_path }}/redis/paperless:/data"
     restart: unless-stopped
   ###
-  - service_name: nick-blog
-    image: ghost
-    container_name: nick-blog
-    hostname: nick-blog
-    active: true
-    volumes:
-      - "{{ appdata_path }}/nick-blog:/var/lib/ghost/content"
-    environment:
-      - NODE_ENV=production
-      - "url=https://blog.{{ secret_domain_full }}"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.nickblog.rule=Host(`blog.{{ secret_domain_full }}`)"
-      - traefik.http.services.nickblog.loadbalancer.server.port=2368
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
   - service_name: mealie
     image: hkotel/mealie
     container_name: mealie
@@ -710,20 +696,34 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
+  - service_name: nginx_recipes
+    image: nginx:mainline-alpine
+    active: true
+    volumes:
+      - "{{ appdata_path }}/tandoor/static:/static:ro"
+      - "{{ appdata_path }}/tandoor/media:/media:ro"
+      - "{{ appdata_path }}/tandoor/nginx:/etc/nginx/conf.d:ro"
+    env_file:
+      - "{{ appdata_path }}/tandoor/docker/.env"
+    depends_on:
+      - web_recipes
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.tandoor.rule=Host(`recipes.{{ secret_domain_full }}`)"
+      - traefik.http.services.tandoor.loadbalancer.server.port=80
+    restart: unless-stopped
+  ###
   - service_name: web_recipes
     image: vabene1111/recipes
     active: true
     volumes:
       - "{{ appdata_path }}/tandoor/static:/opt/recipes/staticfiles"
       - "{{ appdata_path }}/tandoor/media:/opt/recipes/mediafiles"
+      - "{{ appdata_path }}/tandoor/nginx:/etc/nginx/conf.d"
     env_file:
       - "{{ appdata_path }}/tandoor/docker/.env"
     depends_on:
       - db_recipes
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.tandoor.rule=Host(`recipes.{{ secret_domain_full }}`)"
-      - traefik.http.services.tandoor.loadbalancer.server.port=8080
     restart: unless-stopped
   ###
   - service_name: db_recipes

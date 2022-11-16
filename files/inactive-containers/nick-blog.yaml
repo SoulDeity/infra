@@ -1,0 +1,17 @@
+  ###
+  - service_name: nick-blog
+    image: ghost:4-alpine
+    container_name: nick-blog
+    hostname: nick-blog
+    active: true
+    volumes:
+      - "{{ appdata_path }}/nick-blog:/var/lib/ghost/content"
+    environment:
+      - NODE_ENV=production
+      - "url=https://blog.{{ secret_domain_full }}"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.nickblog.rule=Host(`blog.{{ secret_domain_full }}`)"
+      - traefik.http.services.nickblog.loadbalancer.server.port=2368
+    include_global_env_vars: true
+    restart: unless-stopped
