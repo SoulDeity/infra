@@ -55,6 +55,7 @@ collections:
       - https://www.imdb.com/list/ls091597850/
 
   Christmas Movies:
+    smart_label: release.desc
     schedule: range(12/01-12/31)
     sort_title: '!AB'
     template: {name: Holiday, holiday: Christmas}
@@ -63,7 +64,6 @@ collections:
       - https://www.imdb.com/list/ls097394442/
       - https://www.imdb.com/list/ls068976997/
       - https://www.imdb.com/list/ls027567380/
-    collection_order: release
 
   New Year's Eve Movies:
     schedule: range(12/26-01/05)
