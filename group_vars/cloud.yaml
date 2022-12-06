@@ -1,0 +1,91 @@
+---
+cloud_hostname: soulcloud
+main_username: souldeity
+
+# ironicbadger.figurine
+figurine_name: "{{ cloud_hostname }}"
+
+# ironicbadger.ansible_role_bash_aliases
+bash_aliases:
+  - { alias: "ls", command: "ls --color=auto"}
+  - { alias: "ll", command: "ls -la"}
+  - { alias: "df", command: "df -h -x aufs -x tmpfs -x udev"}
+  - { alias: "du", command: "du -ch"}
+  - { alias: "c", command: "clear"}
+  - { alias: "dtail", command: "docker logs -tf --tail='50' " }
+  - { alias: "dstop", command: "docker stop `docker ps -aq`" }
+  - { alias: "drm", command: "docker rm `docker ps -aq`" }
+  - { alias: "dcp", command: "docker-compose -f ~/docker-compose.yml "}
+  - { alias: "dcporph", command: "docker-compose -f ~/docker-compose.yml up -d --remove-orphans"}
+  - { alias: "dprune", command: "docker image prune" }
+  - { alias: "dprunesys", command: "docker system prune --all" }
+  - { alias: "appdata", command: "cd /mnt/disk1/appdata" }
+
+# soultraefik
+traefik_file_provider: false
+traefik_enable_dashboard: false #defaults to false
+traefik_insecure_transport: true #defaults to false
+traefik_exposed_by_default: false
+
+# ironicbadger.docker_compose_generator
+appdata_path: /mnt/disk1/appdata
+containers:
+###
+  - service_name: traefik
+    image: traefik
+    container_name: tr
+    hostname: tr
+    active: true
+    extra_hosts:
+      - host.docker.internal:172.17.0.1
+    volumes:
+      - "{{ appdata_path }}/traefik:/etc/traefik"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    environment:
+      - "CLOUDFLARE_EMAIL={{ secret_cloudflare_email }}"
+      - "CLOUDFLARE_API_KEY={{ secret_cloudflare_api }}"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8081:8080"
+    restart: unless-stopped
+###
+  - service_name: uptime-kuma
+    image: louislam/uptime-kuma
+    container_name: uptime-kuma
+    hostname: uptime-kuma
+    active: true
+    volumes:
+      - "{{ appdata_path }}/uptime-kuma:/app/data"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.uptime.rule=Host(`uptime.{{ secret_domain_cloud }}`)
+      - traefik.http.routers.uptime.entrypoints=websecure
+      - traefik.http.routers.uptime.tls=true
+      - traefik.http.routers.uptime.tls.certresolver=cloudflare
+      - traefik.http.services.uptime.loadBalancer.server.port=3001
+    restart: unless-stopped
+###
+  - service_name: healthchecks
+    image: ghcr.io/linuxserver/healthchecks
+    container_name: healthchecks
+    hostname: healthchecks
+    active: true
+    volumes:
+      - "{{ appdata_path }}/healthchecks:/config"
+    environment:
+      - APPRISE_ENABLED=True
+      - DEBUG=False
+      - PING_BODY_LIMIT=100000
+      - SITE_NAME=Health Checks
+      - "SITE_ROOT=https://hc.{{ secret_domain_cloud }}"
+      - "SUPERUSER_EMAIL={{ secret_hc_email }}"
+      - "SUPERUSER_PASSWORD={{ secret_hc_pass }}"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.healthchecks.rule=Host(`hc.{{ secret_domain_cloud }}`)"
+      - traefik.http.routers.healthchecks.entrypoints=websecure
+      - traefik.http.routers.healthchecks.tls=true
+      - traefik.http.routers.healthchecks.tls.certresolver=cloudflare
+    include_global_env_vars: true
+    restart: unless-stopped

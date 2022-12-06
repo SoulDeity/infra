@@ -92,7 +92,8 @@ fstab_mergerfs:
 snapraid_runner: true
 snapraid_email_address: "{{ secret_snapraid_email_address }}"
 snapraid_gmail_pass: "{{ secret_snapraid_gmail_pass }}"
-snapraid_healthcheck_io_uuid: "{{ secret_hc_snapraid_uuid }}"
+snapraid_healthcheck_io_host: "https://hc.{{ secret_domain_cloud }}"
+snapraid_healthcheck_io_uuid: "{{ snapraid_healthchecks_id }}"
 
 ## telegraf
 telegraf_plugins_base:
@@ -299,7 +300,8 @@ restic_backup_excludes: #defaults to blank
   - /mnt/tank/appdata/duplicati
   - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Cache
   - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Media
-restic_forget: false #defaults to false
+  - /mnt/tank/appdata/plexmeta
+restic_forget: true #defaults to false
 
 # ironicbadger.docker_compose_generator
 appdata_path: /mnt/tank/appdata

@@ -20,6 +20,12 @@ nut:
 net:
 	ansible-playbook -b run.yaml --limit net --ask-become-pass
 
+cloud:
+	ansible-playbook -b run.yaml --limit cloud --ask-become-pass
+
+ccomp:
+	ansible-playbook -b run.yaml --limit cloud --ask-become-pass --tags compose
+
 ### Updates
 update:
 	ansible-playbook update.yaml --limit servers --ask-become-pass
