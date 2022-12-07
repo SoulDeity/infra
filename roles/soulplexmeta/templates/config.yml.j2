@@ -6,7 +6,7 @@ libraries:
         metadata_path:
           - file: config/movies.yml
           - git: meisnate12/MovieCharts
-          - git: meisnate12/Studios
+          #- git: meisnate12/Studios
           - git: meisnate12/IMDBGenres
         mass_critic_rating_update: tmdb
         mass_audience_rating_update: tmdb
@@ -19,7 +19,7 @@ libraries:
         metadata_path:
           - file: config/movies.yml
           - git: meisnate12/MovieCharts
-          - git: meisnate12/Studios
+          #- git: meisnate12/Studios
           - git: meisnate12/IMDBGenres
         mass_critic_rating_update: tmdb
         mass_audience_rating_update: tmdb
@@ -72,7 +72,7 @@ tmdb:
   language: en
 webhooks:
   error: {{ plexmm_discord_webhook }}
-  changes: {{ plexmm_discord_webhook }}
+  #changes: {{ plexmm_discord_webhook }}
 mal:
   client_id: {{ plexmm_mal_clientid }}
   client_secret: {{ plexmm_mal_clientsecret }}
