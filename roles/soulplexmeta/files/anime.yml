@@ -19,8 +19,9 @@
 
 templates:
   Anime:
-    mal_genre:
-      genre_id: <<mal_id>>
+    mal_search:
+      genre: <<mal_id>>
+      limit: 0
     url_poster: https://theposterdb.com/api/assets/<<poster>>
     collection_order: alpha
     collection_mode: hide
