@@ -788,10 +788,12 @@ containers:
       - /dev/dri:/dev/dri
     volumes:
       - "{{ appdata_path }}/jellyfin:/config"
-      - /opt/appdata/jellyfin/transcode:/config/transcodes
+      - /dev/shm:/config/transcodes
       - "{{ data_path }}:/data"
-    environment:
-      - "JELLYFIN_PublishedServerUrl=jellyfin.{{ secret_domain_full }}"
+    #environment:
+      #- "JELLYFIN_PublishedServerUrl=jellyfin.{{ secret_domain_full }}"
+    ports:
+      - "8096:8096"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.{{ secret_domain_full }}`)"

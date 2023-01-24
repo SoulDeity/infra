@@ -13,6 +13,18 @@
         name: '*'
         state: latest
 
+- hosts: proxmox
+  tasks:
+    - name: download PVEDiscordDark
+      become: true
+      get_url: 
+        url: https://raw.githubusercontent.com/Weilbyte/PVEDiscordDark/master/PVEDiscordDark.sh
+        dest: /tmp/
+        mode: 0755
+    - name: install PVEDiscordDark
+      become: true
+      command: /tmp/PVEDiscordDark.sh
+
 - hosts: pterodactyl
   tasks:
     - name: run self-upgrade of pterodactyl panel
