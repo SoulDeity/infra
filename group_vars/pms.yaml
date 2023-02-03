@@ -787,7 +787,8 @@ containers:
     devices:
       - /dev/dri:/dev/dri
     volumes:
-      - "{{ appdata_path }}/jellyfin:/config"
+      - "{{ appdata_path }}/jellyfin/config:/config"
+      - "{{ appdata_path }}/jellyfin/dist:/jellyfin/jellyfin-web:ro" #Intro Skip Web Interface
       - /dev/shm:/config/transcodes
       - "{{ data_path }}:/data"
     #environment:
