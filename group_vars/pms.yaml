@@ -1,5 +1,5 @@
 ---
-pms_ip: 192.168.1.253
+pms_ip: 10.42.1.1
 pms_hostname: soulpms
 
 # ironicbadger.figurine
@@ -150,7 +150,7 @@ telegraf_plugins_base:
 
 # ntd.nut
 nut_mode: netclient
-nut_host: 192.168.1.150
+nut_host: 10.42.1.2
 nut_user: SoulDeity
 nut_password: "{{ secret_soulnut_pass }}"
 nut_role: slave
@@ -399,7 +399,7 @@ containers:
     image: meisnate12/plex-meta-manager
     container_name: plexmeta
     hostname: plexmeta
-    active: true
+    active: false
     volumes:
       - "{{ appdata_path }}/plexmeta/config:/config"
     environment:
@@ -574,25 +574,6 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
-  - service_name: unifi-controller
-    image: ghcr.io/linuxserver/unifi-controller
-    container_name: unifi-controller
-    hostname: unifi-controller
-    active: true
-    volumes:
-      - "{{ appdata_path }}/unifi-controller:/config"
-    ports:
-      - 3478:3478/udp
-      - 10001:10001/udp
-      - 8080:8080
-      - 8443:8443
-      - 8843:8843 #optional
-      - 8880:8880 #optional
-      - 6789:6789 #optional
-      - 5514:5514 #optional
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
   - service_name: bitwarden
     image: vaultwarden/server
     container_name: bitwarden
@@ -754,7 +735,7 @@ containers:
     hostname: webnut
     active: true
     environment:
-      - UPS_HOST=192.168.1.150
+      - UPS_HOST=10.42.1.2
       - UPS_PORT=3493
       - UPS_USER=monuser
       - "UPS_PASSWORD={{ secret_soulnut_pass }}"

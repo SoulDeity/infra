@@ -92,7 +92,7 @@ docker_compose_generator_gid: "{{ main_gid }}"
 docker_compose_generator_output_path: "/home/{{ main_username }}"
 
 # influxdb
-influxdb_ip: 192.168.1.253
+influxdb_ip: 10.42.1.1
 influxdb_port: 8086
 
 ## telegraf
