@@ -385,7 +385,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/plex:/config"
       - /opt/appdata/plex/transcode:/transcode
-      - "{{ data_path }}:/data"
+      - "{{ data_path }}:/data:ro"
     environment:
       - VERSION=docker
     labels:
@@ -515,7 +515,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/audiobookshelf/metadata:/metadata"
       - "{{ appdata_path }}/audiobookshelf/config:/config"
-      - "{{ data_path }}:/data"
+      - "{{ data_path }}:/data:ro"
     labels:
       - traefik.enable=true
       - "traefik.http.routers.audiobookshelf.rule=Host(`abs.{{ secret_domain_full }}`)"
@@ -771,7 +771,7 @@ containers:
       - "{{ appdata_path }}/jellyfin/config:/config"
       - "{{ appdata_path }}/jellyfin/dist:/jellyfin/jellyfin-web:ro" #Intro Skip Web Interface
       - /dev/shm:/config/transcodes
-      - "{{ data_path }}:/data"
+      - "{{ data_path }}:/data:ro"
     #environment:
       #- "JELLYFIN_PublishedServerUrl=jellyfin.{{ secret_domain_full }}"
     ports:
