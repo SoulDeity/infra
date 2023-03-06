@@ -1,0 +1,12 @@
+  ###
+  - service_name: plextraktsync
+    image: ghcr.io/taxel/plextraktsync
+    container_name: plextraktsync
+    hostname: plextraktsync
+    active: true
+    volumes:
+      - "{{ appdata_path }}/plextraktsync:/app/config"
+    command: 
+      - watch
+    include_global_env_vars: true
+    restart: unless-stopped

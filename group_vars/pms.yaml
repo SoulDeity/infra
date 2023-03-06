@@ -380,11 +380,11 @@ containers:
     hostname: plex
     active: true
     network_mode: host
-    #devices:
-    #  - /dev/dri:/dev/dri
+    devices:
+      - /dev/dri:/dev/dri
     volumes:
       - "{{ appdata_path }}/plex:/config"
-      - /opt/appdata/plex/transcode:/transcode
+      - /dev/shm:/config/transcodes
       - "{{ data_path }}:/data:ro"
     environment:
       - VERSION=docker
@@ -404,18 +404,6 @@ containers:
       - "{{ appdata_path }}/plexmeta/config:/config"
     environment:
       - PMM_TIME=01:22
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
-  - service_name: plextraktsync
-    image: ghcr.io/taxel/plextraktsync
-    container_name: plextraktsync
-    hostname: plextraktsync
-    active: true
-    volumes:
-      - "{{ appdata_path }}/plextraktsync:/app/config"
-    command: 
-      - watch
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -757,30 +745,6 @@ containers:
     ports:
       - "5006:5006"
     include_global_env_vars: false
-    restart: unless-stopped
-  ###
-  - service_name: jellyfin
-    image: jellyfin/jellyfin
-    container_name: jellyfin
-    hostname: jellyfin
-    active: true
-    network_mode: host
-    devices:
-      - /dev/dri:/dev/dri
-    volumes:
-      - "{{ appdata_path }}/jellyfin/config:/config"
-      - "{{ appdata_path }}/jellyfin/dist:/jellyfin/jellyfin-web:ro" #Intro Skip Web Interface
-      - /dev/shm:/config/transcodes
-      - "{{ data_path }}:/data:ro"
-    #environment:
-      #- "JELLYFIN_PublishedServerUrl=jellyfin.{{ secret_domain_full }}"
-    ports:
-      - "8096:8096"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.{{ secret_domain_full }}`)"
-      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
-    include_global_env_vars: true
     restart: unless-stopped
   ###
 
