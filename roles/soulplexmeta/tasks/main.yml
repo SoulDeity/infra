@@ -16,16 +16,16 @@
     group: "{{ main_gid }}"
   become: true
 
-- name: template plexmeta anime config
-  copy:
-    src: anime.yml
-    dest: "{{ appdata_path }}/plexmeta/config/anime.yml"
-    owner: "{{ main_uid }}"
-    group: "{{ main_gid }}"
+# - name: template plexmeta anime config
+#   copy:
+#     src: anime.yml
+#     dest: "{{ appdata_path }}/plexmeta/config/anime.yml"
+#     owner: "{{ main_uid }}"
+#     group: "{{ main_gid }}"
 
-- name: template plexmeta movies config
-  copy:
-    src: movies.yml
-    dest: "{{ appdata_path }}/plexmeta/config/movies.yml"
-    owner: "{{ main_uid }}"
-    group: "{{ main_gid }}"
+# - name: template plexmeta movies config
+#   copy:
+#     src: movies.yml
+#     dest: "{{ appdata_path }}/plexmeta/config/movies.yml"
+#     owner: "{{ main_uid }}"
+#     group: "{{ main_gid }}"

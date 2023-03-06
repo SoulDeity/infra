@@ -399,7 +399,7 @@ containers:
     image: meisnate12/plex-meta-manager
     container_name: plexmeta
     hostname: plexmeta
-    active: false
+    active: true
     volumes:
       - "{{ appdata_path }}/plexmeta/config:/config"
     environment:

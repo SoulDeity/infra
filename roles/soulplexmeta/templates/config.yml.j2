@@ -1,61 +1,63 @@
 libraries:
-    Anime:
-        metadata_path:
-          - file: config/anime.yml
-    Children Movies:
-        metadata_path:
-          - file: config/movies.yml
-          - git: meisnate12/MovieCharts
-          #- git: meisnate12/Studios
-          - git: meisnate12/IMDBGenres
-        mass_critic_rating_update: tmdb
-        mass_audience_rating_update: tmdb
-        split_duplicates: true
-    Children TV Shows:
-        metadata_path:
-          - git: meisnate12/ShowCharts
-          - git: meisnate12/Networks
-    Movies:
-        metadata_path:
-          - file: config/movies.yml
-          - git: meisnate12/MovieCharts
-          #- git: meisnate12/Studios
-          - git: meisnate12/IMDBGenres
-        mass_critic_rating_update: tmdb
-        mass_audience_rating_update: tmdb
-        split_duplicates: true
-    TV Shows:
-        metadata_path:
-          - git: meisnate12/ShowCharts
-          - git: meisnate12/Networks
+  Children Movies:
+    metadata_path:
+      - pmm: basic
+      - pmm: studio
+      - pmm: studio_anime
+      - pmm: genre
+      - pmm: seasonal
+    mass_critic_rating_update: tmdb
+    mass_audience_rating_update: tmdb
+    split_duplicates: true
+  Children TV Shows:
+    metadata_path:
+      - pmm: basic
+      - pmm: network
+  Movies:
+    metadata_path:
+      - pmm: basic
+      - pmm: studio
+      - pmm: studio_anime
+      - pmm: genre
+      - pmm: seasonal
+    mass_critic_rating_update: tmdb
+    mass_audience_rating_update: tmdb
+    split_duplicates: true
+  TV Shows:
+    metadata_path:
+      - pmm: basic
+      - pmm: network
 settings:
-    cache: true
-    cache_expiration: 30
-    asset_directory: config/assets
-    asset_folders: true
-    assets_for_all: false
-    sync_mode: append
-    collection_minimum: 2
-    delete_below_minimun: true
-    show_unmanaged: true
-    show_filtered: false
-    show_missing: true
-    save_missing: true
-    run_again_delay: 2
-    missing_only_released: false
-    create_asset_folders: false
-    tvdb_language: default
-    show_missing_assets: true
+  cache: true
+  cache_expiration: 60
+  asset_directory: config/assets
+  asset_folders: true
+  assets_for_all: false
+  sync_mode: append
+  show_unmanaged: true
+  show_filtered: false
+  show_missing: true
+  save_missing: true
+  run_again_delay: 2
+  missing_only_released: false
+  create_asset_folders: false
+  collection_minimum: 1
+  delete_below_minimun: false
+  tvdb_language: default
+  show_missing_assets: true
 plex:
-    url: {{ plexmm_plex_url }}
-    token: {{ plexmm_plex_token }}
-    timeout: 60
-    clean_bundles: true
-    empty_trash: true
-    optimize: false
+  url: {{ plexmm_plex_url }}
+  token: {{ plexmm_plex_token }}
+  timeout: 60
+  clean_bundles: false
+  empty_trash: false
+  optimize: false
 tautulli:
   url: {{ plexmm_tautulli_url }}
   apikey: {{ secret_tautulli_api }}
+tmdb:
+  apikey: {{ plexmm_tmdb_apikey }}
+  language: en
 trakt:
   client_id: {{ plexmm_trakt_clientid }}
   client_secret: {{ plexmm_trakt_clientsecret }}
@@ -67,18 +69,6 @@ trakt:
     scope: public
     created_at:
   pin: {{ plexmm_trakt_pin }}
-tmdb:
-  apikey: {{ plexmm_tmdb_apikey }}
-  language: en
 webhooks:
   error: {{ plexmm_discord_webhook }}
   #changes: {{ plexmm_discord_webhook }}
-mal:
-  client_id: {{ plexmm_mal_clientid }}
-  client_secret: {{ plexmm_mal_clientsecret }}
-  localhost_url: {{ plexmm_mal_localhosturl }}
-  authorization:
-    access_token:
-    token_type:
-    expires_in:
-    refresh_token:
