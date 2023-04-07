@@ -35,7 +35,7 @@ package_list:
   - name: nmap
   - name: openssh-server
   - name: open-vm-tools
-  - name: python
+  - name: python3
   - name: qemu-guest-agent
   - name: screen
   - name: smartmontools
@@ -43,18 +43,6 @@ package_list:
   - name: tmux
   - name: tree
   - name: wget
-
-# ironicbadger.ansible_users
-users:
-  - username: "{{ main_username }}"
-    github_username: "{{ main_username }}"
-    name: "{{ main_username }}"
-    groups: ['wheel']
-    uid: "{{ main_uid }}"
-groups_to_create:
-  - name: "{{ main_groupname }}"
-    gid: "{{ main_gid }}"
-  - name: wheel
 
 # weareinteractive.environment
 environment_config: {

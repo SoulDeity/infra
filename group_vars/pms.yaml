@@ -39,7 +39,7 @@ package_list:
   - name: zfsutils-linux
 
 # ironicbadger.snapraid
-snapraid_bin_path: /usr/bin/snapraid
+snapraid_bin_path: /usr/local/bin/snapraid
 snapraid_parity_disks:
   - { path: /mnt/parity1, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9LJ0AGVG-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/parity2, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MHSD18U-part1, fs: xfs, opts: defaults, content: false }
@@ -61,7 +61,7 @@ snapraid_data_disks:
   - { path: /mnt/disk15, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults, content: false }
   - { path: /mnt/disk16, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MH5L4GK-part1, fs: xfs, opts: defaults, content: true }
 snapraid_content_files:
-  - path: /mnt/tank/fuse/documents/.snapraid.content
+  - /mnt/tank/fuse/documents/.snapraid.content
 snapraid_config_excludes:
   - "*.unrecoverable"
   - "/tmp/"
@@ -83,17 +83,12 @@ snapraid_config_excludes:
   - "Proxmox/"
   - "Backups/"
 
-# NVME
-#/dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b490a15d3-part1 /mnt/nvme1 xfs defaults 0 0
-
 fstab_mergerfs:
-  - { source: "/mnt/disk*", mountpoint: "{{ data_path }}", fs: fuse.mergerfs, opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=250G,fsname=MergerFS" }  
+  - { source: "/mnt/disk*", mountpoint: "{{ data_path }}", fs: fuse.mergerfs, opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=100G,fsname=MergerFS" }  
 
 snapraid_runner: true
-snapraid_email_address: "{{ secret_snapraid_email_address }}"
-snapraid_gmail_pass: "{{ secret_snapraid_gmail_pass }}"
 snapraid_healthcheck_io_host: "https://hc.{{ secret_domain_cloud }}"
-snapraid_healthcheck_io_uuid: "{{ snapraid_healthchecks_id }}"
+snapraid_runner_healthcheck_io_uuid: "{{ snapraid_healthchecks_id }}"
 
 ## telegraf
 telegraf_plugins_base:
@@ -260,12 +255,13 @@ bash_aliases:
 docker_zfs_override: true
 extra_mountpoints:
   - { path: "{{ data_path }}" }
+  - { path: /mnt/nvme1, diskbyid: /dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b490a15d3-part1, fs: xfs, opts: defaults}
 
 # soultraefik
 traefik_file_provider: true
-traefik_enable_dashboard: false #defaults to false
+traefik_enable_dashboard: true #defaults to false
 traefik_insecure_transport: true #defaults to false
-traefik_exposed_by_default: false
+traefik_exposed_by_default: true
 
 ## soulauthelia
 authelia_users:
@@ -307,57 +303,50 @@ appdata_path: /mnt/tank/appdata
 download_path: /mnt/storage/downloads
 data_path: /mnt/storage
 containers:
-###
-  - service_name: traefik
-    image: traefik
-    container_name: tr
-    hostname: tr
+  ###
+  - service_name: tr
     active: true
+    image: traefik
+    ports:
+      - 80:80
+      - 443:443
+      #- 8080:8080
     extra_hosts:
       - host.docker.internal:172.17.0.1
-    volumes:
-      - "{{ appdata_path }}/traefik:/etc/traefik"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     environment:
       - "CLOUDFLARE_EMAIL={{ secret_cloudflare_email }}"
       - "CLOUDFLARE_API_KEY={{ secret_cloudflare_api }}"
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8081:8080"
+    volumes:
+      - "{{ appdata_path }}/traefik:/etc/traefik"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
   ###
   - service_name: authelia
-    image: authelia/authelia
-    container_name: authelia
-    hostname: authelia
     active: true
-    volumes:
-      - "{{ appdata_path }}/authelia:/config"
-    expose:
+    image: authelia/authelia
     labels:
-      - traefik.enable=true
       - "traefik.http.routers.authelia.rule=Host(`login.{{ secret_domain_full }}`)"
       - traefik.http.routers.authelia.tls=true
       - traefik.http.services.authelia.loadbalancer.server.port=9091
       - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://login.{{ secret_domain_full }}/"
       - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
       - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email
+    volumes:
+      - "{{ appdata_path }}/authelia:/config"
+    expose:
     restart: unless-stopped
   - service_name: auth-redis
-    image: redis
-    container_name: auth-redis
-    hostname: auth-redis
     active: true
+    image: redis
     volumes:
       - "{{ appdata_path }}/redis/authelia:/data"
     restart: unless-stopped
   ###
   - service_name: scrutiny
-    image: ghcr.io/analogj/scrutiny:master-omnibus
-    container_name: scrutiny
-    hostname: scrutiny
     active: true
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    labels:
+      - traefik.enable=false
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
@@ -370,15 +359,13 @@ containers:
     ports:
       - "7278:8080" # webapp
       - "8087:8086" # influxDB admin
-    include_global_env_vars: true
     privileged: true
+    include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: plex
-    image: ghcr.io/linuxserver/plex
-    container_name: plex
-    hostname: plex
     active: true
+    image: lscr.io/linuxserver/plex
     network_mode: host
     devices:
       - /dev/dri:/dev/dri
@@ -389,225 +376,180 @@ containers:
     environment:
       - VERSION=docker
     labels:
-      - traefik.enable=true
       - "traefik.http.routers.plex.rule=Host(`plex.{{ secret_domain_full }}`)"
       - traefik.http.services.plex.loadbalancer.server.port=32400
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: plexmeta
-    image: meisnate12/plex-meta-manager
-    container_name: plexmeta
-    hostname: plexmeta
     active: true
+    image: meisnate12/plex-meta-manager
+    labels:
+      - traefik.enable=false
     volumes:
       - "{{ appdata_path }}/plexmeta/config:/config"
     environment:
       - PMM_TIME=01:22
     include_global_env_vars: true
     restart: unless-stopped
-  ###
+###
   - service_name: tautulli
-    image: ghcr.io/linuxserver/tautulli
-    container_name: tautulli
-    hostname: tautulli
     active: true
+    image: lscr.io/linuxserver/tautulli
     depends_on:
       - plex
+    labels:
+      - "traefik.http.routers.tautulli.rule=Host(`tautulli.{{ secret_domain_full }}`)"
     volumes:
       - "{{ appdata_path }}/tautulli:/config"
       - "{{ appdata_path }}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.tautulli.rule=Host(`tautulli.{{ secret_domain_full }}`)"
-      - traefik.http.services.tautulli.loadbalancer.server.port=8181
     include_global_env_vars: true
     restart: unless-stopped
   ###
-  - service_name: nzbget 
-    image: ghcr.io/linuxserver/nzbget
-    container_name: nzbget
-    hostname: nzbget
+  - service_name: nzbget
     active: true
+    image: lscr.io/linuxserver/nzbget
+    labels:
+      - "traefik.http.routers.nzbget.rule=Host(`nzbget.{{ secret_domain_full }}`)"
+      - traefik.http.routers.nzbget.middlewares=authelia@docker
+      - "traefik.http.routers.nzbgetapi.rule=Host(`nzbgetapi.{{ secret_domain_full }}`)"
     volumes:
       - "{{ appdata_path }}/nzbget:/config"
       - "{{ download_path }}:/downloads"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.nzbget.rule=Host(`nzbget.{{ secret_domain_full }}`)"
-      - traefik.http.routers.nzbget.middlewares=authelia@docker
-      - traefik.http.services.nzbget.loadbalancer.server.port=6789
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: prowlarr
-    image: ghcr.io/linuxserver/prowlarr:develop
-    container_name: prowlarr
-    hostname: prowlarr
     active: true
+    image: lscr.io/linuxserver/prowlarr:develop
+    labels:
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.prowlarr.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/prowlarr:/config"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.prowlarr.rule=Host(`prow.{{ secret_domain_full }}`)"
-      - traefik.http.routers.prowlarr.middlewares=authelia@docker
-      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: sonarr
-    image: ghcr.io/linuxserver/sonarr
-    container_name: sonarr
-    hostname: sonarr
     active: true
+    image: lscr.io/linuxserver/sonarr
     depends_on:
       - nzbget
-      - prowlarr
+    labels:
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.sonarr.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/sonarr:/config"
       - "{{ download_path }}:/downloads"
       - "{{ data_path }}:/data"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.sonarr.middlewares=authelia@docker
-      - traefik.http.services.sonarr.loadbalancer.server.port=8989
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: radarr
-    image: ghcr.io/linuxserver/radarr
-    container_name: radarr
-    hostname: radarr
     active: true
+    image: lscr.io/linuxserver/radarr
     depends_on:
       - nzbget
-      - prowlarr
+    labels:
+      - "traefik.http.routers.radarr.rule=Host(`radarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.radarr.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/radarr:/config"
       - "{{ download_path }}:/downloads"
       - "{{ data_path }}:/data"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.radarr.rule=Host(`radarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.radarr.middlewares=authelia@docker
-      - traefik.http.services.radarr.loadbalancer.server.port=7878
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: audiobookshelf
-    image: ghcr.io/advplyr/audiobookshelf
-    container_name: audiobookshelf
-    hostname: audiobookshelf
     active: true
+    image: ghcr.io/advplyr/audiobookshelf
+    labels:
+      - "traefik.http.routers.audiobookshelf.rule=Host(`abs.{{ secret_domain_full }}`)"
     volumes:
       - "{{ appdata_path }}/audiobookshelf/metadata:/metadata"
       - "{{ appdata_path }}/audiobookshelf/config:/config"
       - "{{ data_path }}:/data:ro"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.audiobookshelf.rule=Host(`abs.{{ secret_domain_full }}`)"
-      - traefik.http.services.audiobookshelf.loadbalancer.server.port=80
     restart: unless-stopped
   ###
   - service_name: readarr
-    image: lscr.io/linuxserver/readarr:nightly
-    container_name: readarr
-    hostname: readarr
     active: true
+    image: lscr.io/linuxserver/readarr:nightly
     depends_on:
       - nzbget
-      - prowlarr
+    labels:
+      - "traefik.http.routers.readarr.rule=Host(`readarr.{{ secret_domain_full }}`)"
+      - traefik.http.routers.readarr.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/readarr:/config"
       - "{{ download_path }}:/downloads"
       - "{{ data_path }}:/data"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.readarr.rule=Host(`readarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.readarr.middlewares=authelia@docker
-      - traefik.http.services.readarr.loadbalancer.server.port=8787
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: overseerr
-    image: ghcr.io/linuxserver/overseerr
-    container_name: overseerr
-    hostname: overseerr
     active: true
+    image: lscr.io/linuxserver/overseerr
+    labels:
+      - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
     volumes:
       - "{{ appdata_path }}/overseerr:/config"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
-      - traefik.http.services.overseerr.loadbalancer.server.port=5055
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: organizr
-    image: ghcr.io/organizr/organizr
-    container_name: organizr
-    hostname: organizr
     active: true
+    image: ghcr.io/organizr/organizr
+    labels:
+      - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
+      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=128000
     volumes:
       - "{{ appdata_path }}/organizr:/config"
     environment:
       - fpm=true
       - branch=v2-master
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
-      - traefik.http.services.main.loadbalancer.server.port=80
-      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=128000
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: bitwarden
-    image: vaultwarden/server
-    container_name: bitwarden
-    hostname: bitwarden
     active: true
+    image: vaultwarden/server
+    labels:
+      - "traefik.http.routers.bitwarden.rule=Host(`vault.{{ secret_domain_full }}`)"
     volumes:
       - "{{ appdata_path }}/bitwarden:/data"
     environment:
       - SIGNUPS_ALLOWED=false
       - WEBSOCKET_ENABLED=true
       - "DOMAIN=https://vault.{{ secret_domain_full }}"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.bitwarden.rule=Host(`vault.{{ secret_domain_full }}`)"
-      - traefik.http.services.bitwarden.loadbalancer.server.port=80
     include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: nextcloud
-    image: ghcr.io/linuxserver/nextcloud
-    container_name: nextcloud
-    hostname: nextcloud
     active: true
+    image: lscr.io/linuxserver/nextcloud
     depends_on:
       - nextcloud-db
       - nc-redis
-    volumes:
-      - "{{ appdata_path }}/nextcloud:/config"
-      - "{{ appdata_path }}/nextcloud/data:/data"
-    environment:
-      - DOCKER_MODS=theorangeone/lsio-mod-more-processes:latest
+      - nc-imaginary
     labels:
-      - traefik.enable=true
       - "traefik.http.routers.nextcloud.rule=Host(`drive.{{ secret_domain_full }}`)"
       - traefik.http.routers.nextcloud.tls.certresolver=cloudflare
       - traefik.http.services.nextcloud-nextcloud.loadbalancer.server.port=443
       - traefik.http.services.nextcloud-nextcloud.loadbalancer.server.scheme=https
       - traefik.http.middlewares.nextcloud-hsts.headers.stsseconds=15552000
       - traefik.http.routers.nextcloud.middlewares=nextcloud-hsts@docker
+    volumes:
+      - "{{ appdata_path }}/nextcloud:/config"
+      - "{{ appdata_path }}/nextcloud/data:/data"
+    environment:
+      - DOCKER_MODS=theorangeone/lsio-mod-more-processes:latest
     include_global_env_vars: true
     restart: unless-stopped
   - service_name: nextcloud-db
-    image: ghcr.io/linuxserver/mariadb
-    container_name: nextcloud-db
-    hostname: nextcloud-db
     active: true
+    image: lscr.io/linuxserver/mariadb
+    ports:
+      - "3306:3306"
     volumes:
       - "{{ appdata_path }}/nextcloud-db:/config"
     environment:
@@ -615,26 +557,27 @@ containers:
       - MYSQL_USER=souldeity
       - "MYSQL_PASSWORD={{ secret_nextclouddb_pass }}"
       - "MYSQL_ROOT_PASSWORD={{ secret_nextclouddb_pass }}"
-    ports:
-      - "3306:3306"
     include_global_env_vars: true
     restart: unless-stopped
   - service_name: nc-redis
-    image: redis:alpine
-    container_name: nc-redis
-    hostname: nc-redis
     active: true
+    image: redis:alpine
     volumes:
       - "{{ appdata_path }}/redis/nextcloud:/data"
     restart: unless-stopped
+  - service_name: nc-imaginary
+    active: true
+    image: nextcloud/aio-imaginary
+    restart: unless-stopped
   ###
   - service_name: paperless
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
-    container_name: paperless
-    hostname: paperless
     active: true
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
     depends_on:
       - pl-redis
+    labels:
+      - "traefik.http.routers.paperless.rule=Host(`paperless.{{ secret_domain_full }}`)"
+      - traefik.http.routers.paperless.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/paperless/config:/usr/src/paperless/data"
       - "{{ appdata_path }}/paperless/data/media:/usr/src/paperless/media"
@@ -648,33 +591,22 @@ containers:
       - PAPERLESS_CONSUMER_RECURSIVE=true
       - PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS=true
       - PAPERLESS_REDIS=redis://pl-redis:6379
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.paperless.rule=Host(`paperless.{{ secret_domain_full }}`)"
-      - traefik.http.routers.paperless.middlewares=authelia@docker
-      - traefik.http.services.paperless.loadbalancer.server.port=8000
     include_global_env_vars: false
     restart: unless-stopped
   - service_name: pl-redis
-    image: redis:6.0
-    container_name: pl-redis
-    hostname: pl-redis
     active: true
+    image: redis:6.0
     volumes:
       - "{{ appdata_path }}/redis/paperless:/data"
     restart: unless-stopped
   ###
   - service_name: mealie
-    image: hkotel/mealie
-    container_name: mealie
-    hostname: mealie
     active: true
+    image: hkotel/mealie
     volumes:
       - "{{ appdata_path }}/mealie:/app/data"
     labels:
-      - traefik.enable=true
       - "traefik.http.routers.mealie.rule=Host(`mealie.{{ secret_domain_full }}`)"
-      - traefik.http.services.mealie.loadbalancer.server.port=80
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -718,51 +650,54 @@ containers:
     restart: unless-stopped
   ###
   - service_name: webnut
-    image: teknologist/webnut
-    container_name: webnut
-    hostname: webnut
     active: true
+    image: teknologist/webnut
+    labels:
+      - traefik.enable=false
+    ports:
+      - 6543:6543
     environment:
       - UPS_HOST=10.42.1.2
       - UPS_PORT=3493
       - UPS_USER=monuser
       - "UPS_PASSWORD={{ secret_soulnut_pass }}"
-    ports:
-      - 6543:6543
     security_opt:
       - no-new-privileges:true
     include_global_env_vars: false
     restart: unless-stopped
   ###
   - service_name: actual
-    image: jlongster/actual-server
-    container_name: actual
-    hostname: actual
     active: true
+    image: jlongster/actual-server
+    labels:
+      - traefik.enable=false
+    ports:
+      - "5006:5006"
     volumes:
       - "{{ appdata_path }}/actual/server-files:/app/server-files"
       - "{{ appdata_path }}/actual/user-files:/app/user-files"
-    ports:
-      - "5006:5006"
     include_global_env_vars: false
     restart: unless-stopped
   ###
 
 # template for docker-compose services
 #  - service_name:
-#    image:
-#    container_name:
-#    hostname:
 #    active: true
-#    volumes:
-#      - "{{ appdata_path }}/app:/config"
-#    environment:
+#    image:
+#    container_name: #optional - only required if diff to service_name
+#    depends_on:
 #      -
 #    labels:
 #      - traefik.enable=true
 #      - "traefik.http.routers.XXXX.rule=Host(`XXXX.{{ secret_domain_full }}`)"
-#      - traefik.http.routers.XXXX.middlewares=authelia@docker
-#      - traefik.http.services.XXXX.loadbalancer.server.port=XXXX
-#    include_global_env_vars: true
+#      #- traefik.http.routers.XXXX.entrypoints=websecure
+#      #- traefik.http.routers.XXXX.tls.certresolver=cloudflare
+#      - traefik.http.services.XXXX.loadbalancer.server.port=80
+#      #- traefik.http.routers.XXXX.middlewares=authelia@docker
+#    volumes:
+#      - "{{ appdata_path }}/app:/config"
+#    environment:
+#      -
+#    include_global_env_vars: #optional - defaults to false
 #    restart: unless-stopped
   ###

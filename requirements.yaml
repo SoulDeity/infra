@@ -1,18 +1,20 @@
-- src: artis3n.tailscale
-- src: geerlingguy.docker
-- src: geerlingguy.docker_arm
-- src: geerlingguy.security
-- src: geerlingguy.ntp
-- src: geerlingguy.nfs
-- src: geerlingguy.github-users
-- src: grog.package
-- src: rossmcdonald.telegraf
+roles:
 - src: ironicbadger.docker_compose_generator
 - src: ironicbadger.bash_aliases
 - src: ironicbadger.figurine
 - src: ironicbadger.hddtemp
 - src: ironicbadger.snapraid
 - src: ironicbadger.proxmox_nag_removal
-- src: ntd.nut
 
+- src: geerlingguy.docker
+- src: geerlingguy.docker_arm
+- src: geerlingguy.security
+- src: geerlingguy.nfs
+- src: geerlingguy.ntp
+- src: geerlingguy.github-users
+
+- src: artis3n.tailscale
+- src: grog.package
+- src: rossmcdonald.telegraf
 - src: weareinteractive.environment
+- src: ntd.nut

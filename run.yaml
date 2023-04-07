@@ -19,14 +19,14 @@
     vars_files:
       - 'vars/vault.yaml'
     roles:
+      - role: ironicbadger.proxmox_nag_removal
       - role: geerlingguy.docker
       - role: artis3n.tailscale
       - role: grog.package
-      #- role: rossmcdonald.telegraf
       - role: ironicbadger.hddtemp
-      - role: ironicbadger.proxmox_nag_removal
+      #- role: rossmcdonald.telegraf
       - role: ironicbadger.bash_aliases
-      - role: ironicbadger.figurine
+      #- role: ironicbadger.figurine
       - role: soulboot
       - role: soulzfs
         tags: replication

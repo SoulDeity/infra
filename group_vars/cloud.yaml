@@ -67,7 +67,7 @@ containers:
     restart: unless-stopped
 ###
   - service_name: healthchecks
-    image: ghcr.io/linuxserver/healthchecks
+    image: lscr.io/linuxserver/healthchecks
     container_name: healthchecks
     hostname: healthchecks
     active: true

@@ -1,16 +1,28 @@
 ---
 
-- name: create /mnt points
+- name: create /mnt/parity* points
   file:
     dest: "{{ item.path }}"
     state: directory
-    owner: nobody
-    group: nogroup
-    mode: 0777
+    owner: root
+    group: root
+    mode: 0755
   with_items: 
     - "{{ snapraid_parity_disks }}"
+    - "{{ extra_mountpoints }}"
+  when: item.path != '/mnt/storage'
+
+- name: create other /mnt points
+  file:
+    dest: "{{ item.path }}"
+    state: directory
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: 0777
+  with_items: 
     - "{{ snapraid_data_disks }}"
     - "{{ extra_mountpoints }}"
+  when: item.path != '/mnt/nvme1'
 
 - name: mount disks
   mount:
@@ -25,7 +37,6 @@
     - "{{ snapraid_data_disks }}"
     - "{{ extra_mountpoints }}"
   when: item.path != '/mnt/storage'
-
 
 - name: mount mergerfs array
   mount:
