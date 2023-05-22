@@ -1,0 +1,17 @@
+  ###
+  - service_name: webnut
+    active: true
+    image: teknologist/webnut
+    labels:
+      - traefik.enable=false
+    ports:
+      - 6543:6543
+    environment:
+      - UPS_HOST=10.42.1.2
+      - UPS_PORT=3493
+      - UPS_USER=monuser
+      - "UPS_PASSWORD={{ secret_soulnut_pass }}"
+    security_opt:
+      - no-new-privileges:true
+    include_global_env_vars: false
+    restart: unless-stopped

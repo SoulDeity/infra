@@ -1,0 +1,39 @@
+  ###
+  - service_name: nginx_recipes
+    image: nginx:mainline-alpine
+    active: true
+    volumes:
+      - "{{ appdata_path }}/tandoor/static:/static:ro"
+      - "{{ appdata_path }}/tandoor/media:/media:ro"
+      - "{{ appdata_path }}/tandoor/nginx:/etc/nginx/conf.d:ro"
+    env_file:
+      - "{{ appdata_path }}/tandoor/docker/.env"
+    depends_on:
+      - web_recipes
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.tandoor.rule=Host(`recipes.{{ secret_domain_full }}`)"
+      - traefik.http.services.tandoor.loadbalancer.server.port=80
+    restart: unless-stopped
+  ###
+  - service_name: web_recipes
+    image: vabene1111/recipes
+    active: true
+    volumes:
+      - "{{ appdata_path }}/tandoor/static:/opt/recipes/staticfiles"
+      - "{{ appdata_path }}/tandoor/media:/opt/recipes/mediafiles"
+      - "{{ appdata_path }}/tandoor/nginx:/etc/nginx/conf.d"
+    env_file:
+      - "{{ appdata_path }}/tandoor/docker/.env"
+    depends_on:
+      - db_recipes
+    restart: unless-stopped
+  ###
+  - service_name: db_recipes
+    image: postgres:11-alpine
+    active: true
+    volumes:
+      - "{{ appdata_path }}/tandoor/db:/var/lib/postgresql/data"
+    env_file:
+      - "{{ appdata_path }}/tandoor/docker/.env"
+    restart: unless-stopped
