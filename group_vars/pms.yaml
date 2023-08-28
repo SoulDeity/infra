@@ -477,21 +477,6 @@ containers:
       - "{{ data_path }}:/data:ro"
     restart: unless-stopped
   ###
-  - service_name: readarr
-    active: false
-    image: lscr.io/linuxserver/readarr:nightly
-    depends_on:
-      - nzbget
-    labels:
-      - "traefik.http.routers.readarr.rule=Host(`readarr.{{ secret_domain_full }}`)"
-      - traefik.http.routers.readarr.middlewares=authelia@docker
-    volumes:
-      - "{{ appdata_path }}/readarr:/config"
-      - "{{ download_path }}:/downloads"
-      - "{{ data_path }}:/data"
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
   - service_name: overseerr
     active: true
     image: lscr.io/linuxserver/overseerr
@@ -627,15 +612,6 @@ containers:
       - "{{ appdata_path }}/actual/server-files:/app/server-files"
       - "{{ appdata_path }}/actual/user-files:/app/user-files"
     include_global_env_vars: false
-    restart: unless-stopped
-  ###
-  - service_name: fasten
-    active: true
-    image: ghcr.io/fastenhealth/fasten-onprem:main
-    labels:
-      - traefik.enable=false
-    ports:
-      - "9090:8080"
     restart: unless-stopped
   ###
   - service_name: smokeping

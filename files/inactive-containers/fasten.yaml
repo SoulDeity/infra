@@ -1,0 +1,9 @@
+  ###
+  - service_name: fasten
+    active: true
+    image: ghcr.io/fastenhealth/fasten-onprem:main
+    labels:
+      - traefik.enable=false
+    ports:
+      - "9090:8080"
+    restart: unless-stopped
