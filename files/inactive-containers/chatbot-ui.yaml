@@ -1,0 +1,11 @@
+  ###
+  - service_name: chatbotui
+    active: true
+    image: ghcr.io/mckaywrigley/chatbot-ui:main
+    labels:
+      - traefik.enable=false
+    ports:
+      - "3000:3000"
+    environment:
+      - "OPENAI_API_KEY={{ secret_openai_api_key }}"
+    restart: unless-stopped

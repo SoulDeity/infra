@@ -429,6 +429,12 @@ containers:
       - "{{ appdata_path }}/prowlarr:/config"
     include_global_env_vars: true
     restart: unless-stopped
+  - service_name: flaresolverr
+    active: true
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    ports:
+     - "8191:8191"
+    restart: unless-stopped  
   ###
   - service_name: sonarr
     active: true
@@ -472,7 +478,7 @@ containers:
     restart: unless-stopped
   ###
   - service_name: readarr
-    active: true
+    active: false
     image: lscr.io/linuxserver/readarr:nightly
     depends_on:
       - nzbget
@@ -623,16 +629,13 @@ containers:
     include_global_env_vars: false
     restart: unless-stopped
   ###
-  - service_name: chatbotui
+  - service_name: fasten
     active: true
-    image: ghcr.io/mckaywrigley/chatbot-ui:main
+    image: ghcr.io/fastenhealth/fasten-onprem:main
     labels:
       - traefik.enable=false
     ports:
-      - "3000:3000"
-    environment:
-      - "OPENAI_API_KEY={{ secret_openai_api_key }}"
-    include_global_env_vars: #optional - defaults to false
+      - "9090:8080"
     restart: unless-stopped
   ###
   - service_name: smokeping
@@ -648,25 +651,48 @@ containers:
     include_global_env_vars: true 
     restart: unless-stopped
   ###
+  - service_name: freshrss
+    active: true
+    image: lscr.io/linuxserver/freshrss:latest
+    labels:
+      - "traefik.http.routers.freshrss.rule=Host(`rss.{{ secret_domain_full }}`)"
+    volumes:
+      - "{{ appdata_path }}/freshrss:/config"
+    include_global_env_vars: true #optional - defaults to false
+    restart: unless-stopped
+  ###
+  - service_name: wallabag
+    active: true
+    image: wallabag/wallabag
+    labels:
+      - "traefik.http.routers.wallabag.rule=Host(`wallabag.{{ secret_domain_full }}`)"
+    environment:
+      - "SYMFONY__ENV__DOMAIN_NAME=https://wallabag.{{ secret_domain_full }}"
+      - "SYMFONY__ENV__DATABASE_DRIVER=pdo_sqlite"
+      - "SYMFONY__ENV__FOSUSER_CONFIRMATION=false"
+    volumes:
+      - "{{ appdata_path }}/wallabag:/var/www/wallabag/data"
+    include_global_env_vars: false #optional - defaults to false
+    restart: unless-stopped
 
 # template for docker-compose services
-#  - service_name:
-#    active: true
-#    image:
-#    container_name: #optional - only required if diff to service_name
-#    depends_on:
-#      -
-#    labels:
-#      - traefik.enable=true
-#      - "traefik.http.routers.XXXX.rule=Host(`XXXX.{{ secret_domain_full }}`)"
-#      #- traefik.http.routers.XXXX.entrypoints=websecure
-#      #- traefik.http.routers.XXXX.tls.certresolver=cloudflare
-#      - traefik.http.services.XXXX.loadbalancer.server.port=80
-#      #- traefik.http.routers.XXXX.middlewares=authelia@docker
-#    volumes:
-#      - "{{ appdata_path }}/app:/config"
-#    environment:
-#      -
-#    include_global_env_vars: #optional - defaults to false
-#    restart: unless-stopped
+  # - service_name:
+  #   active: true
+  #   image:
+  #   container_name: #optional - only required if diff to service_name
+  #   depends_on:
+  #     -
+  #   labels:
+  #     - traefik.enable=true
+  #     - "traefik.http.routers.XXXX.rule=Host(`XXXX.{{ secret_domain_full }}`)"
+  #     #- traefik.http.routers.XXXX.entrypoints=websecure
+  #     #- traefik.http.routers.XXXX.tls.certresolver=cloudflare
+  #     - traefik.http.services.XXXX.loadbalancer.server.port=80
+  #     #- traefik.http.routers.XXXX.middlewares=authelia@docker
+  #   volumes:
+  #     - "{{ appdata_path }}/app:/config"
+  #   environment:
+  #     -
+  #   include_global_env_vars: #optional - defaults to false
+  #   restart: unless-stopped
   ###

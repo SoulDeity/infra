@@ -27,6 +27,11 @@ traefik_enable_dashboard: false #defaults to false
 traefik_insecure_transport: true #defaults to false
 traefik_exposed_by_default: false
 
+# soulrestic
+restic_backup_locations:
+  - "{{ appdata_path }}"
+restic_forget: true #defaults to false
+
 # ironicbadger.docker_compose_generator
 appdata_path: /mnt/disk1/appdata
 containers:
@@ -89,3 +94,13 @@ containers:
       - traefik.http.routers.healthchecks.tls.certresolver=cloudflare
     include_global_env_vars: true
     restart: unless-stopped
+###
+  - service_name: it-tools
+    active: true
+    image: ghcr.io/corentinth/it-tools
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.ittools.rule=Host(`tools.{{ secret_domain_cloud }}`)"
+      - traefik.http.services.ittools.loadbalancer.server.port=80
+    restart: unless-stopped
+###

@@ -58,6 +58,8 @@
         tags: compose
       - role: ironicbadger.docker_compose_generator
         tags: compose
+      - role: soulrestic
+        tags: replication
 
 # soulbastion
   - hosts: bastion

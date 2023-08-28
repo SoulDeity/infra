@@ -26,6 +26,9 @@ cloud:
 ccomp:
 	ansible-playbook -b run.yaml --limit cloud --ask-become-pass --tags compose
 
+crepl:
+	ansible-playbook -b run.yaml --limit cloud --ask-become-pass --tags replication
+
 ### Updates
 update:
 	ansible-playbook update.yaml --limit servers --ask-become-pass
