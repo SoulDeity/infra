@@ -20,6 +20,7 @@
       - 'vars/vault.yaml'
     roles:
       - role: ironicbadger.proxmox_nag_removal
+      - role: soulhtop
       - role: geerlingguy.docker
       - role: artis3n.tailscale
       - role: grog.package
@@ -81,3 +82,11 @@
       - role: ironicbadger.figurine
       - role: soulboot
       - role: ntd.nut
+
+# proxmox
+  - hosts: proxmox
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: ironicbadger.proxmox_nag_removal
+      - role: soulhtop

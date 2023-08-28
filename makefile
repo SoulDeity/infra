@@ -36,6 +36,9 @@ update:
 docker:
 	ansible-playbook docker.yaml
 
+proxmox:
+	ansible-playbook -b playbooks/proxmox-nag.yaml --limit proxmox --ask-become-pass 
+
 reqs:
 	ansible-galaxy install -r requirements.yaml
 
