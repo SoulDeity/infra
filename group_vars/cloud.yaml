@@ -28,12 +28,14 @@ traefik_insecure_transport: true #defaults to false
 traefik_exposed_by_default: true
 
 # soulrestic
+restic_healthchecks_id: "{{ restic_cloud_healthchecks_id }}"
+restic_forget_healthchecks_id: "{{ restic_cloud_forget_healthchecks_id }}"
 restic_backup_locations:
   - "{{ appdata_path }}"
 restic_forget: true #defaults to false
 
 # ironicbadger.docker_compose_generator
-appdata_path: /mnt/disk1/appdata
+appdata_path: "/home/{{ main_username }}/appdata"
 containers:
 ###
   - service_name: tr
@@ -91,7 +93,7 @@ containers:
     active: true
     image: lscr.io/linuxserver/librespeed
     labels:
-      - "traefik.http.routers.librespeed.rule=Host(`speed.{{ secret_domain_full }}`)"
+      - "traefik.http.routers.librespeed.rule=Host(`speed.{{ secret_domain_cloud }}`)"
     volumes:
       - "{{ appdata_path }}/librespeed:/config"
     include_global_env_vars: true

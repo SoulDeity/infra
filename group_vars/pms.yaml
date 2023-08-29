@@ -290,6 +290,8 @@ authelia_rules:
     policy: bypass
 
 # soulrestic
+restic_healthchecks_id: "{{ restic_pms_healthchecks_id }}"
+restic_forget_healthchecks_id: "{{ restic_pms_forget_healthchecks_id }}"
 restic_backup_locations:
   - /mnt/tank
 restic_backup_excludes: #defaults to blank
