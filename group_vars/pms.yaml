@@ -652,6 +652,19 @@ containers:
       - "{{ appdata_path }}/wallabag:/var/www/wallabag/data"
     include_global_env_vars: false #optional - defaults to false
     restart: unless-stopped
+  ###
+  - service_name: babybuddy
+    active: true
+    image: lscr.io/linuxserver/babybuddy
+    labels:
+      - traefik.enable=false
+    ports:
+      - "8000:8000"
+    volumes:
+      - "{{ appdata_path }}/babybuddy:/config"
+    include_global_env_vars: true #optional - defaults to false
+    restart: unless-stopped
+  ###
 
 # template for docker-compose services
   # - service_name:
