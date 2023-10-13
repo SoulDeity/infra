@@ -298,7 +298,6 @@ restic_backup_excludes: #defaults to blank
   - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Cache
   - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Media
   - /mnt/tank/appdata/plexmeta
-restic_forget: true #defaults to false
 
 # ironicbadger.docker_compose_generator
 appdata_path: /mnt/tank/appdata
@@ -342,6 +341,19 @@ containers:
     image: redis
     volumes:
       - "{{ appdata_path }}/redis/authelia:/data"
+    restart: unless-stopped
+  ###
+  - service_name: homepage
+    active: true
+    image: ghcr.io/gethomepage/homepage:latest
+    labels:
+      - "traefik.http.routers.homepage.rule=Host(`dash.{{ secret_domain_full }}`)"
+      - traefik.http.routers.homepage.middlewares=authelia@docker
+    volumes:
+      - "{{ appdata_path }}/homepage:/app/config"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ data_path }}:/data:ro"
+    include_global_env_vars: true
     restart: unless-stopped
   ###
   - service_name: scrutiny
@@ -684,6 +696,6 @@ containers:
   #     - "{{ appdata_path }}/app:/config"
   #   environment:
   #     -
-  #   include_global_env_vars: #optional - defaults to false
+  #   #include_global_env_vars: true #optional - defaults to false
   #   restart: unless-stopped
   ###
