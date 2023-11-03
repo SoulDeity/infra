@@ -90,3 +90,14 @@
     roles:
       - role: ironicbadger.proxmox_nag_removal
       - role: soulhtop
+
+# soulai
+  - hosts: ai
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: geerlingguy.docker
+      - role: ironicbadger.bash_aliases
+      - role: ironicbadger.figurine
+      - role: ironicbadger.docker_compose_generator
+        tags: compose
