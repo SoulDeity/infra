@@ -14,8 +14,6 @@ entryPoints:
         domains:
           - main: {{ secret_domain_full }}
             sans: "*.{{ secret_domain_full }}"
-          - main: m.{{ secret_domain_full }}
-            sans: "*.m.{{ secret_domain_full }}"
   traefik:
     address: ":8080"
     

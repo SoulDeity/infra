@@ -1,5 +1,12 @@
 http:
   routers:
+    router-blueiris:
+      entryPoints:
+        - websecure
+      rule: "Host(`bi.tl.{{ secret_domain_full }}`)"
+      service: service-blueiris
+      tls:
+        certResolver: cloudflare
     router-homeassistant:
       entryPoints:
         - websecure
@@ -10,11 +17,22 @@ http:
     router-octoprint:
       entryPoints:
         - websecure
-      rule: Host(`print.{{ secret_domain_full }}`)
+      rule: Host(`print.tl.{{ secret_domain_full }}`)
       service: service-octoprint
       tls:
         certResolver: cloudflare
+    router-octoprint2:
+      entryPoints:
+        - websecure
+      rule: Host(`print2.tl.{{ secret_domain_full }}`)
+      service: service-octoprint2
+      tls:
+        certResolver: cloudflare
   services:
+    service-blueiris:
+      loadBalancer:
+        servers:
+        - url: "http://10.42.3.1:81"
     service-homeassistant:
       loadBalancer:
         servers:
@@ -22,8 +40,11 @@ http:
     service-octoprint:
       loadBalancer:
         servers:
-        - url: "http://soulprint.m.{{ secret_domain_full }}:80"
-          scheme: https
+        - url: "http://soulprint"
+    service-octoprint2:
+      loadBalancer:
+        servers:
+        - url: "http://soulprint2"
   middlewares:
     https-redirect:
       redirectScheme:
