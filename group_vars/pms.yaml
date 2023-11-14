@@ -263,31 +263,6 @@ traefik_enable_dashboard: true #defaults to false
 traefik_insecure_transport: true #defaults to false
 traefik_exposed_by_default: true
 
-## soulauthelia
-authelia_users:
-  - username: "{{ authelia_username }}"
-    displayname: "{{ authelia_displayname }}"
-    # docker run authelia/authelia:latest authelia hash-password 'yourpassword'
-    password: "{{ authelia_password }}"
-    email: "{{ authelia_email_address }}"
-    groups:
-      - admin
-      - dev
-authelia_rules:
-  - domain: "*.{{ secret_domain_full }}" # allows api's through
-    policy: bypass
-    resources:
-      - '^/api.*$'
-  - domain: "*.{{ secret_domain_full }}" # allows calendar feeds through
-    policy: bypass
-    resources:
-      - '^/feed.*$'
-  - domain: "*.{{ secret_domain_full }}"
-    policy: two_factor
-  - domain: "plex.{{ secret_domain_full }}"
-    policy: one_factor
-  - domain: "drive.{{ secret_domain_full }}"
-    policy: bypass
 
 # soulrestic
 restic_healthchecks_id: "{{ restic_pms_healthchecks_id }}"
@@ -323,33 +298,11 @@ containers:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
   ###
-  - service_name: authelia
-    active: true
-    image: authelia/authelia
-    labels:
-      - "traefik.http.routers.authelia.rule=Host(`login.{{ secret_domain_full }}`)"
-      - traefik.http.routers.authelia.tls=true
-      - traefik.http.services.authelia.loadbalancer.server.port=9091
-      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://login.{{ secret_domain_full }}/"
-      - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
-      - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email
-    volumes:
-      - "{{ appdata_path }}/authelia:/config"
-    expose:
-    restart: unless-stopped
-  - service_name: auth-redis
-    active: true
-    image: redis
-    volumes:
-      - "{{ appdata_path }}/redis/authelia:/data"
-    restart: unless-stopped
-  ###
   - service_name: homepage
     active: true
     image: ghcr.io/gethomepage/homepage:latest
     labels:
       - "traefik.http.routers.homepage.rule=Host(`dash.p.{{ local_domain }}`)"
-      - traefik.http.routers.homepage.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/homepage:/app/config"
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -426,8 +379,6 @@ containers:
     image: lscr.io/linuxserver/nzbget
     labels:
       - "traefik.http.routers.nzbget.rule=Host(`nzbget.p.{{ local_domain }}`)"
-      - traefik.http.routers.nzbget.middlewares=authelia@docker
-      - "traefik.http.routers.nzbgetapi.rule=Host(`nzbgetapi.{{ secret_domain_full }}`)"
     volumes:
       - "{{ appdata_path }}/nzbget:/config"
       - "{{ download_path }}:/downloads"
@@ -439,7 +390,6 @@ containers:
     image: lscr.io/linuxserver/prowlarr:develop
     labels:
       - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.p.{{ local_domain }}`)"
-      - traefik.http.routers.prowlarr.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/prowlarr:/config"
     include_global_env_vars: true
@@ -458,7 +408,6 @@ containers:
       - nzbget
     labels:
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.p.{{ local_domain }}`)"
-      - traefik.http.routers.sonarr.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/sonarr:/config"
       - "{{ download_path }}:/downloads"
@@ -473,7 +422,6 @@ containers:
       - nzbget
     labels:
       - "traefik.http.routers.radarr.rule=Host(`radarr.p.{{ local_domain }}`)"
-      - traefik.http.routers.radarr.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/radarr:/config"
       - "{{ download_path }}:/downloads"
@@ -583,7 +531,6 @@ containers:
       - pl-redis
     labels:
       - "traefik.http.routers.paperless.rule=Host(`paperless.p.{{ local_domain }}`)"
-      - traefik.http.routers.paperless.middlewares=authelia@docker
     volumes:
       - "{{ appdata_path }}/paperless/config:/usr/src/paperless/data"
       - "{{ appdata_path }}/paperless/data/media:/usr/src/paperless/media"
@@ -695,7 +642,8 @@ containers:
   #     #- traefik.http.routers.XXXX.entrypoints=websecure
   #     #- traefik.http.routers.XXXX.tls.certresolver=cloudflare
   #     - traefik.http.services.XXXX.loadbalancer.server.port=80
-  #     #- traefik.http.routers.XXXX.middlewares=authelia@docker
+  #   ports:
+  #     -
   #   volumes:
   #     - "{{ appdata_path }}/app:/config"
   #   environment:

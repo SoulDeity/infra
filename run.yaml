@@ -34,8 +34,6 @@
       - role: soulpms
       - role: ntd.nut
         tags: nut
-      - role: soulauthelia
-        tags: compose
       - role: ironicbadger.docker_compose_generator
         tags: compose
       - role: soultraefik

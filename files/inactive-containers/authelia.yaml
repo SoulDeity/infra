@@ -1,0 +1,47 @@
+## soulauthelia
+authelia_users:
+  - username: "{{ authelia_username }}"
+    displayname: "{{ authelia_displayname }}"
+    # docker run authelia/authelia:latest authelia hash-password 'yourpassword'
+    password: "{{ authelia_password }}"
+    email: "{{ authelia_email_address }}"
+    groups:
+      - admin
+      - dev
+authelia_rules:
+  - domain: "*.{{ secret_domain_full }}" # allows api's through
+    policy: bypass
+    resources:
+      - '^/api.*$'
+  - domain: "*.{{ secret_domain_full }}" # allows calendar feeds through
+    policy: bypass
+    resources:
+      - '^/feed.*$'
+  - domain: "*.{{ secret_domain_full }}"
+    policy: two_factor
+  - domain: "plex.{{ secret_domain_full }}"
+    policy: one_factor
+  - domain: "drive.{{ secret_domain_full }}"
+    policy: bypass
+
+  ###
+  - service_name: authelia
+    active: true
+    image: authelia/authelia
+    labels:
+      - "traefik.http.routers.authelia.rule=Host(`login.{{ secret_domain_full }}`)"
+      - traefik.http.routers.authelia.tls=true
+      - traefik.http.services.authelia.loadbalancer.server.port=9091
+      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://login.{{ secret_domain_full }}/"
+      - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
+      - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email
+    volumes:
+      - "{{ appdata_path }}/authelia:/config"
+    expose:
+    restart: unless-stopped
+  - service_name: auth-redis
+    active: true
+    image: redis
+    volumes:
+      - "{{ appdata_path }}/redis/authelia:/data"
+    restart: unless-stopped
