@@ -280,6 +280,7 @@ download_path: /mnt/storage/downloads
 data_path: /mnt/storage
 local_domain: "tl.{{ secret_domain_full }}"
 containers:
+  ### Administrative
   ###
   - service_name: tr
     active: true
@@ -298,6 +299,20 @@ containers:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
   ###
+  - service_name: organizr
+    active: true
+    image: ghcr.io/organizr/organizr
+    labels:
+      - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
+      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=128000
+    volumes:
+      - "{{ appdata_path }}/organizr:/config"
+    environment:
+      - fpm=true
+      - branch=v2-master
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
   - service_name: homepage
     active: true
     image: ghcr.io/gethomepage/homepage:latest
@@ -309,27 +324,7 @@ containers:
       - "{{ data_path }}:/data:ro"
     include_global_env_vars: true
     restart: unless-stopped
-  ###
-  - service_name: scrutiny
-    active: true
-    image: ghcr.io/analogj/scrutiny:master-omnibus
-    labels:
-      - "traefik.http.routers.scrutiny.rule=Host(`scrutiny.p.{{ local_domain }}`)"
-    cap_add:
-      - SYS_RAWIO
-      - SYS_ADMIN
-    devices:
-      - /dev:/dev
-    volumes:
-      - "{{ appdata_path }}/scrutiny/config:/opt/scrutiny/config"
-      - "{{ appdata_path }}/scrutiny/influxdb:/opt/scrutiny/influxdb"
-      - /run/udev:/run/udev:ro
-    ports:
-      - "7278:8080" # webapp
-      - "8087:8086" # influxDB admin
-    privileged: true
-    include_global_env_vars: true
-    restart: unless-stopped
+  ### Media Servers
   ###
   - service_name: plex
     active: true
@@ -348,6 +343,18 @@ containers:
       - traefik.http.services.plex.loadbalancer.server.port=32400
     include_global_env_vars: true
     restart: unless-stopped
+  ###
+  - service_name: audiobookshelf
+    active: true
+    image: ghcr.io/advplyr/audiobookshelf
+    labels:
+      - "traefik.http.routers.audiobookshelf.rule=Host(`abs.{{ secret_domain_full }}`)"
+    volumes:
+      - "{{ appdata_path }}/audiobookshelf/metadata:/metadata"
+      - "{{ appdata_path }}/audiobookshelf/config:/config"
+      - "{{ data_path }}:/data:ro"
+    restart: unless-stopped
+  ### Media Tools
   ###
   - service_name: plexmeta
     active: true
@@ -373,6 +380,17 @@ containers:
       - "{{ appdata_path }}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro"
     include_global_env_vars: true
     restart: unless-stopped
+  ###
+  - service_name: overseerr
+    active: true
+    image: lscr.io/linuxserver/overseerr
+    labels:
+      - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
+    volumes:
+      - "{{ appdata_path }}/overseerr:/config"
+    include_global_env_vars: true
+    restart: unless-stopped
+  ### Media Acquisition
   ###
   - service_name: nzbget
     active: true
@@ -428,41 +446,7 @@ containers:
       - "{{ data_path }}:/data"
     include_global_env_vars: true
     restart: unless-stopped
-  ###
-  - service_name: audiobookshelf
-    active: true
-    image: ghcr.io/advplyr/audiobookshelf
-    labels:
-      - "traefik.http.routers.audiobookshelf.rule=Host(`abs.{{ secret_domain_full }}`)"
-    volumes:
-      - "{{ appdata_path }}/audiobookshelf/metadata:/metadata"
-      - "{{ appdata_path }}/audiobookshelf/config:/config"
-      - "{{ data_path }}:/data:ro"
-    restart: unless-stopped
-  ###
-  - service_name: overseerr
-    active: true
-    image: lscr.io/linuxserver/overseerr
-    labels:
-      - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
-    volumes:
-      - "{{ appdata_path }}/overseerr:/config"
-    include_global_env_vars: true
-    restart: unless-stopped
-  ###
-  - service_name: organizr
-    active: true
-    image: ghcr.io/organizr/organizr
-    labels:
-      - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
-      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=128000
-    volumes:
-      - "{{ appdata_path }}/organizr:/config"
-    environment:
-      - fpm=true
-      - branch=v2-master
-    include_global_env_vars: true
-    restart: unless-stopped
+  ### Data Services
   ###
   - service_name: bitwarden
     active: true
@@ -496,7 +480,7 @@ containers:
       - "{{ appdata_path }}/nextcloud:/config"
       - "{{ appdata_path }}/nextcloud/data:/data"
     environment:
-      - DOCKER_MODS=theorangeone/lsio-mod-more-processes:latest
+      - DOCKER_MODS=theorangeone/lsio-mod-more-processes:latest|linuxserver/mods:nextcloud-memories
     include_global_env_vars: true
     restart: unless-stopped
   - service_name: nextcloud-db
@@ -522,6 +506,8 @@ containers:
   - service_name: nc-imaginary
     active: true
     image: nextcloud/aio-imaginary
+    labels:
+      - traefik.enable=false
     restart: unless-stopped
   ###
   - service_name: paperless
@@ -563,32 +549,6 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
-  - service_name: actual
-    active: true
-    image: jlongster/actual-server
-    labels:
-      - traefik.enable=false
-    ports:
-      - "5006:5006"
-    volumes:
-      - "{{ appdata_path }}/actual/server-files:/app/server-files"
-      - "{{ appdata_path }}/actual/user-files:/app/user-files"
-    include_global_env_vars: false
-    restart: unless-stopped
-  ###
-  - service_name: smokeping
-    active: true
-    image: lscr.io/linuxserver/smokeping
-    labels:
-      - "traefik.http.routers.smokeping.rule=Host(`smokeping.p.{{ local_domain }}`)"
-    ports:
-      - "81:80"
-    volumes:
-      - "{{ appdata_path }}/smokeping/config:/config"
-      - "{{ appdata_path }}/smokeping/data:/data"
-    include_global_env_vars: true 
-    restart: unless-stopped
-  ###
   - service_name: freshrss
     active: true
     image: lscr.io/linuxserver/freshrss:latest
@@ -612,20 +572,19 @@ containers:
       - "{{ appdata_path }}/wallabag:/var/www/wallabag/data"
     include_global_env_vars: false #optional - defaults to false
     restart: unless-stopped
+  ### Monitoring
   ###
-  - service_name: babybuddy
+  - service_name: smokeping
     active: true
-    image: lscr.io/linuxserver/babybuddy
+    image: lscr.io/linuxserver/smokeping
     labels:
-      - "traefik.http.routers.babybuddy.rule=Host(`bb.p.{{ local_domain }}`)"
+      - "traefik.http.routers.smokeping.rule=Host(`smokeping.p.{{ local_domain }}`)"
     ports:
-      - "8000:8000"
+      - "81:80"
     volumes:
-      - "{{ appdata_path }}/babybuddy:/config"
-    environment:
-      - "CSRF_TRUSTED_ORIGINS=https://bb.p.{{ local_domain }}"
-      - SECURE_PROXY_SSL_HEADER=true
-    include_global_env_vars: true #optional - defaults to false
+      - "{{ appdata_path }}/smokeping/config:/config"
+      - "{{ appdata_path }}/smokeping/data:/data"
+    include_global_env_vars: true 
     restart: unless-stopped
   ###
 

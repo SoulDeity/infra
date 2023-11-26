@@ -1,0 +1,13 @@
+  ###
+  - service_name: babybuddy
+    active: true
+    image: lscr.io/linuxserver/babybuddy
+    labels:
+      - "traefik.http.routers.babybuddy.rule=Host(`bb.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/babybuddy:/config"
+    environment:
+      - "CSRF_TRUSTED_ORIGINS=https://bb.p.{{ local_domain }}"
+      - SECURE_PROXY_SSL_HEADER=true
+    include_global_env_vars: true #optional - defaults to false
+    restart: unless-stopped

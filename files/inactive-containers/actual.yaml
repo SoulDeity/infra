@@ -1,0 +1,13 @@
+  ###
+  - service_name: actual
+    active: true
+    image: jlongster/actual-server
+    labels:
+      - traefik.enable=false
+    ports:
+      - "5006:5006"
+    volumes:
+      - "{{ appdata_path }}/actual/server-files:/app/server-files"
+      - "{{ appdata_path }}/actual/user-files:/app/user-files"
+    include_global_env_vars: false
+    restart: unless-stopped
