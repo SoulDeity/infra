@@ -337,7 +337,7 @@ containers:
       - /dev/shm:/config/transcodes
       - "{{ data_path }}:/data:ro"
     environment:
-      - VERSION=docker
+      - VERSION=latest
     labels:
       - "traefik.http.routers.plex.rule=Host(`plex.{{ secret_domain_full }}`)"
       - traefik.http.services.plex.loadbalancer.server.port=32400
@@ -358,7 +358,7 @@ containers:
   ###
   - service_name: plexmeta
     active: true
-    image: meisnate12/plex-meta-manager
+    image: meisnate12/plex-meta-manager:nightly
     labels:
       - traefik.enable=false
     volumes:
