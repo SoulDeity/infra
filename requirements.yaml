@@ -17,4 +17,3 @@ roles:
 - src: grog.package
 - src: rossmcdonald.telegraf
 - src: weareinteractive.environment
-- src: ntd.nut

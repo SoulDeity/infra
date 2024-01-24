@@ -8,17 +8,11 @@ pcomp:
 prepl:
 	ansible-playbook -b run.yaml --limit pms --ask-become-pass --tags replication
 
-pnut:
-	ansible-playbook -b run.yaml --limit pms --ask-become-pass --tags nut
-
 bastion:
 	ansible-playbook -b run.yaml --limit bastion --ask-become-pass
 
 bcomp:
 	ansible-playbook run.yaml --limit bastion --tags compose
-
-nut:
-	ansible-playbook -b run.yaml --limit nut --ask-become-pass
 
 cloud:
 	ansible-playbook -b run.yaml --limit cloud --ask-become-pass

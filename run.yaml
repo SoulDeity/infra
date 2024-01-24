@@ -32,8 +32,6 @@
       - role: soulzfs
         tags: replication
       - role: soulpms
-      - role: ntd.nut
-        tags: nut
       - role: ironicbadger.docker_compose_generator
         tags: compose
       - role: soultraefik
@@ -70,16 +68,6 @@
       - role: ironicbadger.figurine
       - role: ironicbadger.docker_compose_generator
         tags: compose
-
-# soulnut
-  - hosts: nut
-    vars_files:
-      - 'vars/vault.yaml'
-    roles:
-      - role: ironicbadger.bash_aliases
-      - role: ironicbadger.figurine
-      - role: soulboot
-      - role: ntd.nut
 
 # proxmox
   - hosts: proxmox
