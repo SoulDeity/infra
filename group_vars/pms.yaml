@@ -455,7 +455,7 @@ containers:
   ###
   - service_name: mealie
     active: true
-    image: hkotel/mealie
+    image: hkotel/mealie:v.0.5.6
     volumes:
       - "{{ appdata_path }}/mealie:/app/data"
     labels:
