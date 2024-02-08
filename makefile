@@ -8,12 +8,6 @@ pcomp:
 prepl:
 	ansible-playbook -b run.yaml --limit pms --ask-become-pass --tags replication
 
-bastion:
-	ansible-playbook -b run.yaml --limit bastion --ask-become-pass
-
-bcomp:
-	ansible-playbook run.yaml --limit bastion --tags compose
-
 cloud:
 	ansible-playbook -b run.yaml --limit cloud --ask-become-pass
 
@@ -22,12 +16,6 @@ ccomp:
 
 crepl:
 	ansible-playbook -b run.yaml --limit cloud --ask-become-pass --tags replication
-
-ai:
-	ansible-playbook -b run.yaml --limit ai --ask-become-pass
-
-acomp:
-	ansible-playbook -b run.yaml --limit ai --ask-become-pass --tags compose
 
 ### Updates
 update:
