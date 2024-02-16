@@ -1,3 +1,13 @@
+### Network Infrastructure
+pihole:
+	ansible-playbook -b run.yaml --limit pihole --ask-become-pass
+
+caddy:
+	ansible-playbook -b run.yaml --limit caddy
+
+unifi:
+	ansible-playbook -b run.yaml --limit unifi
+
 ### Servers
 pms:
 	ansible-playbook -b run.yaml --limit pms --ask-become-pass

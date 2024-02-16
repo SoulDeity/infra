@@ -1,0 +1,96 @@
+(cloudflare) {
+  tls {
+    dns cloudflare {{ secret_cloudflare_caddy_api }}
+  }
+}
+
+(headers) {
+  header {
+    Permissions-Policy interest-cohort=()
+    Strict-Transport-Security "max-age=31536000; includeSubdomains"
+    X-XSS-Protection "1; mode=block"
+    X-Content-Type-Options "nosniff"
+    X-Robots-Tag noindex, nofollow
+    Referrer-Policy "same-origin"
+    Content-Security-Policy "frame-ancestors {{ secret_domain_full }} *.{{ secret_domain_local }}"
+    -Server
+    Permissions-Policy "geolocation=(self {{ secret_domain_full }} *.{{ secret_domain_local }}), microphone=()"
+  }
+}
+
+# soulnet
+proxmox.n.{{ secret_domain_local }} {
+  reverse_proxy https://10.42.0.1:8006 {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
+}
+
+# pihole
+dns.{{ secret_domain_local }} {
+  redir / /admin
+  reverse_proxy http://10.42.0.253
+  import cloudflare
+}
+
+#opnsense
+opnsense.{{ secret_domain_local }} {
+  reverse_proxy https://10.42.0.254:443 {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
+}
+
+# unifi local
+unifi.{{ secret_domain_local }} {
+  reverse_proxy https://10.42.0.250:8443 {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
+}
+
+# soulpms
+proxmox.p.{{ secret_domain_local }} {
+  reverse_proxy https://10.42.1.1:8006 {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
+}
+
+# immich
+photos.{{ secret_domain_full }} {
+  reverse_proxy http://10.42.1.1:2283
+  import cloudflare
+}
+
+# home assistant
+home.{{ secret_domain_full }} {
+  reverse_proxy http://soulhass:8123
+  import cloudflare
+}
+
+# blue iris
+bi.{{ secret_domain_local }} {
+  reverse_proxy http://souliris:83
+  import cloudflare
+}
+
+# soulprint
+print.{{ secret_domain_local }} {
+  reverse_proxy http://soulprint
+  import cloudflare
+}
+
+# soulprint2
+print2.{{ secret_domain_local }} {
+  reverse_proxy http://soulprint2
+  import cloudflare
+}

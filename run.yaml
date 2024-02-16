@@ -14,6 +14,32 @@
   #         - 10-help-text
   #       when: ansible_distribution == 'Ubuntu'
 
+  - hosts: pihole
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: ironicbadger.figurine
+      - role: soul-dhcp-dns
+
+  - hosts: caddy
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: geerlingguy.ntp
+      - role: ironicbadger.figurine
+      - role: soulcaddy
+        tags: caddy
+
+  - hosts: unifi
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: geerlingguy.docker
+      - role: ironicbadger.bash_aliases
+        tags: bash
+      - role: ironicbadger.docker_compose_generator
+        tags: compose
+
 # soulpms - Perfect Media Server
   - hosts: pms
     vars_files:
@@ -58,16 +84,16 @@
       - role: soulrestic
         tags: replication
 
-# soulbastion
-  - hosts: bastion
-    vars_files:
-      - 'vars/vault.yaml'
-    roles:
-      - role: geerlingguy.security
-      - role: geerlingguy.docker
-      - role: ironicbadger.figurine
-      - role: ironicbadger.docker_compose_generator
-        tags: compose
+# # soulbastion
+#   - hosts: bastion
+#     vars_files:
+#       - 'vars/vault.yaml'
+#     roles:
+#       - role: geerlingguy.security
+#       - role: geerlingguy.docker
+#       - role: ironicbadger.figurine
+#       - role: ironicbadger.docker_compose_generator
+#         tags: compose
 
 # proxmox
   - hosts: proxmox
@@ -77,13 +103,13 @@
       - role: ironicbadger.proxmox_nag_removal
       - role: soulhtop
 
-# soulai
-  - hosts: ai
-    vars_files:
-      - 'vars/vault.yaml'
-    roles:
-      - role: geerlingguy.docker
-      - role: ironicbadger.bash_aliases
-      - role: ironicbadger.figurine
-      - role: ironicbadger.docker_compose_generator
-        tags: compose
+# # soulai
+#   - hosts: ai
+#     vars_files:
+#       - 'vars/vault.yaml'
+#     roles:
+#       - role: geerlingguy.docker
+#       - role: ironicbadger.bash_aliases
+#       - role: ironicbadger.figurine
+#       - role: ironicbadger.docker_compose_generator
+#         tags: compose
