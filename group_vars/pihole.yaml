@@ -44,6 +44,7 @@ dhcp_reservations:
   ## networking equipment
   ### poe switches
   - {mac: 00:19:56:08:2c:00, ip: 10.42.0.2, hostname: cisco-catalyst-3560g-48ps}
+  - {mac: 80:2a:a8:dc:44:22, ip: 10.42.0.5, hostname: unifi-edgeswitch-24-500w}
 
   ### wifi
   - {mac: 60:22:32:fe:9c:e0, ip: 10.42.0.3, hostname: unifi-u6-pro-upstairs}
@@ -78,7 +79,7 @@ dhcp_reservations:
   - {mac: 8c:ec:4b:75:17:8e, ip: 10.42.2.1, hostname: souliris}
 
   - {mac: 48:9e:9d:d8:84:d5, ip: 10.42.2.10, hostname: reolink-doorbell}
-  - {mac: ec:71:db:ba:75:13, ip: 10.42.2.11, hostname: reolink-driveway}
+  - {mac: ec:71:db:36:81:26, ip: 10.42.2.11, hostname: reolink-driveway}
   - {mac: b4:6d:c2:c4:57:e4, ip: 10.42.2.12, hostname: reolink-garage}
   - {mac: b4:6d:c2:c5:7a:55, ip: 10.42.2.13, hostname: reolink-cayden}
 
