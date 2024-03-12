@@ -12,6 +12,9 @@
       package:
         name: '*'
         state: latest
+  roles:
+    - role: ironicbadger.bash_aliases
+      become: true
 
 # - hosts: pterodactyl
 #   tasks:
