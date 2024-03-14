@@ -527,6 +527,20 @@ containers:
     include_global_env_vars: true 
     restart: unless-stopped
   ###
+  - service_name: netboot
+    active: true
+    image: lscr.io/linuxserver/netbootxyz
+    labels:
+      - traefik.enable=false
+    ports:
+      - "3000:3000"
+      - "69:69/udp"
+      - "3001:80"
+    volumes:
+      - "{{ data_path }}/Proxmox/template/iso:/assets"
+    include_global_env_vars: true 
+    restart: unless-stopped
+  ###
 
 # template for docker-compose services
   # - service_name:
