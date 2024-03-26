@@ -12,10 +12,11 @@ dhcp_range_end: 10.42.7.250
 dhcp_router: 10.42.0.254
 dhcp_active: "true"
 pxe_server_ip: 10.42.1.1
+lancache_ip: 10.42.1.20
 
 dns_overrides:
   # try to use sparingly and must be FQDN
-  - {ip: 10.42.0.252, custom_dns: "{{ secret_domain_local }}"}
+  #- {ip: 10.42.0.252, custom_dns: "{{ secret_domain_local }}"}
   - {ip: 10.42.0.252, custom_dns: "opnsense.{{ secret_domain_local }}"}
   - {ip: 10.42.0.252, custom_dns: "dns.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "bi.{{ secret_domain_local }}"}
@@ -25,6 +26,7 @@ dns_overrides:
   #- {ip: 10.42.0.252, custom_dns: "photos.{{ secret_domain_full }}"}
   - {ip: 10.42.0.250, custom_dns: "unifi"}
   - {ip: 10.42.0.250, custom_dns: "inform.unifi.{{ secret_domain_local }}"}
+  - {ip: 10.42.0.252, custom_dns: "proxmox.n.{{ secret_domain_local }}"}
   - {ip: 10.42.0.252, custom_dns: "proxmox.p.{{ secret_domain_local }}"}
 
 dhcp_reservations:
@@ -79,7 +81,7 @@ dhcp_reservations:
   - {mac: 8c:ec:4b:75:17:8e, ip: 10.42.2.1, hostname: souliris}
 
   - {mac: 48:9e:9d:d8:84:d5, ip: 10.42.2.10, hostname: reolink-doorbell}
-  - {mac: ec:71:db:36:81:26, ip: 10.42.2.11, hostname: reolink-driveway}
+  - {mac: ec:71:db:82:72:26, ip: 10.42.2.11, hostname: reolink-driveway}
   - {mac: b4:6d:c2:c4:57:e4, ip: 10.42.2.12, hostname: reolink-garage}
   - {mac: b4:6d:c2:c5:7a:55, ip: 10.42.2.13, hostname: reolink-cayden}
 

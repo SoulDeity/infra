@@ -18,7 +18,7 @@
     vars_files:
       - 'vars/vault.yaml'
     roles:
-      - role: ironicbadger.figurine
+      #- role: ironicbadger.figurine
       - role: soul-dhcp-dns
 
   - hosts: caddy
