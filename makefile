@@ -37,6 +37,9 @@ docker:
 proxmox:
 	ansible-playbook -b playbooks/proxmox-nag.yaml --limit proxmox --ask-become-pass 
 
+net-updates:
+	ansible-playbook playbooks/net-updates.yaml --limit netkids -b --ask-become-pass
+
 reqs:
 	ansible-galaxy install -r requirements.yaml
 
