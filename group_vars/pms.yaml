@@ -197,13 +197,13 @@ containers:
   ###
   - service_name: plexmeta
     active: true
-    image: meisnate12/plex-meta-manager:nightly
+    image: kometateam/kometa:nightly
     labels:
       - traefik.enable=false
     volumes:
       - "{{ appdata_path }}/plexmeta/config:/config"
     environment:
-      - PMM_TIME=01:22
+      - KOMETA_TIMES=01:22
     include_global_env_vars: true
     restart: unless-stopped
 ###
