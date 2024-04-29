@@ -38,110 +38,40 @@ package_list:
   - name: xfsprogs
   - name: zfsutils-linux
 
-# ironicbadger.snapraid
-snapraid_bin_path: /usr/local/bin/snapraid
-snapraid_parity_disks:
-  - { path: /mnt/parity1, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9LJ0AGVG-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/parity2, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MHSD18U-part1, fs: xfs, opts: defaults, content: false }
-snapraid_data_disks:
-  - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJNRD5W-part1, fs: xfs, opts: defaults, content: true }
-  - { path: /mnt/disk2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SH07NTC-part1, fs: xfs, opts: defaults, content: true }
-  - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK2T1W-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJZ2AW-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk6, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ6LEG-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk7, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK1KPW-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk8, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9HZPZ-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk9, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SH24AMZ-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk10, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk11, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk12, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ2YGG-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk13, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk14, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9MDTZ-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk15, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults, content: false }
-  - { path: /mnt/disk16, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MH5L4GK-part1, fs: xfs, opts: defaults, content: true }
-snapraid_content_files:
-  - /mnt/tank/fuse/documents/.snapraid.content
-snapraid_config_excludes:
-  - "*.unrecoverable"
-  - "/tmp/"
-  - "/lost+found/"
-  - "downloads/"
-  - "appdata/"
-  - "*.!sync"
-  - ".AppleDouble"
-  - "._AppleDouble"
-  - ".DS_Store"
-  - "._.DS_Store"
-  - ".Thumbs.db"
-  - ".fseventsd"
-  - ".Spotlight-V100"
-  - ".TemporaryItems"
-  - ".Trashes"
-  - ".AppleDB"
-  - ".nfo"
-  - "Proxmox/"
-  - "Backups/"
+# soulpms
+docker_zfs_override: true
+data_disks:
+  - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MH5L4GK-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk2, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9LJ0AGVG-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_9MHSD18U-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ6LEG-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK1KPW-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk6, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9HZPZ-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk7, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SH24AMZ-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk8, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk9, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk10, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ2YGG-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk11, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk12, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9MDTZ-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk13, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults }
+
+# retired disks
+  # - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJNRD5W-part1, fs: xfs, opts: defaults } Moved to Blue Iris
+  # - { path: /mnt/disk2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SH07NTC-part1, fs: xfs, opts: defaults } Cold Spare
+  # - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults } Cold Spare
+  # - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK2T1W-part1, fs: xfs, opts: defaults } Cold Spare
+  # - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJZ2AW-part1, fs: xfs, opts: defaults } Cold Spare
+
+extra_mountpoints:
+  - { path: "{{ data_path }}" }
+  - { path: /mnt/nvme1, diskbyid: /dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b490a15d3-part1, fs: xfs, opts: defaults}
+
+# zfs_disks:
+# ata-HITACHI_HUA723020ALA640_YFJNG6RA
+# ata-HITACHI_HUA723020ALA640_YGJLAWPA
 
 fstab_mergerfs:
   - { source: "/mnt/disk*", mountpoint: "{{ data_path }}", fs: fuse.mergerfs, opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=100G,fsname=MergerFS" }  
-
-snapraid_runner: true
-snapraid_healthcheck_io_host: "https://hc.{{ secret_domain_cloud }}"
-snapraid_runner_healthcheck_io_uuid: "{{ snapraid_healthchecks_id }}"
-
-## telegraf
-telegraf_plugins_base:
-  - name: mem
-  - name: system
-  - name: cpu
-    options:
-      percpu: "true"
-      totalcpu: "true"
-      collect_cpu_time: "false"
-      report_active: "false"
-  - name: disk
-    options:
-      ignore_fs:
-        - "tmpfs"
-        - "devtmpfs"
-        - "devfs"
-      mountpoints:
-        - "/"
-        - "/mnt/disk1"
-        - "/mnt/disk2"
-        - "/mnt/disk3"
-        - "/mnt/disk4"
-        - "/mnt/disk5"
-        - "/mnt/disk6"
-        - "/mnt/disk7"
-        - "/mnt/disk8"
-        - "/mnt/disk9"
-        - "/mnt/disk10"
-        - "/mnt/disk11"
-        - "/mnt/disk12"
-        - "/mnt/disk13"
-        - "/mnt/disk14"
-        - "/mnt/disk15"
-        - "/mnt/disk16"
-        - "/mnt/parity1"
-        - "/mnt/parity2"
-        - "/mnt/storage"
-        - "/mnt/tank"
-  - name: diskio
-    options:
-      skip_serial_number: "true"
-  - name: kernel
-  - name: processes
-  - name: docker
-    options:
-      endpoint: "unix:///var/run/docker.sock"
-      perdevice: "true"
-  - name: hddtemp
-  - name: net
-    options:
-      interfaces:
-        - "eno1"
 
 # ironicbadger.ansible_role_bash_aliases
 bash_aliases:
@@ -165,12 +95,6 @@ bash_aliases:
   - { alias: "hdtemp", command: "sudo hddtemp /dev/sd[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r]"}
   - { alias: "nvmetemp", command: "nvme smart-log /dev/nvme0n1 | grep temperature" }
   - { alias: "itop", command: "sudo intel_gpu_top" }
-
-# soulpms
-docker_zfs_override: true
-extra_mountpoints:
-  - { path: "{{ data_path }}" }
-  - { path: /mnt/nvme1, diskbyid: /dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b490a15d3-part1, fs: xfs, opts: defaults}
 
 # soultraefik
 traefik_file_provider: true

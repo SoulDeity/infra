@@ -62,7 +62,6 @@
         tags: compose
       - role: soultraefik
         tags: compose
-      - role: ironicbadger.snapraid
       - role: soulplexmeta
         tags: compose
       - role: soulrestic

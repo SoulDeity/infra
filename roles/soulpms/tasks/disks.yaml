@@ -1,18 +1,6 @@
 ---
 
-- name: create /mnt/parity* points
-  file:
-    dest: "{{ item.path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-  with_items: 
-    - "{{ snapraid_parity_disks }}"
-    - "{{ extra_mountpoints }}"
-  when: item.path != '/mnt/storage'
-
-- name: create other /mnt points
+- name: create /mnt points
   file:
     dest: "{{ item.path }}"
     state: directory
@@ -20,9 +8,8 @@
     group: "{{ main_gid }}"
     mode: 0777
   with_items: 
-    - "{{ snapraid_data_disks }}"
+    - "{{ data_disks }}"
     - "{{ extra_mountpoints }}"
-  when: item.path != '/mnt/nvme1'
 
 - name: mount disks
   mount:
@@ -33,8 +20,7 @@
     # change to 'mounted' to auto mount
     state: present
   with_items:
-    - "{{ snapraid_parity_disks }}"
-    - "{{ snapraid_data_disks }}"
+    - "{{ data_disks }}"
     - "{{ extra_mountpoints }}"
   when: item.path != '/mnt/storage'
 
