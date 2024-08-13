@@ -1,10 +1,9 @@
 ---
-# ktz-dhcp-dns (pihole)
+# soul-dhcp-dns (pihole)
 dnsmasq_config_dir: /etc/dnsmasq.d
 pihole_config_dir: /etc/pihole
 running_as_container: false
 
-# soul-dhcp-dns
 default_domain: "{{ secret_domain_local }}"
 network_cidr: 10.42.0.0/20
 dhcp_range_start: 10.42.7.100
@@ -12,18 +11,17 @@ dhcp_range_end: 10.42.7.250
 dhcp_router: 10.42.0.254
 dhcp_active: "true"
 pxe_server_ip: 10.42.1.1
-lancache_ip: 10.42.1.20
+#lancache_ip: 10.42.1.20 # not in use
 
 dns_overrides:
   # try to use sparingly and must be FQDN
-  #- {ip: 10.42.0.252, custom_dns: "{{ secret_domain_local }}"}
+  - {ip: 10.42.1.252, custom_dns: "{{ secret_domain_local }}"} # catch-all for caddy
   - {ip: 10.42.0.252, custom_dns: "opnsense.{{ secret_domain_local }}"}
   - {ip: 10.42.0.252, custom_dns: "dns.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "bi.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "home.{{ secret_domain_full }}"}
   - {ip: 10.42.1.1, custom_dns: "print.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "print2.{{ secret_domain_local }}"}
-  #- {ip: 10.42.0.252, custom_dns: "photos.{{ secret_domain_full }}"}
   - {ip: 10.42.0.250, custom_dns: "unifi"}
   - {ip: 10.42.0.250, custom_dns: "inform.unifi.{{ secret_domain_local }}"}
   - {ip: 10.42.0.252, custom_dns: "proxmox.n.{{ secret_domain_local }}"}
@@ -32,9 +30,9 @@ dns_overrides:
 dhcp_reservations:
   # Network Infrastructure
   ## soulnet - Proxmox Host - Network VM/Containers
-  - {mac: f4:93:9f:ef:dd:75, ip: 10.42.0.1, hostname: soulnet}
+  - {mac: f4:93:9f:ef:dd:75, ip: 10.42.0.1, hostname: soulnet, custom_dns: ["n"]}
   #- {mac: 90:e2:ba:4f:d7:b3, ip: WAN, hostname: opnsenseWAN} # WAN DHCP - passed through#
-  #- {mac: 90:e2:ba:4f:d7:b2, ip: 10.42.0.254, hostname: opnsense, custom_dns: ["opnsense.soulnet"]} # LAN - passed through#
+  #- {mac: 90:e2:ba:4f:d7:b2, ip: 10.42.0.254, hostname: opnsense} # LAN - passed through#
   ### soulnet services
   - {mac: BC:24:11:61:9A:3E, ip: 10.42.0.250, hostname: unifi}
   #- {mac: CE:87:AE:C2:BB:AE, ip: 10.42.0.251, hostname: nginx} # not in use
@@ -102,6 +100,7 @@ dhcp_reservations:
   - {mac: f8:a2:6d:58:67:23, ip: 10.42.5.203, hostname: canon-printer}
   - {mac: cc:6a:10:ad:4b:84, ip: 10.42.5.204, hostname: myq-garage-opener}
   - {mac: 48:e7:29:c0:9f:00, ip: 10.42.5.205, hostname: hatch-rest-cayden}
+  - {mac: b0:b2:1c:af:c9:5c, ip: 10.42.5.206, hostname: hatch-rest-bedroom}
   
   ## Voice assistant boxes
   - {mac: f4:f5:d8:df:a0:ca, ip: 10.42.5.210, hostname: google-home}
@@ -114,7 +113,7 @@ dhcp_reservations:
   ## primary clients (desktop, servers, laptops, phones, tablets)
   - {mac: f0:2f:74:18:35:8f, ip: 10.42.3.10, hostname: souldesktop} # personal workstation 
   - {mac: b0:7d:64:14:f3:84, ip: 10.42.3.11, hostname: soullaptop} # personal laptop 
-  - {mac: 04:cf:4b:22:b3:66, ip: 10.42.3.12, hostname: 1800-l} # work laptop 
+  - {mac: 04:cf:4b:22:b3:66, ip: 10.42.3.12, hostname: 1111-l} # work laptop 
   - {mac: 64:5d:f4:5b:6a:04, ip: 10.42.3.13, hostname: nick-phone}
   - {mac: a6:85:3b:8c:7b:1c, ip: 10.42.3.14, hostname: nick-watch}
   - {mac: 50:5a:65:81:62:d7, ip: 10.42.3.15, hostname: souldeck}
@@ -122,3 +121,4 @@ dhcp_reservations:
   - {mac: 1c:91:80:cc:85:f7, ip: 10.42.3.50, hostname: heather-macbook} # work laptop
   - {mac: be:b7:62:2f:ed:6a, ip: 10.42.3.51, hostname: heather-phone}
   - {mac: ee:f9:98:03:5b:36, ip: 10.42.3.52, hostname: heather-watch}
+  - {mac: 5e:ec:50:8c:8f:a9, ip: 10.42.3.53, hostname: heather-tablet}

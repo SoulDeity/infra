@@ -127,15 +127,34 @@ containers:
     ports:
       - 80:80
       - 443:443
-      #- 8080:8080
     extra_hosts:
       - host.docker.internal:172.17.0.1
     environment:
-      - "CLOUDFLARE_EMAIL={{ secret_cloudflare_email }}"
-      - "CLOUDFLARE_API_KEY={{ secret_cloudflare_api }}"
+      - "CF_API_KEY={{ secret_cloudflare_api }}"
+      - "CF_API_EMAIL={{ secret_cloudflare_email }}"
+      - "TRAEFIK_DASHBOARD_CREDENTIALS={{ secret_traefik_dashboard_credentials }}"
     volumes:
-      - "{{ appdata_path }}/traefik:/etc/traefik"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ appdata_path }}/traefik/traefik.yml:/traefik.yml:ro"
+      - "{{ appdata_path }}/traefik/acme.json:/acme.json"
+      - "{{ appdata_path }}/traefik/rules.yml:/rules.yml:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.p.{{ local_domain }}`)"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users={{ secret_traefik_dashboard_credentials }}"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik.p.{{ local_domain }}`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main={{ secret_domain_full }}"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.{{ secret_domain_full }}"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
     restart: unless-stopped
   ###
   - service_name: organizr
@@ -179,6 +198,7 @@ containers:
       - VERSION=latest
     labels:
       - "traefik.http.routers.plex.rule=Host(`plex.{{ secret_domain_full }}`)"
+      - "traefik.http.routers.plex.tls=true"
       - traefik.http.services.plex.loadbalancer.server.port=32400
     include_global_env_vars: true
     restart: unless-stopped
@@ -254,6 +274,8 @@ containers:
   - service_name: flaresolverr
     active: true
     image: ghcr.io/flaresolverr/flaresolverr:latest
+    labels:
+      - traefik.enable=false
     ports:
      - "8191:8191"
     restart: unless-stopped  
@@ -310,6 +332,19 @@ containers:
       - "{{ data_path }}/YouTube:/downloads"
     include_global_env_vars: true #optional - defaults to false
     restart: unless-stopped
+  ###
+  - service_name: ersatztv
+    active: true
+    image: jasongdove/ersatztv:latest-vaapi
+    labels:
+      - "traefik.http.routers.ersatz.rule=Host(`ersatz.p.{{ local_domain }}`)"
+    ports:
+     - "8409:8409"
+    volumes:
+      - "{{ appdata_path }}/ersatztv:/root/.local/share/ersatztv"
+      - "{{ data_path }}:/data:ro"
+    include_global_env_vars: true
+    restart: unless-stopped
   ### Data Services
   ###
   - service_name: bitwarden
@@ -350,6 +385,8 @@ containers:
   - service_name: nextcloud-db
     active: true
     image: lscr.io/linuxserver/mariadb
+    labels:
+      - traefik.enable=false
     ports:
       - "3306:3306"
     volumes:
@@ -364,6 +401,8 @@ containers:
   - service_name: nc-redis
     active: true
     image: redis:alpine
+    labels:
+      - traefik.enable=false
     volumes:
       - "{{ appdata_path }}/redis/nextcloud:/data"
     restart: unless-stopped
@@ -399,6 +438,8 @@ containers:
   - service_name: pl-redis
     active: true
     image: redis:6.0
+    labels:
+      - traefik.enable=false
     volumes:
       - "{{ appdata_path }}/redis/paperless:/data"
     restart: unless-stopped

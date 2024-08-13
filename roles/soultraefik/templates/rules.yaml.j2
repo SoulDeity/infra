@@ -1,61 +1,75 @@
 http:
+  #region routers
   routers:
-    router-blueiris:
+    blueiris:
       entryPoints:
-        - websecure
+        - "https"
       rule: "Host(`bi.tl.{{ secret_domain_full }}`)"
-      service: service-blueiris
-      tls:
-        certResolver: cloudflare
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: blueiris
     router-homeassistant:
       entryPoints:
-        - websecure
+        - "https"
       rule: "Host(`home.{{ secret_domain_full }}`)"
-      service: service-homeassistant
-      tls:
-        certResolver: cloudflare
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: homeassistant
     router-octoprint:
       entryPoints:
-        - websecure
+        - "https"
       rule: Host(`print.tl.{{ secret_domain_full }}`)
-      service: service-octoprint
-      tls:
-        certResolver: cloudflare
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: octoprint
     router-octoprint2:
       entryPoints:
-        - websecure
+        - "https"
       rule: Host(`print2.tl.{{ secret_domain_full }}`)
-      service: service-octoprint2
-      tls:
-        certResolver: cloudflare
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: octoprint2
+
+#endregion
+#region services
   services:
-    service-blueiris:
+    blueiris:
       loadBalancer:
         servers:
-        - url: "http://souliris:81"
-    service-homeassistant:
+          - url: "http://souliris:81"
+        passHostHeader: true
+    homeassistant:
       loadBalancer:
         servers:
-        - url: "http://soulhass:8123"
-    service-octoprint:
+          - url: "http://soulhass:8123"
+        passHostHeader: true
+    octoprint:
       loadBalancer:
         servers:
-        - url: "http://soulprint"
-    service-octoprint2:
+          - url: "http://soulprint"
+        passHostHeader: true
+    octoprint2:
       loadBalancer:
         servers:
-        - url: "http://soulprint2"
+          - url: "http://soulprint2"
+        passHostHeader: true
+#endregion
   middlewares:
-    https-redirect:
+    https-redirectscheme:
       redirectScheme:
         scheme: https
-    authelia:
-      forwardAuth:
-        address: "http://authelia:9091/api/verify?rd=https://login.{{ secred_domain_full }}"
+        permanent: true
     default-headers:
       headers:
         frameDeny: true
-        sslRedirect: true
         browserXssFilter: true
         contentTypeNosniff: true
         forceSTSHeader: true
@@ -69,9 +83,9 @@ http:
     default-whitelist:
       ipWhiteList:
         sourceRange:
-        - "10.0.0.0/24"
+        - "10.0.0.0/8"
         - "192.168.0.0/16"
-        - "172.0.0.0/8"
+        - "172.16.0.0/12"
 
     secured:
       chain:
