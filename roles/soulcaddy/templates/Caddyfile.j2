@@ -88,3 +88,13 @@ print2.{{ secret_domain_local }} {
   reverse_proxy http://soulprint2
   import cloudflare
 }
+
+# soulcrypto
+start.{{ secret_domain_local }} {
+  reverse_proxy https://10.42.10.101 {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
+}

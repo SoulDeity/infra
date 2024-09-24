@@ -1,0 +1,28 @@
+  ###
+  - service_name: frigate
+    active: false
+    image: ghcr.io/blakeblackshear/frigate:stable
+    privileged: true
+    labels:
+      - "traefik.http.routers.frigate.rule=Host(`frigate.p.{{ local_domain }}`)"
+      - traefik.http.services.frigate.loadbalancer.server.port=8971
+    ports:
+      - "1984:1984" # go2rtc
+      - "8971:8971" # Web UI
+      - "5000:5000" # UI and API
+      - "8554:8554" # RTSP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "{{ appdata_path }}/frigate:/config"
+      - "{{ data_path }}/Frigate:/media/frigate"
+    tmpfs:
+      - /tmp/cache
+    devices:
+      - /dev/dri/renderD128
+    shm_size: "1024mb"
+    environment:
+      - "FRIGATE_RTSP_PASSWORD={{ secret_rtsp_pass }}"
+      - LIBVA_DRIVER_NAME=i965 
+    restart: unless-stopped

@@ -16,8 +16,9 @@ pxe_server_ip: 10.42.1.1
 dns_overrides:
   # try to use sparingly and must be FQDN
   - {ip: 10.42.1.252, custom_dns: "{{ secret_domain_local }}"} # catch-all for caddy
-  - {ip: 10.42.0.252, custom_dns: "opnsense.{{ secret_domain_local }}"}
+  - {ip: 10.42.0.252, custom_dns: "opnsense.{{ secret_domain_local }}"} # overrides named node
   - {ip: 10.42.0.252, custom_dns: "dns.{{ secret_domain_local }}"}
+  - {ip: 10.42.1.1, custom_dns: "soulpms.{{ secret_domain_local }}"} # overrides named node
   - {ip: 10.42.1.1, custom_dns: "bi.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "home.{{ secret_domain_full }}"}
   - {ip: 10.42.1.1, custom_dns: "print.{{ secret_domain_local }}"}
@@ -26,6 +27,7 @@ dns_overrides:
   - {ip: 10.42.0.250, custom_dns: "inform.unifi.{{ secret_domain_local }}"}
   - {ip: 10.42.0.252, custom_dns: "proxmox.n.{{ secret_domain_local }}"}
   - {ip: 10.42.0.252, custom_dns: "proxmox.p.{{ secret_domain_local }}"}
+  - {ip: 10.42.0.252, custom_dns: "start.{{ secret_domain_local }}"}
 
 dhcp_reservations:
   # Network Infrastructure
@@ -53,9 +55,9 @@ dhcp_reservations:
   ## soulpms - Proxmox Host - Perfect Media Server
   - {mac: 30:9c:23:a5:a9:b6, ip: 10.42.1.1, hostname: soulpms, custom_dns: ["p"]}
   ### soulpms services
-  - {mac: E2:B1:35:76:15:A8, ip: 10.42.1.20, hostname: soulcache}
-  - {mac: 02:90:d9:fa:23:c5, ip: 10.42.1.200, hostname: souldactyl}
-  - {mac: ca:79:1d:57:e7:c1, ip: 10.42.1.201, hostname: soulwing}
+  - {mac: BC:24:11:B0:A1:91, ip: 10.42.10.101, hostname: soulcrypto}
+  - {mac: 02:90:d9:fa:23:c5, ip: 10.42.10.200, hostname: souldactyl}
+  - {mac: ca:79:1d:57:e7:c1, ip: 10.42.10.201, hostname: soulwing}
 
   ## soulhass - Home Assistant Server
   - {mac: f4:93:9f:ef:10:6d, ip: 10.42.1.2, hostname: soulhass}
