@@ -93,6 +93,7 @@ dhcp_reservations:
   - {mac: d8:0d:17:9a:a4:f1, ip: 10.42.5.11, hostname: tplink-plug-living-room}
   - {mac: d8:0d:17:9a:77:5b, ip: 10.42.5.12, hostname: tplink-plug-family-room}
   - {mac: 68:ff:7b:01:c9:2b, ip: 10.42.5.13, hostname: tplink-plug-workbench}
+  - {mac: c4:d8:d5:0b:d4:b4, ip: 10.42.5.20, hostname: ratgdo-garage-door}
 
   #########
   ## cloud IoT
@@ -103,6 +104,9 @@ dhcp_reservations:
   - {mac: cc:6a:10:ad:4b:84, ip: 10.42.5.204, hostname: myq-garage-opener}
   - {mac: 48:e7:29:c0:9f:00, ip: 10.42.5.205, hostname: hatch-rest-cayden}
   - {mac: b0:b2:1c:af:c9:5c, ip: 10.42.5.206, hostname: hatch-rest-bedroom}
+  - {mac: b0:4a:39:c8:10:c9, ip: 10.42.5.207, hostname: roborock-vacuum-a125}
+  - {mac: 04:c2:9b:fa:6b:57, ip: 10.42.5.208, hostname: aura-picture-frame}
+  - {mac: 60:74:f4:bf:1a:56, ip: 10.42.5.209, hostname: govee-outdoor-lights}
   
   ## Voice assistant boxes
   - {mac: f4:f5:d8:df:a0:ca, ip: 10.42.5.210, hostname: google-home}
