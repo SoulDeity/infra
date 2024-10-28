@@ -480,6 +480,15 @@ containers:
       - "{{ appdata_path }}/wallabag:/var/www/wallabag/data"
     include_global_env_vars: false #optional - defaults to false
     restart: unless-stopped
+  ###
+  - service_name: searxng
+    active: true
+    image: searxng/searxng
+    labels:
+      - "traefik.http.routers.searxng.rule=Host(`search.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/searxng:/etc/searxng"
+    restart: unless-stopped
   ### Monitoring
   ###
   - service_name: smokeping
