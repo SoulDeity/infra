@@ -1,0 +1,11 @@
+  ###
+  - service_name: tubesync
+    active: false
+    image: ghcr.io/meeb/tubesync:latest
+    labels:
+      - "traefik.http.routers.tubesync.rule=Host(`tubesync.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/tubesync:/config"
+      - "{{ data_path }}/YouTube:/downloads"
+    include_global_env_vars: true #optional - defaults to false
+    restart: unless-stopped

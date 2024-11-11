@@ -1,0 +1,13 @@
+  ###
+  - service_name: ersatztv
+    active: true
+    image: jasongdove/ersatztv:latest-vaapi
+    labels:
+      - "traefik.http.routers.ersatz.rule=Host(`ersatz.p.{{ local_domain }}`)"
+    ports:
+     - "8409:8409"
+    volumes:
+      - "{{ appdata_path }}/ersatztv:/root/.local/share/ersatztv"
+      - "{{ data_path }}:/data:ro"
+    include_global_env_vars: true
+    restart: unless-stopped

@@ -184,6 +184,25 @@ containers:
     restart: unless-stopped
   ### Media Servers
   ###
+  - service_name: jellyfin
+    active: true
+    image: jellyfin/jellyfin
+    devices:
+      - /dev/dri:/dev/dri
+    labels:
+      - "traefik.http.routers.jellyfin.rule=Host(`jf.p.{{ local_domain }}`)"
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+    ports:
+      - 2285:8096
+    volumes:
+      - "{{ appdata_path }}/jellyfin:/config"
+      - /dev/shm:/config/transcodes
+      - "{{ data_path }}:/data:ro"
+    environment:
+      - "JELLYFIN_PublishedServerUrl=jf.p.{{ local_domain }}"
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
   - service_name: plex
     active: true
     image: lscr.io/linuxserver/plex
@@ -322,27 +341,14 @@ containers:
     include_global_env_vars: true
     restart: unless-stopped
   ###
-  - service_name: tubesync
+  - service_name: pinchflat # Youtube DL
     active: true
-    image: ghcr.io/meeb/tubesync:latest
+    image: ghcr.io/kieraneglin/pinchflat:latest
     labels:
-      - "traefik.http.routers.tubesync.rule=Host(`tubesync.p.{{ local_domain }}`)"
+      - "traefik.http.routers.pinchflat.rule=Host(`yt.p.{{ local_domain }}`)"
     volumes:
-      - "{{ appdata_path }}/tubesync:/config"
+      - "{{ appdata_path }}/pinchflat:/config"
       - "{{ data_path }}/YouTube:/downloads"
-    include_global_env_vars: true #optional - defaults to false
-    restart: unless-stopped
-  ###
-  - service_name: ersatztv
-    active: true
-    image: jasongdove/ersatztv:latest-vaapi
-    labels:
-      - "traefik.http.routers.ersatz.rule=Host(`ersatz.p.{{ local_domain }}`)"
-    ports:
-     - "8409:8409"
-    volumes:
-      - "{{ appdata_path }}/ersatztv:/root/.local/share/ersatztv"
-      - "{{ data_path }}:/data:ro"
     include_global_env_vars: true
     restart: unless-stopped
   ### Data Services
