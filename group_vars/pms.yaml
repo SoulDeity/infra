@@ -102,7 +102,6 @@ traefik_enable_dashboard: true #defaults to false
 traefik_insecure_transport: true #defaults to false
 traefik_exposed_by_default: true
 
-
 # soulrestic
 restic_healthchecks_id: "{{ restic_pms_healthchecks_id }}"
 restic_forget_healthchecks_id: "{{ restic_pms_forget_healthchecks_id }}"
@@ -494,6 +493,52 @@ containers:
       - "traefik.http.routers.searxng.rule=Host(`search.p.{{ local_domain }}`)"
     volumes:
       - "{{ appdata_path }}/searxng:/etc/searxng"
+    restart: unless-stopped
+  ###
+  - service_name: romm
+    active: true
+    image: rommapp/romm
+    depends_on:
+      - romm-db
+    labels:
+      - "traefik.http.routers.romm.rule=Host(`romm.p.{{ local_domain }}`)"
+      - traefik.http.routers.romm.tls=true
+      - traefik.http.routers.romm.entrypoints=https
+      - traefik.http.routers.romm.tls.certresolver=cloudflare
+      - traefik.http.services.romm.loadbalancer.server.port=8080
+    volumes:
+      - "{{ data_path }}/Games/roms:/romm/library/roms"
+      - "{{ data_path }}/Games/bios:/romm/library/bios"
+      - "{{ appdata_path }}/romm/resources:/romm/resources"
+      - "{{ appdata_path }}/romm/redis-data:/redisdata"
+      - "{{ appdata_path }}/romm/assets:/romm/assets"
+      - "{{ appdata_path }}/romm/config:/romm/config"
+    environment:
+      - DB_HOST=romm-db
+      - DB_NAME=romm # Should match MYSQL_DATABASE in mariadb
+      - DB_USER=souldeity # Should match MYSQL_USER in mariadb
+      - "DB_PASSWD={{ secret_rommdb_pass }}" # Should match MYSQL_PASSWORD in mariadb
+      - "ROMM_AUTH_SECRET_KEY={{ romm_auth_secret_key }}" # Generate a key with `openssl rand -hex 32`
+      - "IGDB_CLIENT_ID={{ romm_igdb_client_id }}" # Generate an ID and SECRET in IGDB
+      - "IGDB_CLIENT_SECRET={{ romm_igdb_client_secret }}" # https://api-docs.igdb.com/#account-creation
+      - "STEAMGRIDDB_API_KEY={{ romm_steamgriddb_api_key }}" # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
+    include_global_env_vars: true
+    restart: unless-stopped
+  - service_name: romm-db
+    active: true
+    image: lscr.io/linuxserver/mariadb
+    labels:
+      - traefik.enable=false
+    ports:
+      - "3307:3306"
+    volumes:
+      - "{{ appdata_path }}/romm-db:/config"
+    environment:
+      - MYSQL_DATABASE=romm
+      - MYSQL_USER=souldeity
+      - "MYSQL_PASSWORD={{ secret_rommdb_pass }}"
+      - "MYSQL_ROOT_PASSWORD={{ secret_rommdb_pass }}"
+    include_global_env_vars: true
     restart: unless-stopped
   ### Monitoring
   ###
