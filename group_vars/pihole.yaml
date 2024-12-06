@@ -66,6 +66,7 @@ dhcp_reservations:
   ## misc servers
   - {mac: dc:a6:32:1c:0f:7a, ip: 10.42.1.10, hostname: soulprint} #pi4 4gb
   - {mac: dc:a6:32:21:80:72, ip: 10.42.1.11, hostname: soulprint2} #pi4 4gb
+  - {mac: 24:58:7c:d7:41:14, ip: 10.42.1.12, hostname: soulp1s} #bambu p1s
 
   #########
   ## media players and TVs
