@@ -114,7 +114,7 @@ restic_backup_excludes: #defaults to blank
 
 # ironicbadger.docker_compose_generator
 appdata_path: /mnt/tank/appdata
-download_path: /mnt/storage/downloads
+download_path: /mnt/storage/usenet
 data_path: /mnt/storage
 local_domain: "tl.{{ secret_domain_full }}"
 containers:
@@ -276,7 +276,7 @@ containers:
       - "traefik.http.routers.nzbget.rule=Host(`nzbget.p.{{ local_domain }}`)"
     volumes:
       - "{{ appdata_path }}/nzbget:/config"
-      - "{{ download_path }}:/downloads"
+      - "{{ download_path }}:/data/usenet"
     include_global_env_vars: true
     restart: unless-stopped
   ###
@@ -307,7 +307,6 @@ containers:
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.p.{{ local_domain }}`)"
     volumes:
       - "{{ appdata_path }}/sonarr:/config"
-      - "{{ download_path }}:/downloads"
       - "{{ data_path }}:/data"
     include_global_env_vars: true
     restart: unless-stopped
@@ -321,7 +320,6 @@ containers:
       - "traefik.http.routers.radarr.rule=Host(`radarr.p.{{ local_domain }}`)"
     volumes:
       - "{{ appdata_path }}/radarr:/config"
-      - "{{ download_path }}:/downloads"
       - "{{ data_path }}:/data"
     include_global_env_vars: true
     restart: unless-stopped
@@ -335,7 +333,6 @@ containers:
       - "traefik.http.routers.readarr.rule=Host(`readarr.p.{{ local_domain }}`)"
     volumes:
       - "{{ appdata_path }}/readarr:/config"
-      - "{{ download_path }}:/downloads"
       - "{{ data_path }}:/data"
     include_global_env_vars: true
     restart: unless-stopped
@@ -347,7 +344,20 @@ containers:
       - "traefik.http.routers.pinchflat.rule=Host(`yt.p.{{ local_domain }}`)"
     volumes:
       - "{{ appdata_path }}/pinchflat:/config"
-      - "{{ data_path }}/YouTube:/downloads"
+      - "{{ data_path }}/media/youtube:/downloads"
+    include_global_env_vars: true
+    restart: unless-stopped
+  ###
+  - service_name: recyclarr
+    active: true
+    image: ghcr.io/recyclarr/recyclarr
+    depends_on:
+      - sonarr
+      - radarr
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/recyclarr:/config"
     include_global_env_vars: true
     restart: unless-stopped
   ### Data Services

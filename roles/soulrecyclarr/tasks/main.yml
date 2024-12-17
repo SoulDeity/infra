@@ -1,0 +1,77 @@
+---
+# https://github.com/Heavybullets8/heavy-ops/tree/main/kubernetes/apps/media/recyclarr/app
+
+- name: ensure target dirs exists
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+  loop:
+    - "{{ appdata_path }}/recyclarr"
+    - "{{ appdata_path }}/recyclarr/includes"
+  become: true
+
+- name: template recyclarr config file
+  template:
+    src: templates/recyclarr.yml.j2
+    dest: "{{ appdata_path }}/recyclarr/recyclarr.yml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+  become: true
+
+- name: write Radarr_Anime_Custom_Formats.yaml file
+  copy:
+    src: Radarr_Anime_Custom_Formats.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Radarr_Anime_Custom_Formats.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+
+- name: write Radarr_Anime_Quality_Profiles.yaml file
+  copy:
+    src: Radarr_Anime_Quality_Profiles.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Radarr_Anime_Quality_Profiles.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+
+- name: write Radarr_Standard_Custom_Formats.yaml file
+  copy:
+    src: Radarr_Standard_Custom_Formats.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Radarr_Standard_Custom_Formats.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+
+- name: write Radarr_Standard_Quality_Profiles.yaml file
+  copy:
+    src: Radarr_Standard_Quality_Profiles.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Radarr_Standard_Quality_Profiles.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+
+- name: write Sonarr_Anime_Custom_Formats.yaml file
+  copy:
+    src: Sonarr_Anime_Custom_Formats.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Sonarr_Anime_Custom_Formats.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+
+- name: write Sonarr_Anime_Quality_Profiles.yaml file
+  copy:
+    src: Sonarr_Anime_Quality_Profiles.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Sonarr_Anime_Quality_Profiles.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+
+- name: write Sonarr_Standard_Custom_Formats.yaml file
+  copy:
+    src: Sonarr_Standard_Custom_Formats.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Sonarr_Standard_Custom_Formats.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+
+- name: write Sonarr_Standard_Quality_Profiles.yaml file
+  copy:
+    src: Sonarr_Standard_Quality_Profiles.yaml
+    dest: "{{ appdata_path }}/recyclarr/includes/Sonarr_Standard_Quality_Profiles.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
