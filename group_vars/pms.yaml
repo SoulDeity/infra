@@ -277,6 +277,7 @@ containers:
     volumes:
       - "{{ appdata_path }}/nzbget:/config"
       - "{{ download_path }}:/data/usenet"
+      - "/mnt/nvme1/usenet/intermediate:/data/usenet/intermediate"
     include_global_env_vars: true
     restart: unless-stopped
   ###
