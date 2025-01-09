@@ -98,3 +98,23 @@ start.{{ secret_domain_local }} {
   }
   import cloudflare
 }
+
+# soulpelican
+games.{{ secret_domain_local }} {
+  reverse_proxy https://10.42.10.200 {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
+}
+
+# Pelican Wing
+node.{{ secret_domain_local }} {
+  reverse_proxy https://10.42.10.200:8080 {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
+}
