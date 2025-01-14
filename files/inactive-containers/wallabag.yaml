@@ -1,0 +1,14 @@
+  ###
+  - service_name: wallabag
+    active: true
+    image: wallabag/wallabag
+    labels:
+      - "traefik.http.routers.wallabag.rule=Host(`wallabag.p.{{ local_domain }}`)"
+    environment:
+      - "SYMFONY__ENV__DOMAIN_NAME=https://wallabag.p.{{ local_domain }}"
+      - "SYMFONY__ENV__DATABASE_DRIVER=pdo_sqlite"
+      - "SYMFONY__ENV__FOSUSER_CONFIRMATION=false"
+    volumes:
+      - "{{ appdata_path }}/wallabag:/var/www/wallabag/data"
+    include_global_env_vars: false #optional - defaults to false
+    restart: unless-stopped
