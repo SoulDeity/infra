@@ -567,6 +567,8 @@ containers:
   - service_name: hoarder-chrome
     active: true
     image: gcr.io/zenika-hub/alpine-chrome:123
+    labels:
+      - traefik.enable=false
     command:
       - --no-sandbox
       - --disable-gpu
@@ -578,7 +580,8 @@ containers:
   - service_name: hoarder-meilisearch
     active: true
     image: getmeili/meilisearch:v1.11.1
-    container_name: hoarder-meilisearch
+    labels:
+      - traefik.enable=false
     volumes:
       - "{{ appdata_path }}/hoarder/meilisearch:/meili_data"
     environment:
