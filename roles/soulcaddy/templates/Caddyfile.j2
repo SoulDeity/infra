@@ -40,6 +40,7 @@ opnsense.{{ secret_domain_local }} {
   reverse_proxy https://10.42.0.254:443 {
     transport http {
       tls_insecure_skip_verify
+      versions 1.1 1.2
     }
   }
   import cloudflare
