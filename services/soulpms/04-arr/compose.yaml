@@ -1,0 +1,148 @@
+services:
+  plexmeta:
+    image: kometateam/kometa:nightly
+    container_name: plexmeta
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/plexmeta/config:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - KOMETA_TIMES=01:22
+    restart: unless-stopped
+  tautulli:
+    image: lscr.io/linuxserver/tautulli
+    container_name: tautulli
+    depends_on:
+      - plex
+    labels:
+      - "traefik.http.routers.tautulli.rule=Host(`tautulli.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/tautulli:/config"
+      - "{{ appdata_path }}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  overseer:
+    image: lscr.io/linuxserver/overseerr
+    container_name: overseer
+    labels:
+      - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
+    volumes:
+      - "{{ appdata_path }}/overseerr:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  nzbget:
+    image: lscr.io/linuxserver/nzbget
+    container_name: nzbget
+    labels:
+      - "traefik.http.routers.nzbget.rule=Host(`nzbget.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/nzbget:/config"
+      - "{{ download_path }}:/data/usenet"
+      - "/mnt/nvme1/usenet/intermediate:/data/usenet/intermediate"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    labels:
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/prowlarr:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    labels:
+      - traefik.enable=false
+    ports:
+     - "8191:8191"
+    restart: unless-stopped
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    container_name: sonarr
+    depends_on:
+      - nzbget
+    labels:
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/sonarr:/config"
+      - "{{ data_path }}:/data"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  radarr:
+    image: lscr.io/linuxserver/radarr
+    container_name: radarr
+    depends_on:
+      - nzbget
+    labels:
+      - "traefik.http.routers.radarr.rule=Host(`radarr.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/radarr:/config"
+      - "{{ data_path }}:/data"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    depends_on:
+      - nzbget
+    labels:
+      - "traefik.http.routers.readarr.rule=Host(`readarr.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/readarr:/config"
+      - "{{ data_path }}:/data"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  pinchflat:
+    image: ghcr.io/kieraneglin/pinchflat:latest
+    container_name: pinchflat
+    labels:
+      - "traefik.http.routers.pinchflat.rule=Host(`yt.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/pinchflat:/config"
+      - "{{ data_path }}/media/youtube:/downloads"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr
+    container_name: recyclarr
+    depends_on:
+      - sonarr
+      - radarr
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/recyclarr:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped

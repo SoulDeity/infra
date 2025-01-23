@@ -1,0 +1,151 @@
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:latest
+    container_name: mealie
+    labels:
+      - "traefik.http.routers.mealie.rule=Host(`mealie.{{ secret_domain_full }}`)"
+    volumes:
+      - "{{ appdata_path }}/mealie:/app/data"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - "BASE_URL=https://mealie.{{ secret_domain_full }}"
+      - ALLOW_SIGNUP=false
+    restart: unless-stopped
+  freshrss:
+    image: lscr.io/linuxserver/freshrss:latest
+    container_name: freshrss
+    labels:
+      - "traefik.http.routers.freshrss.rule=Host(`rss.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/freshrss:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  searxng:
+    image: searxng/searxng
+    container_name: searxng
+    labels:
+      - "traefik.http.routers.searxng.rule=Host(`search.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/searxng:/etc/searxng"
+    restart: unless-stopped
+  romm:
+    image: rommapp/romm
+    container_name: romm
+    depends_on:
+      - romm-db
+    labels:
+      - "traefik.http.routers.romm.rule=Host(`romm.p.{{ local_domain }}`)"
+      - traefik.http.routers.romm.tls=true
+      - traefik.http.routers.romm.entrypoints=https
+      - traefik.http.routers.romm.tls.certresolver=cloudflare
+      - traefik.http.services.romm.loadbalancer.server.port=8080
+    volumes:
+      - "{{ data_path }}/Games/roms:/romm/library/roms"
+      - "{{ data_path }}/Games/bios:/romm/library/bios"
+      - "{{ appdata_path }}/romm/resources:/romm/resources"
+      - "{{ appdata_path }}/romm/redis-data:/redisdata"
+      - "{{ appdata_path }}/romm/assets:/romm/assets"
+      - "{{ appdata_path }}/romm/config:/romm/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - DB_HOST=romm-db
+      - DB_NAME=romm # Should match MYSQL_DATABASE in mariadb
+      - DB_USER=souldeity # Should match MYSQL_USER in mariadb
+      - "DB_PASSWD={{ secret_rommdb_pass }}" # Should match MYSQL_PASSWORD in mariadb
+      - "ROMM_AUTH_SECRET_KEY={{ romm_auth_secret_key }}" # Generate a key with `openssl rand -hex 32`
+      - "IGDB_CLIENT_ID={{ romm_igdb_client_id }}" # Generate an ID and SECRET in IGDB
+      - "IGDB_CLIENT_SECRET={{ romm_igdb_client_secret }}" # https://api-docs.igdb.com/#account-creation
+      - "STEAMGRIDDB_API_KEY={{ romm_steamgriddb_api_key }}" # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
+    restart: unless-stopped
+  romm-db:
+    image: lscr.io/linuxserver/mariadb
+    container_name: romm-db
+    labels:
+      - traefik.enable=false
+    ports:
+      - "3307:3306"
+    volumes:
+      - "{{ appdata_path }}/romm-db:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - MYSQL_DATABASE=romm
+      - MYSQL_USER=souldeity
+      - "MYSQL_PASSWORD={{ secret_rommdb_pass }}"
+      - "MYSQL_ROOT_PASSWORD={{ secret_rommdb_pass }}"
+    restart: unless-stopped
+  hoarder-web:
+    image: ghcr.io/hoarder-app/hoarder:0.21.0
+    container_name: hoarder-web
+    labels:
+      - "traefik.http.routers.hoarder.rule=Host(`hoarder.p.{{ local_domain }}`)"
+    ports:
+      - 3030:3000
+    volumes:
+      - "{{ appdata_path }}/hoarder/data:/data"
+    environment:
+      - MEILI_ADDR=http://hoarder-meilisearch:7700
+      - "MEILI_MASTER_KEY={{ hoarder_nextauth_masterkey }}"
+      - BROWSER_WEB_URL=http://hoarder-chrome:9222
+      - NEXTAUTH_URL=http://localhost:3030
+      - "NEXTAUTH_SECRET={{ hoarder_nextauth_secret }}"
+      - DATA_DIR=/data
+      - "OPENAI_API_KEY={{ hoarder_openai_key }}"
+      - "INFERENCE_TEXT_MODEL=gpt-4o-mini"
+      - "INFERENCE_IMAGE_MODEL=gpt-4o-mini"
+      - CRAWLER_FULL_PAGE_SCREENSHOT=true
+      - CRAWLER_FULL_PAGE_ARCHIVE=true
+      - CRAWLER_JOB_TIMEOUT_SEC=120
+      - CRAWLER_VIDEO_DOWNLOAD=true
+    restart: unless-stopped
+  hoarder-chrome:
+    image: gcr.io/zenika-hub/alpine-chrome:123
+    container_name: hoarder-chrome
+    labels:
+      - traefik.enable=false
+    command:
+      - --no-sandbox
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9222
+      - --hide-scrollbars
+    restart: unless-stopped
+  hoarder-meilisearch:
+    image: getmeili/meilisearch:v1.11.1
+    container_name: hoarder-meilisearch
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/hoarder/meilisearch:/meili_data"
+    environment:
+      - "MEILI_NO_ANALYTICS=true"
+      - NEXTAUTH_URL=http://hoarder-web:3030
+      - "NEXTAUTH_SECRET={{ hoarder_nextauth_secret }}"
+      - MEILI_ADDR=http://127.0.0.1:7700
+      - "MEILI_MASTER_KEY={{ hoarder_nextauth_masterkey }}"
+    restart: unless-stopped
+  netboot:
+    image: lscr.io/linuxserver/netbootxyz
+    container_name: netboot
+    labels:
+      - traefik.enable=false
+    ports:
+      - "3000:3000"
+      - "69:69/udp"
+      - "3001:80"
+    volumes:
+      - "{{ data_path }}/Proxmox/template/iso:/assets"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped

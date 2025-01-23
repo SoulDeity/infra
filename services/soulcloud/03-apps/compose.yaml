@@ -1,0 +1,7 @@
+services:
+  it-tools:
+    image: ghcr.io/corentinth/it-tools
+    container_name: it-tools
+    labels:
+      - "traefik.http.routers.ittools.rule=Host(`tools.{{ secret_domain_cloud }}`)"
+    restart: unless-stopped

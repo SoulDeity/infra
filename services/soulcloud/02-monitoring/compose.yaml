@@ -1,0 +1,42 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma
+    container_name: uptime-kuma
+    labels:
+      - traefik.http.routers.uptime.rule=Host(`uptime.{{ secret_domain_cloud }}`)
+    volumes:
+      - "{{ appdata_path }}/uptime-kuma:/app/data"
+    restart: unless-stopped
+  healthchecks:
+    image: lscr.io/linuxserver/healthchecks
+    container_name: healthchecks
+    labels:
+      - "traefik.http.routers.healthchecks.rule=Host(`hc.{{ secret_domain_cloud }}`)"
+    volumes:
+      - "{{ appdata_path }}/healthchecks:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - APPRISE_ENABLED=True
+      - DEBUG=False
+      - PING_BODY_LIMIT=100000
+      - SITE_NAME=Health Checks
+      - "SITE_ROOT=https://hc.{{ secret_domain_cloud }}"
+      - "SUPERUSER_EMAIL={{ secret_hc_email }}"
+      - "SUPERUSER_PASSWORD={{ secret_hc_pass }}"
+    restart: unless-stopped
+  librespeed:
+    image: lscr.io/linuxserver/librespeed
+    container_name: librespeed
+    labels:
+      - "traefik.http.routers.librespeed.rule=Host(`speed.{{ secret_domain_cloud }}`)"
+    volumes:
+      - "{{ appdata_path }}/librespeed:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - MODE=standalone
+      - TELEMETRY=false
+    restart: unless-stopped

@@ -1,0 +1,132 @@
+services:
+  organizr:
+    image: ghcr.io/organizr/organizr
+    container_name: organizr
+    labels:
+      - "traefik.http.routers.main.rule=Host(`main.{{ secret_domain_full }}`)"
+      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=128000
+    volumes:
+      - "{{ appdata_path }}/organizr:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - fpm=true
+      - branch=v2-master
+    restart: unless-stopped
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    labels:
+      - "traefik.http.routers.homepage.rule=Host(`dash.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/homepage:/app/config"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ data_path }}:/data:ro"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  bitwarden:
+    image: vaultwarden/server
+    container_name: bitwarden
+    labels:
+      - "traefik.http.routers.bitwarden.rule=Host(`vault.{{ secret_domain_full }}`)"
+    volumes:
+      - "{{ appdata_path }}/bitwarden:/data"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - SIGNUPS_ALLOWED=false
+      - WEBSOCKET_ENABLED=true
+      - "DOMAIN=https://vault.{{ secret_domain_full }}"
+    restart: unless-stopped
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud
+    container_name: nextcloud
+    depends_on:
+      - nextcloud-db
+      - nc-redis
+      - nc-imaginary
+    labels:
+      - "traefik.http.routers.nextcloud.rule=Host(`drive.{{ secret_domain_full }}`)"
+      - traefik.http.routers.nextcloud.tls.certresolver=cloudflare
+      - traefik.http.services.nextcloud-nextcloud.loadbalancer.server.port=443
+      - traefik.http.services.nextcloud-nextcloud.loadbalancer.server.scheme=https
+      - traefik.http.middlewares.nextcloud-hsts.headers.stsseconds=15552000
+      - traefik.http.routers.nextcloud.middlewares=nextcloud-hsts@docker
+    volumes:
+      - "{{ appdata_path }}/nextcloud:/config"
+      - "{{ appdata_path }}/nextcloud/data:/data"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - DOCKER_MODS=theorangeone/lsio-mod-more-processes:latest|linuxserver/mods:nextcloud-memories
+    restart: unless-stopped
+  nextcloud-db:
+    image: lscr.io/linuxserver/mariadb
+    container_name: nextcloud-db
+    labels:
+      - traefik.enable=false
+    ports:
+      - "3306:3306"
+    volumes:
+      - "{{ appdata_path }}/nextcloud-db:/config"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=souldeity
+      - "MYSQL_PASSWORD={{ secret_nextclouddb_pass }}"
+      - "MYSQL_ROOT_PASSWORD={{ secret_nextclouddb_pass }}"
+    restart: unless-stopped
+  nc-redis:
+    image: redis:alpine
+    container_name: nc-redis
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/redis/nextcloud:/data"
+    restart: unless-stopped
+  nc-imaginary:
+    image: nextcloud/aio-imaginary
+    container_name: nc-imaginary
+    labels:
+      - traefik.enable=false
+    restart: unless-stopped
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    depends_on:
+      - pl-redis
+    labels:
+      - "traefik.http.routers.paperless.rule=Host(`paperless.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/paperless/config:/usr/src/paperless/data"
+      - "{{ appdata_path }}/paperless/data/media:/usr/src/paperless/media"
+      - "{{ appdata_path }}/paperless/data/consume:/usr/src/paperless/consume"
+      - "{{ appdata_path }}/paperless/data/export:/usr/src/paperless/export"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - "PAPERLESS_SECRET_KEY={{ secret_paperless_key }}"
+      - "PAPERLESS_URL=https://paperless.p.{{ local_domain }}"
+      - "PAPERLESS_TIME_ZONE={{ ntp_timezone }}"
+      - PAPERLESS_FILENAME_FORMAT="{created_year}/{correspondent}/{created} {title}"
+      - PAPERLESS_CONSUMER_RECURSIVE=true
+      - PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS=true
+      - PAPERLESS_REDIS=redis://pl-redis:6379
+    restart: unless-stopped
+  pl-redis:
+    image: redis:6.0
+    container_name: pl-redis
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/redis/paperless:/data"
+    restart: unless-stopped

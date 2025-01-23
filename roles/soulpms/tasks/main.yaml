@@ -2,7 +2,7 @@
 
 - name: ensure hostname is set correctly
   hostname:
-    name: "{{ pms_hostname }}"
+    name: "{{ hostname }}"
 
 - name: disks
   include: disks.yaml
