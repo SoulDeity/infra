@@ -27,9 +27,9 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
-  overseer:
+  overseerr:
     image: lscr.io/linuxserver/overseerr
-    container_name: overseer
+    container_name: overseerr
     labels:
       - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
     volumes:
