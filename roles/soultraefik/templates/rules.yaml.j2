@@ -37,6 +37,15 @@ http:
         - https-redirectscheme
       tls: {}
       service: octoprint2
+    router-mcmap:
+      entryPoints:
+        - "https"
+      rule: Host(`mcmap.{{ secret_domain_full }}`)
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: mcmap
 
 #endregion
 #region services
@@ -60,6 +69,11 @@ http:
       loadBalancer:
         servers:
           - url: "http://soulprint2"
+        passHostHeader: true
+    mcmap:
+      loadBalancer:
+        servers:
+          - url: "http://10.42.10.200:8081"
         passHostHeader: true
 #endregion
   middlewares:
