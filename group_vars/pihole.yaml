@@ -76,6 +76,7 @@ dhcp_reservations:
   - {mac: 80:5b:65:de:1c:c4, ip: 10.42.1.103, hostname: lg-family-room-tv}
   - {mac: 8c:49:62:4b:65:cc, ip: 10.42.1.104, hostname: roku-bedroom}
   - {mac: 6c:56:97:53:f4:cb, ip: 10.42.1.105, hostname: firetv-guest}
+  - {mac: 00:06:78:b6:0a:72, ip: 10.42.1.106, hostname: denon-living-room-avr}
 
   #########
   ## cameras (PoE, WIFI)
