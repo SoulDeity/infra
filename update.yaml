@@ -2,16 +2,18 @@
 
 - hosts: servers
   tasks:
-    - name: import keys from github
-      authorized_key:  
-        user: "{{ ansible_user | default('souldeity') }}"
-        state: present
-        key: https://github.com/souldeity.keys
+    # - name: import keys from github
+    #   authorized_key:  
+    #     user: "{{ ansible_user | default('souldeity') }}"
+    #     state: present
+    #     key: https://github.com/souldeity.keys
     - name: update all packages
       become: true
-      package:
-        name: '*'
-        state: latest
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+        upgrade: dist
+        autoremove: yes
   roles:
     - role: ironicbadger.bash_aliases
       become: true

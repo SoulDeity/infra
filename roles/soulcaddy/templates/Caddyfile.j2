@@ -31,7 +31,7 @@ proxmox.n.{{ secret_domain_local }} {
 # pihole
 dns.{{ secret_domain_local }} {
   redir / /admin
-  reverse_proxy http://10.42.0.253
+  reverse_proxy http://10.42.0.253:8080
   import cloudflare
 }
 

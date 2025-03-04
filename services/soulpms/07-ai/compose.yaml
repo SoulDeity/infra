@@ -1,0 +1,12 @@
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:ollama
+    container_name: openwebui
+    volumes:
+      - "{{ appdata_path }}/open-webui:/app/backend/data"
+      - "{{ appdata_path }}/ollama:/root/.ollama"
+    labels:
+      - traefik.http.routers.openwebui.rule=Host(`ai.p.{{ local_domain }}`)
+    ports:
+      - 3333:8080
+    restart: unless-stopped
