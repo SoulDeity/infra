@@ -27,6 +27,7 @@ services:
       - "PUID={{ docker_compose_generator_uid }}"
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
+      - "HOMEPAGE_ALLOWED_HOSTS=dash.p.{{ local_domain }}"
     restart: unless-stopped
   bitwarden:
     image: vaultwarden/server
