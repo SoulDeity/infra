@@ -19,7 +19,7 @@ dns_overrides:
   - {ip: 10.42.0.252, custom_dns: "opnsense.{{ secret_domain_local }}"} # overrides named node
   - {ip: 10.42.0.252, custom_dns: "dns.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "soulpms.{{ secret_domain_local }}"} # overrides named node
-  - {ip: 10.42.1.1, custom_dns: "bi.{{ secret_domain_local }}"}
+  - {ip: 10.42.2.1, custom_dns: "frigate.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "home.{{ secret_domain_full }}"}
   - {ip: 10.42.1.1, custom_dns: "print.{{ secret_domain_local }}"}
   - {ip: 10.42.1.1, custom_dns: "print2.{{ secret_domain_local }}"}
@@ -80,7 +80,7 @@ dhcp_reservations:
 
   #########
   ## cameras (PoE, WIFI)
-  - {mac: 8c:ec:4b:75:17:8e, ip: 10.42.2.1, hostname: souliris}
+  - {mac: 8c:ec:4b:75:17:8e, ip: 10.42.2.1, hostname: soulfrigate}
 
   - {mac: 48:9e:9d:d8:84:d5, ip: 10.42.2.10, hostname: reolink-doorbell}
   - {mac: ec:71:db:82:72:26, ip: 10.42.2.11, hostname: reolink-driveway}

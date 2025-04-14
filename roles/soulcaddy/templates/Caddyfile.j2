@@ -72,12 +72,6 @@ home.{{ secret_domain_full }} {
   import cloudflare
 }
 
-# blue iris
-bi.{{ secret_domain_local }} {
-  reverse_proxy http://souliris:81
-  import cloudflare
-}
-
 # soulprint
 print.{{ secret_domain_local }} {
   reverse_proxy http://soulprint

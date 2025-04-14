@@ -1,0 +1,43 @@
+---
+hostname: soulfrigate
+
+# ironicbadger.figurine
+figurine_name: "{{ hostname }}"
+
+# ironicbadger.ansible_role_bash_aliases
+bash_aliases:
+  - { alias: "ls", command: "ls --color=auto"}
+  - { alias: "ll", command: "ls -la"}
+  - { alias: "df", command: "df -h -x aufs -x tmpfs -x udev"}
+  - { alias: "du", command: "du -ch"}
+  - { alias: "c", command: "clear"}
+  - { alias: "dtail", command: "docker logs -tf --tail='50' " }
+  - { alias: "dstop", command: "docker stop `docker ps -aq`" }
+  - { alias: "drm", command: "docker rm `docker ps -aq`" }
+  - { alias: "dcp", command: "docker compose -f ~/compose.yaml "}
+  - { alias: "dcporph", command: "docker compose -f ~/compose.yaml up -d --remove-orphans"}
+  - { alias: "dprune", command: "docker image prune" }
+  - { alias: "dprunesys", command: "docker system prune --all" }
+  - { alias: "appdata", command: "cd /opt/appdata" }
+
+# soulrestic
+restic_healthchecks_id: "{{ restic_frigate_healthchecks_id }}"
+restic_forget_healthchecks_id: "{{ restic_frigate_forget_healthchecks_id }}"
+restic_backup_locations:
+  - "{{ appdata_path }}"
+restic_forget: true #defaults to false
+
+## ironicbadger.docker_compose_generator
+host_timezone: "America/Chicago"
+
+appdata_path: /opt/appdata
+data_path: /mnt/disk1
+local_domain: "tl.{{ secret_domain_full }}"
+
+disabled_compose_files: []
+
+# soultraefik
+traefik_file_provider: false
+traefik_enable_dashboard: true #defaults to false
+traefik_insecure_transport: true #defaults to false
+traefik_exposed_by_default: true

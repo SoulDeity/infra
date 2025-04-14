@@ -85,6 +85,23 @@
       - role: soulrestic
         tags: replication
 
+# soulfrigate
+  - hosts: frigate
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: geerlingguy.docker
+      #- role: artis3n.tailscale
+      - role: ironicbadger.bash_aliases
+      #- role: ironicbadger.figurine
+      #- role: soulboot
+      - role: soultraefik
+        tags: compose
+      - role: ironicbadger.docker_compose_generator
+        tags: compose
+      - role: soulrestic
+        tags: replication
+
 # # soulbastion
 #   - hosts: bastion
 #     vars_files:
