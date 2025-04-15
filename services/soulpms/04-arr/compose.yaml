@@ -103,6 +103,21 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
+  lidarr:
+    image: lscr.io/linuxserver/lidarr
+    container_name: lidarr
+    depends_on:
+      - nzbget
+    labels:
+      - "traefik.http.routers.lidarr.rule=Host(`lidarr.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/lidarr:/config"
+      - "{{ data_path }}:/data"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
   readarr:
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
