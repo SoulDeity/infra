@@ -104,7 +104,6 @@ restic_backup_excludes: #defaults to blank
   - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Cache
   - /mnt/tank/appdata/plex/Library/Application Support/Plex Media Server/Media
   - /mnt/tank/appdata/plexmeta
-restic_forget: true #defaults to false
 
 # ironicbadger.docker_compose_generator
 host_timezone: "America/Chicago"

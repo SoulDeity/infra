@@ -26,7 +26,6 @@ restic_healthchecks_id: "{{ restic_cloud_healthchecks_id }}"
 restic_forget_healthchecks_id: "{{ restic_cloud_forget_healthchecks_id }}"
 restic_backup_locations:
   - "{{ appdata_path }}"
-restic_forget: true #defaults to false
 
 # ironicbadger.docker_compose_generator
 host_timezone: "America/Chicago"

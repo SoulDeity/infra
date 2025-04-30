@@ -57,17 +57,6 @@
     user: restic
   become: true
 
-- name: Schedule forget
-  cron:
-    name: restic forget
-    hour: 5
-    minute: 0
-    weekday: 0
-    job: /home/restic/backrest.sh cron_forget
-    user: restic
-  become: true
-  when: restic_forget
-
 - name: backrest fail2ban config
   template:
     src: files/backrest-logrotate
