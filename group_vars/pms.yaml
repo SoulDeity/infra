@@ -55,43 +55,56 @@ data_disks:
   - { path: /mnt/disk13, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults }
 
 # retired disks
-  # - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJNRD5W-part1, fs: xfs, opts: defaults } Cold Spare
-  # - { path: /mnt/disk2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SH07NTC-part1, fs: xfs, opts: defaults } Cold Spare
-  # - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults } Moved to Blue Iris
-  # - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK2T1W-part1, fs: xfs, opts: defaults } Cold Spare
-  # - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJZ2AW-part1, fs: xfs, opts: defaults } Cold Spare
+# - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJNRD5W-part1, fs: xfs, opts: defaults } Cold Spare
+# - { path: /mnt/disk2, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SH07NTC-part1, fs: xfs, opts: defaults } Cold Spare
+# - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults } Moved to Blue Iris
+# - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK2T1W-part1, fs: xfs, opts: defaults } Cold Spare
+# - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJZ2AW-part1, fs: xfs, opts: defaults } Cold Spare
 
 extra_mountpoints:
   - { path: "{{ data_path }}" }
-  - { path: /mnt/nvme1, diskbyid: /dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b490a15d3-part1, fs: xfs, opts: defaults}
+  - {
+      path: /mnt/nvme1,
+      diskbyid: /dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b490a15d3-part1,
+      fs: xfs,
+      opts: defaults,
+    }
 
 # zfs_disks:
 # ata-HITACHI_HUA723020ALA640_YFJNG6RA
 # ata-HITACHI_HUA723020ALA640_YGJLAWPA
 
 fstab_mergerfs:
-  - { source: "/mnt/disk*", mountpoint: "{{ data_path }}", fs: fuse.mergerfs, opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=100G,fsname=MergerFS" }  
+  - {
+      source: "/mnt/disk*",
+      mountpoint: "{{ data_path }}",
+      fs: fuse.mergerfs,
+      opts: "defaults,nonempty,allow_other,use_ino,moveonenospc=true,category.create=mfs,dropcacheonclose=true,minfreespace=100G,fsname=MergerFS",
+    }
 
 # ironicbadger.ansible_role_bash_aliases
 bash_aliases:
-  - { alias: "ls", command: "ls --color=auto"}
-  - { alias: "ll", command: "ls -la"}
-  - { alias: "du", command: "du -ch"}
-  - { alias: "c", command: "clear"}
+  - { alias: "ls", command: "ls --color=auto" }
+  - { alias: "ll", command: "ls -la" }
+  - { alias: "du", command: "du -ch" }
+  - { alias: "c", command: "clear" }
   - { alias: "dtail", command: "docker logs -tf --tail='50' " }
   - { alias: "dstop", command: "docker stop `docker ps -aq`" }
   - { alias: "drm", command: "docker rm `docker ps -aq`" }
-  - { alias: "dcp", command: "docker compose -f ~/compose.yaml "}
-  - { alias: "dcporph", command: "docker compose -f ~/compose.yaml up -d --remove-orphans"}
+  - { alias: "dcp", command: "docker compose -f ~/compose.yaml " }
+  - { alias: "dcporph", command: "docker compose -f ~/compose.yaml up -d --remove-orphans" }
   - { alias: "dprune", command: "docker image prune" }
   - { alias: "dprunesys", command: "docker system prune --all" }
-  - { alias: "dtop", command: "docker run --name ctop  -it --rm -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop"}
+  - {
+      alias: "dtop",
+      command: "docker run --name ctop  -it --rm -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop",
+    }
   - { alias: "appdata", command: "cd /mnt/tank/appdata" }
   - { alias: "zspace", command: "zfs list -o space" }
   - { alias: "zsnap", command: "zfs list -o space | sort -k4 --human-numeric-sort" }
   - { alias: "dfclean", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4 | sort -k 6" }
   - { alias: "dffull", command: "df -h -x tmpfs -t fuse.mergerfs -t xfs -t ext4 -t zfs" }
-  - { alias: "hdtemp", command: "sudo hddtemp /dev/sd[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r]"}
+  - { alias: "hdtemp", command: "sudo hddtemp /dev/sd[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r]" }
   - { alias: "nvmetemp", command: "nvme smart-log /dev/nvme0n1 | grep temperature" }
   - { alias: "itop", command: "sudo intel_gpu_top" }
 

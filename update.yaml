@@ -1,9 +1,8 @@
 ---
-
 - hosts: servers
   tasks:
     # - name: import keys from github
-    #   authorized_key:  
+    #   authorized_key:
     #     user: "{{ ansible_user | default('souldeity') }}"
     #     state: present
     #     key: https://github.com/souldeity.keys

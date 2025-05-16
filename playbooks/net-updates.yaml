@@ -1,12 +1,11 @@
 ---
-
 - hosts: netkids
   tasks:
     # apt repo updates
     - name: Update packages on all servers
       become: true
       package:
-        name: '*'
+        name: "*"
         state: latest
     - name: Check if a reboot is needed on all servers
       register: reboot_required_file

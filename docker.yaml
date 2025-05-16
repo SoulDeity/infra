@@ -1,8 +1,7 @@
 ---
-
 - hosts: "{{host}}"
   vars_files:
-    - 'vars/vault.yaml'
+    - "vars/vault.yaml"
   vars_prompt:
     - name: host
       prompt: Which host?
