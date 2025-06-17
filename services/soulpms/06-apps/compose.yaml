@@ -134,7 +134,7 @@ services:
       - "MEILI_MASTER_KEY={{ hoarder_nextauth_masterkey }}"
     restart: unless-stopped
   netboot:
-    image: lscr.io/linuxserver/netbootxyz
+    image: ghcr.io/netbootxyz/netbootxyz
     container_name: netboot
     labels:
       - traefik.enable=false
