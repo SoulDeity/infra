@@ -39,6 +39,20 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
+  pulsarr:
+    image: lakker/pulsarr
+    container_name: pulsarr
+    labels:
+      - "traefik.http.routers.pulsarr.rule=Host(`pulsarr.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/pulsarr:/app/data"
+    environment:
+      - baseUrl=http://pulsarr
+      - "TZ={{ host_timezone }}"
+      - loglevel=info
+      - NODE_ARGS=--log-both
+      - cookieSecured=true
+    restart: unless-stopped
   nzbget:
     image: lscr.io/linuxserver/nzbget
     container_name: nzbget
@@ -71,7 +85,7 @@ services:
     labels:
       - traefik.enable=false
     ports:
-     - "8191:8191"
+      - "8191:8191"
     restart: unless-stopped
   sonarr:
     image: lscr.io/linuxserver/sonarr
