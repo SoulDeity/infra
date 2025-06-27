@@ -1,0 +1,15 @@
+readarr:
+  image: lscr.io/linuxserver/readarr:develop
+  container_name: readarr
+  depends_on:
+    - nzbget
+  labels:
+    - "traefik.http.routers.readarr.rule=Host(`readarr.p.{{ local_domain }}`)"
+  volumes:
+    - "{{ appdata_path }}/readarr:/config"
+    - "{{ data_path }}:/data"
+  environment:
+    - "PUID={{ docker_compose_generator_uid }}"
+    - "PGID={{ docker_compose_generator_gid }}"
+    - "TZ={{ host_timezone }}"
+  restart: unless-stopped
