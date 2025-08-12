@@ -26,7 +26,6 @@ services:
     environment:
       FRIGATE_RTSP_PASSWORD: "{{ secret_rtsp_pass }}"
       FRIGATE_MQTT_PASSWORD: "{{ secret_mqtt_pass }}"
-      LIBVA_DRIVER_NAME: i965 
     labels:
       - "traefik.http.routers.frigate.rule=Host(`frigate.{{ local_domain }}`)"
       - traefik.http.services.frigate.loadbalancer.server.port=8971
