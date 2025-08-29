@@ -83,7 +83,7 @@ services:
       - "MYSQL_ROOT_PASSWORD={{ secret_rommdb_pass }}"
     restart: unless-stopped
   hoarder-web:
-    image: ghcr.io/hoarder-app/hoarder:0.21.0
+    image: ghcr.io/karakeep-app/karakeep
     container_name: hoarder-web
     labels:
       - "traefik.http.routers.hoarder.rule=Host(`hoarder.p.{{ local_domain }}`)"
@@ -99,15 +99,13 @@ services:
       - "NEXTAUTH_SECRET={{ hoarder_nextauth_secret }}"
       - DATA_DIR=/data
       - "OPENAI_API_KEY={{ hoarder_openai_key }}"
-      - "INFERENCE_TEXT_MODEL=gpt-4o-mini"
-      - "INFERENCE_IMAGE_MODEL=gpt-4o-mini"
       - CRAWLER_FULL_PAGE_SCREENSHOT=true
       - CRAWLER_FULL_PAGE_ARCHIVE=true
       - CRAWLER_JOB_TIMEOUT_SEC=120
       - CRAWLER_VIDEO_DOWNLOAD=true
     restart: unless-stopped
   hoarder-chrome:
-    image: gcr.io/zenika-hub/alpine-chrome:123
+    image: gcr.io/zenika-hub/alpine-chrome:124
     container_name: hoarder-chrome
     labels:
       - traefik.enable=false

@@ -16,12 +16,14 @@ custom_formats:
 
       # Unwanted
       - ed38b889b31be83fda192888e2286d83 # BR-DISK
+      - e6886871085226c3da1830830146846c # Generated Dynamic HDR
       - 90a6f9a284dff5103f6346090e6280c8 # LQ
       - e204b80c87be9497a8a6eaff48f72905 # LQ (Release Title)
       - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
       - b8cd450cbfa689c0259a01d9e29ba3d6 # 3D
       - bfd8eb01832d646a0a89c4deb46f8564 # Upscaled
       - 0a3f082873eb454bde444150b70253cc # Extras
+      - 712d74cd88bceb883ee32f773656b1f5 # Sing-Along Versions
       - cae4ca30163749b891686f95532519bd # AV1
 
       # General Streaming Services
@@ -33,13 +35,13 @@ custom_formats:
       - 509e5f41146e278f9eab1ddaceb34515 # HBO
       - 5763d1b0ce84aff3b21038eea8e9b8ad # HMAX
       - 526d445d4c16214309f0fd2b3be18a89 # Hulu
-      - 2a6039655313bf5dab1e43523b62c374 # MA
-      - 6a061313d22e51e0f25b7cd4dc065233 # MAX
-      - 170b1d363bd8516fbf3a3eb05d4faff6 # NF
-      - c9fd353f8f5f1baf56dc601c4cb29920 # PCOK
-      - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
-      - c2863d2a50c9acad1fb50e53ece60817 # STAN
       - e0ec9672be6cac914ffad34a6b077209 # iT
+      - 6a061313d22e51e0f25b7cd4dc065233 # MAX
+      - 2a6039655313bf5dab1e43523b62c374 # MA
+      - 170b1d363bd8516fbf3a3eb05d4faff6 # NF
+      - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
+      - c9fd353f8f5f1baf56dc601c4cb29920 # PCOK
+      - c2863d2a50c9acad1fb50e53ece60817 # STAN
 
       # Misc Streaming Services
       - 3bf143ecd06f66ed88da4c704350af1d # AUBC
@@ -54,25 +56,21 @@ custom_formats:
       - eacd2cb6c6d4a93e459df2cec6d7b97a # MY5
       - 3dce1fce9ac06d1349dfbd9186289385 # NOW
 
-      # Audio Advanced #1
-      - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
-      - 185f1dd7264c4562b9022d963ac37424 # DD+
-      - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
-      - 1c1a4c5e823891c75bc50380a6866f73 # DTS
-      - 2f22d89048b01681dde8afe203bf2e95 # DTS X
-      - f9f847ac70a0af62ea4a08280b859636 # DTS-ES
-      - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
-      - 3cafb66171b47f226146a0770576870f # TrueHD
+      # Audio Advanced
       - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
-
-      # Audio Advanced #2
+      - 2f22d89048b01681dde8afe203bf2e95 # DTS X
+      - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
+      - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
+      - 3cafb66171b47f226146a0770576870f # TrueHD
+      - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
+      - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
+      - e7c2fcae07cbada050a0af3357491d7b # PCM
+      - 8e109e50e0a0b83a5098b056e13bf6db # DTS-HD HRA
+      - 185f1dd7264c4562b9022d963ac37424 # DD+
+      - f9f847ac70a0af62ea4a08280b859636 # DTS-ES
+      - 1c1a4c5e823891c75bc50380a6866f73 # DTS
       - 240770601cc226190c367ef59aba7463 # AAC
       - c2998bd0d90ed5621d8df281e839436e # DD
-      - 8e109e50e0a0b83a5098b056e13bf6db # DTS-HD HRA
-      - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
-      - 6ba9033150e7896bdc9ec4b44f2b230f # MP3
-      - a061e2e700f81932daf888599f8a8273 # Opus
-      - e7c2fcae07cbada050a0af3357491d7b # PCM
 
       # Movie Versions
       - eca37840c13c6ef2dd0262b141a5482f # 4K Remaster
@@ -92,17 +90,9 @@ custom_formats:
 
   - trash_ids:
       # All HDR Formats
-      - c53085ddbd027d9624b320627748612f # DV HDR10Plus
-      - e23edd2482476e595fb990b12e7c609c # DV HDR10
-      - 58d6a88f13e2db7f5059c41047876f00 # DV
-      - 55d53828b9d81cbe20b02efd00aa0efd # DV HLG
-      - a3e19f8f627608af0211acd02bf89735 # DV SDR
-      - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
-      - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
-      - e61e28db95d22bedcadf030b8f156d96 # HDR
-      - 2a4d9069cc1fe3242ff9bdaebed239bb # HDR (undefined)
-      - 08d6d8834ad9ec87b1dc7ec8148e7a1f # PQ
-      - 9364dd386c9b4a1100dde8264690add7 # HLG
+      - 493b6d1dbec3c3364c59d7607f7e3405 # HDR
+      - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
+      - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
 
       # Miscellaneous
       - 923b6abef9b17f937fab56cfcf89e1f1 # DV (WEBDL)
