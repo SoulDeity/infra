@@ -51,3 +51,16 @@ services:
       - "{{ appdata_path }}/audiobookshelf/config:/config"
       - "{{ data_path }}:/data:ro"
     restart: unless-stopped
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    labels:
+      - "traefik.http.routers.navidrome.rule=Host(`music.{{ secret_domain_full }}`)"
+    user: 1000:1000
+    volumes:
+      - "{{ appdata_path }}/navidrome:/data"
+      - "{{ data_path }}/media/music:/music:ro"
+    environment:
+      - "ND_LASTFM_APIKEY={{ lidify_last_fm_api_key }}"
+      - "ND_LASTFM_SECRET={{ lidify_last_fm_api_secret }}"
+    restart: unless-stopped

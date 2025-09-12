@@ -118,7 +118,7 @@ services:
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
   lidarr:
-    image: lscr.io/linuxserver/lidarr
+    image: lscr.io/linuxserver/lidarr:develop
     container_name: lidarr
     depends_on:
       - nzbget
@@ -159,4 +159,19 @@ services:
       - "PUID={{ docker_compose_generator_uid }}"
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  lidify:
+    image: thewicklowwolf/lidify:latest
+    container_name: lidify
+    labels:
+      - "traefik.http.routers.lidify.rule=Host(`lidify.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/lidify/config:/lidify/config"
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - lidarr_address=http://lidarr:8686
+      - "lidarr_api_key={{ secret_lidarr_api }}"
+      - "last_fm_api_key={{ lidify_last_fm_api_key }}"
+      - "last_fm_api_secret={{ lidify_last_fm_api_secret }}"
+      - mode=LastFM
     restart: unless-stopped
