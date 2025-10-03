@@ -47,12 +47,11 @@ data_disks:
   - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK1KPW-part1, fs: xfs, opts: defaults }
   - { path: /mnt/disk6, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9HZPZ-part1, fs: xfs, opts: defaults }
   - { path: /mnt/disk7, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SH24AMZ-part1, fs: xfs, opts: defaults }
-  - { path: /mnt/disk8, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1, fs: xfs, opts: defaults }
-  - { path: /mnt/disk9, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1, fs: xfs, opts: defaults }
-  - { path: /mnt/disk10, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ2YGG-part1, fs: xfs, opts: defaults }
-  - { path: /mnt/disk11, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part1, fs: xfs, opts: defaults }
-  - { path: /mnt/disk12, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9MDTZ-part1, fs: xfs, opts: defaults }
-  - { path: /mnt/disk13, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk8, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ2YGG-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk9, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_1SJ9MDTZ-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk10, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJRD46U-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk11, diskbyid: /dev/disk/by-id/ata-ST24000DM001-3Y7103_ZXA0611V-part1, fs: xfs, opts: defaults }
+  - { path: /mnt/disk12, diskbyid: /dev/disk/by-id/ata-ST24000DM001-3Y7103_ZXA0TDCX-part1, fs: xfs, opts: defaults }
 
 # retired disks
 # - { path: /mnt/disk1, diskbyid: /dev/disk/by-id/ata-WDC_WD80EMAZ-00WJTA0_7SJNRD5W-part1, fs: xfs, opts: defaults } Cold Spare
@@ -60,6 +59,9 @@ data_disks:
 # - { path: /mnt/disk3, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJ8NPG-part1, fs: xfs, opts: defaults } Moved to Blue Iris
 # - { path: /mnt/disk4, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHK2T1W-part1, fs: xfs, opts: defaults } Cold Spare
 # - { path: /mnt/disk5, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SHJZ2AW-part1, fs: xfs, opts: defaults } Cold Spare
+# - { path: /mnt/disk8, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGHHN6C-part1, fs: xfs, opts: defaults } Retired
+# - { path: /mnt/disk9, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGEPKNC-part1, fs: xfs, opts: defaults } Retired
+# - { path: /mnt/disk11, diskbyid: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGD2B6C-part1, fs: xfs, opts: defaults } Retired
 
 extra_mountpoints:
   - { path: "{{ data_path }}" }
