@@ -24,3 +24,117 @@ services:
     environment:
       - MODE=standalone
     restart: unless-stopped
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    labels:
+      - "traefik.http.routers.dozzle.rule=Host(`dozzle.p.{{ local_domain }}`)"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{ appdata_path }}/dozzle/data:/data"
+    environment:
+      - "TZ={{ host_timezone }}"
+      - DOZZLE_REMOTE_AGENT=soulfrigate:7007,soulcloud:7007,unifi:7007
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    user: "1000:1000"
+    depends_on:
+      - prometheus
+    labels:
+      - "traefik.http.routers.grafana.rule=Host(`grafana.p.{{ local_domain }}`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    volumes:
+      - "{{ appdata_path }}/grafana/data:/var/lib/grafana"
+      - "{{ appdata_path }}/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources"
+      - "{{ appdata_path }}/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards"
+    environment:
+      - "TZ={{ host_timezone }}"
+      - "GF_SECURITY_ADMIN_USER={{ grafana_admin_user }}"
+      - "GF_SECURITY_ADMIN_PASSWORD={{ grafana_admin_password }}"
+      - "GF_SERVER_ROOT_URL=https://grafana.p.{{ local_domain }}"
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    user: "1000:1000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Allows access to host network from container
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/prometheus/data:/prometheus"
+      - "{{ appdata_path }}/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+      - "{{ appdata_path }}/prometheus/config/rules:/etc/prometheus/rules:ro"
+    environment:
+      - "TZ={{ host_timezone }}"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --web.enable-lifecycle
+      - --web.enable-admin-api
+    restart: unless-stopped
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    network_mode: host
+    labels:
+      - traefik.enable=false
+    pid: host
+    volumes:
+      - "/:/host:ro,rslave"
+    environment:
+      - "TZ={{ host_timezone }}"
+    command:
+      - "--path.rootfs=/host"
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.cpu.info"
+    restart: unless-stopped
+  intel-prometheus:
+    image: restreamio/intel-prometheus
+    container_name: intel-prometheus
+    privileged: true
+    devices:
+      - /dev/dri:/dev/dri
+    labels:
+      - traefik.enable=false
+    restart: unless-stopped
+  smartctl-exporter:
+    image: quay.io/prometheuscommunity/smartctl-exporter:latest
+    container_name: smartctl-exporter
+    privileged: true
+    user: root
+    labels:
+      - traefik.enable=false
+    restart: unless-stopped
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    labels:
+      - traefik.enable=false
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    environment:
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+  prometheus-plex-exporter:
+    container_name: prometheus-plex-exporter
+    image: ghcr.io/timothystewart6/prometheus-plex-exporter:latest
+    depends_on:
+      - plex
+    labels:
+      - traefik.enable=false
+    environment:
+      - "TZ={{ host_timezone }}"
+      - PLEX_SERVER={{ plexmm_plex_url }}
+      - PLEX_TOKEN={{ plexmm_plex_token }}
+    restart: unless-stopped
