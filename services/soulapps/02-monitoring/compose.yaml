@@ -1,0 +1,16 @@
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    command: agent
+    labels:
+      - traefik.enable=false
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - 7007:7007
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped

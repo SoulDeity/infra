@@ -20,4 +20,4 @@
   become: true
 
 - name: Sanoid
-  include: sanoid.yaml
+  include_tasks: sanoid.yaml

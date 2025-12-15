@@ -36,6 +36,12 @@ fcomp:
 frepl:
 	ansible-playbook -b run.yaml --limit frigate --ask-become-pass --tags replication
 
+apps:
+	ansible-playbook -b run.yaml --limit apps --ask-become-pass
+
+acomp:
+	ansible-playbook -b run.yaml --limit apps --ask-become-pass --tags compose
+
 ### Updates
 update:
 	ansible-playbook update.yaml --limit servers --ask-become-pass

@@ -23,4 +23,4 @@
     - name: Docker prune
       command: "docker image prune -f"
   roles:
-    - role: ironicbadger.docker_compose_generator
+    - role: ironicbadger.docker-compose-generator

@@ -1,22 +1,21 @@
 ---
-
 - name: ensure hostname is set correctly
   hostname:
     name: "{{ hostname }}"
 
 - name: disks
-  include: disks.yaml
+  include_tasks: disks.yaml
   tags:
     - disks
 
 - name: file-sharing
-  include: file-sharing.yaml
+  include_tasks: file-sharing.yaml
   tags:
     - file-sharing
 
 - name: telegraf docker fix
-  include: telegraf-fix.yaml
+  include_tasks: telegraf-fix.yaml
 
 - name: override docker service for zfs dependencies
-  include: docker-zfs-override.yaml
+  include_tasks: docker-zfs-override.yaml
   when: docker_zfs_override

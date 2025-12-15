@@ -37,7 +37,7 @@
     - role: geerlingguy.docker
     - role: ironicbadger.bash_aliases
       tags: bash
-    - role: ironicbadger.docker_compose_generator
+    - role: ironicbadger.docker-compose-generator
       tags: compose
 
 # soulpms - Perfect Media Server
@@ -50,7 +50,6 @@
     - role: geerlingguy.docker
     - role: artis3n.tailscale
     - role: grog.package
-    - role: ironicbadger.hddtemp
     #- role: rossmcdonald.telegraf
     - role: ironicbadger.bash_aliases
     #- role: ironicbadger.figurine
@@ -58,7 +57,7 @@
     - role: soulzfs
       tags: replication
     - role: soulpms
-    - role: ironicbadger.docker_compose_generator
+    - role: ironicbadger.docker-compose-generator
       tags: compose
     - role: soultraefik
       tags: compose
@@ -80,7 +79,7 @@
     - role: ironicbadger.figurine
     - role: soultraefik
       tags: compose
-    - role: ironicbadger.docker_compose_generator
+    - role: ironicbadger.docker-compose-generator
       tags: compose
     - role: soulrestic
       tags: replication
@@ -97,21 +96,26 @@
     #- role: soulboot
     - role: soultraefik
       tags: compose
-    - role: ironicbadger.docker_compose_generator
+    - role: ironicbadger.docker-compose-generator
       tags: compose
     - role: soulrestic
       tags: replication
 
-# # soulbastion
-#   - hosts: bastion
-#     vars_files:
-#       - 'vars/vault.yaml'
-#     roles:
-#       - role: geerlingguy.security
-#       - role: geerlingguy.docker
-#       - role: ironicbadger.figurine
-#       - role: ironicbadger.docker_compose_generator
-#         tags: compose
+# soulapps
+- hosts: apps
+  vars_files:
+    - "vars/vault.yaml"
+  roles:
+    - role: geerlingguy.docker
+    - role: ironicbadger.bash_aliases
+    - role: ironicbadger.figurine
+    - role: ironicbadger.proxmox-host-nvidia-setup
+    - role: soultraefik
+      tags: compose
+    - role: ironicbadger.docker-compose-generator
+      tags: compose
+    - role: soulrestic
+      tags: replication
 
 # proxmox
 - hosts: proxmox
@@ -120,13 +124,3 @@
   roles:
     - role: ironicbadger.proxmox_nag_removal
     - role: soulhtop
-# # soulai
-#   - hosts: ai
-#     vars_files:
-#       - 'vars/vault.yaml'
-#     roles:
-#       - role: geerlingguy.docker
-#       - role: ironicbadger.bash_aliases
-#       - role: ironicbadger.figurine
-#       - role: ironicbadger.docker_compose_generator
-#         tags: compose

@@ -1,0 +1,114 @@
+services:
+  # Ollama
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    labels:
+      - traefik.http.routers.ollama.rule=Host(`ollama.a.{{ local_domain }}`)
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ appdata_path }}/ollama:/root/.ollama"
+    ports:
+      - 11434:11434
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - OLLAMA_KEEP_ALIVE=24h
+      - ENABLE_IMAGE_GENERATION=True
+      - COMFYUI_BASE_URL=http://stable-diffusion-webui:7860
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+  # Open WebUI
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    depends_on:
+      - ollama
+    labels:
+      - traefik.http.routers.openwebui.rule=Host(`ai.a.{{ local_domain }}`)
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ appdata_path }}/open-webui:/app/backend/data"
+    ports:
+      - 3333:8080
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - ENABLE_RAG_WEB_SEARCH=True
+      - RAG_WEB_SEARCH_ENGINE=searxng
+      - RAG_WEB_SEARCH_RESULT_COUNT=3
+      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=10
+      - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+  searxng:
+    image: searxng/searxng
+    container_name: searxng
+    security_opt:
+      - apparmor:unconfined
+    depends_on:
+      - ollama
+      - open-webui
+    labels:
+      - traefik.enable=false
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ appdata_path }}/searxng:/etc/searxng"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    restart: unless-stopped
+  # Stable Diffusion
+  stable-diffusion-download:
+    build: "{{ appdata_path }}/stable-diffusion-webui-docker/services/download/"
+    image: comfy-download
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ appdata_path }}/stable-diffusion-webui-docker/data:/data"
+  stable-diffusion-webui:
+    build: "{{ appdata_path }}/stable-diffusion-webui-docker/services/comfy/"
+    image: comfy-ui
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - CLI_ARGS=
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ appdata_path }}/stable-diffusion-webui-docker/data:/data"
+      - "{{ appdata_path }}/stable-diffusion-webui-docker/output:/output"
+    stop_signal: SIGKILL
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [compute, utility]
+    restart: unless-stopped
+    labels:
+      - traefik.http.routers.stable-diffusion-webui.rule=Host(`stable-diffusion.a.{{ local_domain }}`)
