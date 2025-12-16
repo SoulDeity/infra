@@ -1,0 +1,45 @@
+services:
+  faster-whisper-gpu:
+    image: lscr.io/linuxserver/faster-whisper:gpu-legacy
+    container_name: faster-whisper-gpu
+    ports:
+      - 10300:10300
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - WHISPER_MODEL=tiny-int8
+      - WHISPER_BEAM=1 #optional
+      - WHISPER_LANG=en #optional
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ appdata_path }}/faster-whisper/data:/config"
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+  wyoming-piper:
+    container_name: wyoming-piper
+    image: rhasspy/wyoming-piper # no gpu
+    ports:
+      - 10200:10200
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ appdata_path }}/wyoming-piper/data:/data"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    restart: unless-stopped
+    command: --voice en_US-lessac-medium
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
