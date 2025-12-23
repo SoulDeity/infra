@@ -99,6 +99,9 @@ dhcp_reservations:
   - { mac: d8:0d:17:9a:77:5b, ip: 10.42.5.12, hostname: tplink-plug-family-room }
   - { mac: 68:ff:7b:01:c9:2b, ip: 10.42.5.13, hostname: tplink-plug-workbench }
   - { mac: c4:d8:d5:0b:d4:b4, ip: 10.42.5.20, hostname: ratgdo-garage-door }
+  - { mac: 20:f8:3b:0a:57:23, ip: 10.42.5.30, hostname: home-assistant-voice-bedroom}
+  - { mac: 20:f8:3b:0a:46:ae, ip: 10.42.5.31, hostname: home-assistant-voice-living-room}
+  - { mac: 20:f8:3b:0a:53:d1, ip: 10.42.5.32, hostname: home-assistant-voice-family-room}
 
   #########
   ## cloud IoT
