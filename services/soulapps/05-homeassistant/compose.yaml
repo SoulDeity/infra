@@ -43,3 +43,14 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+  http-service:
+    build: "{{ appdata_path }}/http-service"
+    container_name: voice-assistant-http-service
+    ports:
+      - "8765:8765"
+    environment:
+      - "GROQ_API_KEY={{ secret_groq_api_key }}"
+      - SEARXNG_URL=http://searxng:8080
+    depends_on:
+      - searxng
+    restart: unless-stopped
