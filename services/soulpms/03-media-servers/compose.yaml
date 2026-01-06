@@ -51,6 +51,49 @@ services:
       - "{{ appdata_path }}/audiobookshelf/config:/config"
       - "{{ data_path }}:/data:ro"
     restart: unless-stopped
+  booklore:
+    image: ghcr.io/booklore-app/booklore:latest
+    container_name: booklore
+    labels:
+      - "traefik.http.routers.booklore.rule=Host(`books.{{ secret_domain_full }}`)"
+      - traefik.http.services.booklore.loadbalancer.server.port=6060
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - DATABASE_URL=jdbc:mariadb://booklore-db:3306/booklore
+      - DATABASE_USERNAME=booklore
+      - "DATABASE_PASSWORD={{ secret_bookloredb_pass }}"
+      - BOOKLORE_PORT=6060
+    depends_on:
+      booklore-db:
+        condition: service_healthy
+    volumes:
+      - "{{ appdata_path }}/booklore/data:/app/data"
+      - "{{ appdata_path }}/booklore/books:/books"
+      - "{{ appdata_path }}/booklore/bookdrop:/bookdrop"
+    restart: unless-stopped
+  booklore-db:
+    image: lscr.io/linuxserver/mariadb:11.4.5
+    container_name: booklore-db
+    labels:
+      - traefik.enable=false
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+      - "MYSQL_ROOT_PASSWORD={{ secret_bookloredb_pass }}"
+      - MYSQL_DATABASE=booklore
+      - MYSQL_USER=booklore
+      - "MYSQL_PASSWORD={{ secret_bookloredb_pass }}"
+    volumes:
+      - "{{ appdata_path }}/booklore-db/mariadb/config:/config"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
   navidrome:
     image: deluan/navidrome:latest
     container_name: navidrome
