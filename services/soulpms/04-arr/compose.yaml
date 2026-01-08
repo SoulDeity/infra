@@ -161,17 +161,14 @@ services:
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
   lidify:
-    image: thewicklowwolf/lidify:latest
+    image: chevron7locked/lidify:latest
     container_name: lidify
     labels:
       - "traefik.http.routers.lidify.rule=Host(`lidify.p.{{ local_domain }}`)"
     volumes:
-      - "{{ appdata_path }}/lidify/config:/lidify/config"
-      - /etc/localtime:/etc/localtime:ro
+      - "{{ appdata_path }}/lidify:/data"
+      - "{{ data_path }}/media/music:/music"
     environment:
-      - lidarr_address=http://lidarr:8686
-      - "lidarr_api_key={{ secret_lidarr_api }}"
-      - "last_fm_api_key={{ lidify_last_fm_api_key }}"
-      - "last_fm_api_secret={{ lidify_last_fm_api_secret }}"
-      - mode=LastFM
+      - TZ={{ host_timezone }}
+      - "LASTFM_API_KEY={{ lidify_last_fm_api_key }}"
     restart: unless-stopped
