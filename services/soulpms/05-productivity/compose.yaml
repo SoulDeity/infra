@@ -131,15 +131,3 @@ services:
     volumes:
       - "{{ appdata_path }}/redis/paperless:/data"
     restart: unless-stopped
-  donetick:
-    image: donetick/donetick
-    container_name: donetick
-    labels:
-      - "traefik.http.routers.donetick.rule=Host(`tasks.{{ secret_domain_full }}`)"
-    volumes:
-      - "{{ appdata_path }}/donetick/data:/donetick-data"
-      - "{{ appdata_path }}/donetick/config:/config"
-    environment:
-      - DT_ENV=selfhosted
-      - DT_SQLITE_PATH=/donetick-data/donetick.db
-    restart: unless-stopped

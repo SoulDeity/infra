@@ -160,15 +160,3 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
-  lidify:
-    image: chevron7locked/lidify:latest
-    container_name: lidify
-    labels:
-      - "traefik.http.routers.lidify.rule=Host(`lidify.p.{{ local_domain }}`)"
-    volumes:
-      - "{{ appdata_path }}/lidify:/data"
-      - "{{ data_path }}/media/music:/music"
-    environment:
-      - TZ={{ host_timezone }}
-      - "LASTFM_API_KEY={{ lidify_last_fm_api_key }}"
-    restart: unless-stopped
