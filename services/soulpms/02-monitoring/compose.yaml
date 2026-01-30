@@ -35,7 +35,7 @@ services:
       - "{{ appdata_path }}/dozzle/data:/data"
     environment:
       - "TZ={{ host_timezone }}"
-      - DOZZLE_REMOTE_AGENT=soulapps:7007,soulfrigate:7007,soulcloud:7007,unifi:7007
+      - DOZZLE_REMOTE_AGENT=soulapps:7007,soulcloud:7007,unifi:7007
     restart: unless-stopped
   grafana:
     image: grafana/grafana:latest

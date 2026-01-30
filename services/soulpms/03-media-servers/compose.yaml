@@ -49,7 +49,7 @@ services:
     volumes:
       - "{{ appdata_path }}/audiobookshelf/metadata:/metadata"
       - "{{ appdata_path }}/audiobookshelf/config:/config"
-      - "{{ data_path }}:/data:ro"
+      - "{{ data_path }}:/data"
     restart: unless-stopped
   booklore:
     image: ghcr.io/booklore-app/booklore:latest

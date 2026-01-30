@@ -160,3 +160,33 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
+  shelfmark:
+    image: ghcr.io/calibrain/shelfmark:latest
+    container_name: shelfmark
+    labels:
+      - "traefik.http.routers.shelfmark.rule=Host(`shelfmark.p.{{ local_domain }}`)"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    volumes:
+      - "{{ appdata_path }}/shelfmark/config:/config"
+      - "{{ data_path }}:/data"
+    restart: unless-stopped
+  soulseek:
+    image: realies/soulseek
+    container_name: soulseek
+    labels:
+      - "traefik.http.routers.soulseek.rule=Host(`soulseek.p.{{ local_domain }}`)"
+      - traefik.http.services.soulseek.loadbalancer.server.port=6080
+    ports:
+      - 56385:56385
+      - 56386:56386
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    volumes:
+      - "{{ appdata_path }}/soulseek:/data/.SoulseekQt"
+      - "{{ data_path }}:/mnt/storage"
+    restart: unless-stopped
