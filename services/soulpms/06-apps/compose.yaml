@@ -60,9 +60,12 @@ services:
       - DB_USER=souldeity # Should match MYSQL_USER in mariadb
       - "DB_PASSWD={{ secret_rommdb_pass }}" # Should match MYSQL_PASSWORD in mariadb
       - "ROMM_AUTH_SECRET_KEY={{ romm_auth_secret_key }}" # Generate a key with `openssl rand -hex 32`
+      - HASHEOUS_API_ENABLED=true
       - "IGDB_CLIENT_ID={{ romm_igdb_client_id }}" # Generate an ID and SECRET in IGDB
       - "IGDB_CLIENT_SECRET={{ romm_igdb_client_secret }}" # https://api-docs.igdb.com/#account-creation
       - "STEAMGRIDDB_API_KEY={{ romm_steamgriddb_api_key }}" # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
+      - "RETROACHIEVEMENTS_API_KEY={{ romm_retroachievements_api_key }}"
+      - HLTB_API_ENABLED=true
     restart: unless-stopped
   romm-db:
     image: lscr.io/linuxserver/mariadb
