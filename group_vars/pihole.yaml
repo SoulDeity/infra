@@ -19,7 +19,7 @@ dns_overrides:
   - { ip: 10.42.0.252, custom_dns: "opnsense.{{ secret_domain_local }}" } # overrides named node
   - { ip: 10.42.0.252, custom_dns: "dns.{{ secret_domain_local }}" }
   - { ip: 10.42.1.1, custom_dns: "soulpms.{{ secret_domain_local }}" } # overrides named node
-  - { ip: 10.42.2.1, custom_dns: "frigate.{{ secret_domain_local }}" }
+  - { ip: 10.42.1.3, custom_dns: "frigate.{{ secret_domain_local }}" }
   - { ip: 10.42.1.1, custom_dns: "home.{{ secret_domain_full }}" }
   - { ip: 10.42.1.1, custom_dns: "print.{{ secret_domain_local }}" }
   - { ip: 10.42.1.1, custom_dns: "print2.{{ secret_domain_local }}" }
@@ -83,8 +83,6 @@ dhcp_reservations:
 
   #########
   ## cameras (PoE, WIFI)
-  - { mac: 8c:ec:4b:75:17:8e, ip: 10.42.2.1, hostname: soulfrigate }
-
   - { mac: 48:9e:9d:d8:84:d5, ip: 10.42.2.10, hostname: reolink-doorbell }
   - { mac: ec:71:db:82:72:26, ip: 10.42.2.11, hostname: reolink-driveway }
   - { mac: b4:6d:c2:c4:57:e4, ip: 10.42.2.12, hostname: reolink-garage }
@@ -99,9 +97,9 @@ dhcp_reservations:
   - { mac: d8:0d:17:9a:77:5b, ip: 10.42.5.12, hostname: tplink-plug-family-room }
   - { mac: 68:ff:7b:01:c9:2b, ip: 10.42.5.13, hostname: tplink-plug-workbench }
   - { mac: c4:d8:d5:0b:d4:b4, ip: 10.42.5.20, hostname: ratgdo-garage-door }
-  - { mac: 20:f8:3b:0a:57:23, ip: 10.42.5.30, hostname: home-assistant-voice-bedroom}
-  - { mac: 20:f8:3b:0a:46:ae, ip: 10.42.5.31, hostname: home-assistant-voice-living-room}
-  - { mac: 20:f8:3b:0a:53:d1, ip: 10.42.5.32, hostname: home-assistant-voice-family-room}
+  - { mac: 20:f8:3b:0a:57:23, ip: 10.42.5.30, hostname: home-assistant-voice-bedroom }
+  - { mac: 20:f8:3b:0a:46:ae, ip: 10.42.5.31, hostname: home-assistant-voice-living-room }
+  - { mac: 20:f8:3b:0a:53:d1, ip: 10.42.5.32, hostname: home-assistant-voice-family-room }
 
   #########
   ## cloud IoT

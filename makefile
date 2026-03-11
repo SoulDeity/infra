@@ -27,15 +27,6 @@ ccomp:
 crepl:
 	ansible-playbook -b run.yaml --limit cloud --ask-become-pass --tags replication
 
-frigate:
-	ansible-playbook -b run.yaml --limit frigate --ask-become-pass
-
-fcomp:
-	ansible-playbook -b run.yaml --limit frigate --ask-become-pass --tags compose
-
-frepl:
-	ansible-playbook -b run.yaml --limit frigate --ask-become-pass --tags replication
-
 apps:
 	ansible-playbook -b run.yaml --limit apps --ask-become-pass
 
