@@ -34,3 +34,13 @@ services:
       - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.{{ secret_domain_full }}"
       - "traefik.http.routers.traefik-secure.service=api@internal"
     restart: unless-stopped
+  dockhand:
+    image: fnsys/dockhand:latest
+    container_name: dockhand
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.dockhand.rule=Host(`dockhand.p.{{ local_domain }}`)"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{ appdata_path }}/dockhand:/app/data"
+    restart: unless-stopped
