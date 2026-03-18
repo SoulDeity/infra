@@ -154,3 +154,17 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
+  actual:
+    image: ghcr.io/actualbudget/actual:latest
+    container_name: actual
+    labels:
+      - "traefik.http.routers.actual.rule=Host(`budget.p.{{ local_domain }}`)"
+    volumes:
+      - "{{ appdata_path }}/actual:/data"
+    healthcheck:
+      test: ["CMD-SHELL", "node src/scripts/health-check.js"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
