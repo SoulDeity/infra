@@ -31,7 +31,8 @@ services:
     labels:
       - "traefik.http.routers.searxng.rule=Host(`search.p.{{ local_domain }}`)"
     volumes:
-      - "{{ appdata_path }}/searxng:/etc/searxng"
+      - "{{ appdata_path }}/searxng/config:/etc/searxng"
+      - "{{ appdata_path }}/searxng/data:/var/cache/searxng"
     restart: unless-stopped
   romm:
     image: rommapp/romm
