@@ -52,7 +52,7 @@ services:
       - "{{ data_path }}:/data"
     restart: unless-stopped
   booklore:
-    image: ghcr.io/booklore-app/booklore:latest
+    image: ghcr.io/grimmory-tools/grimmory:latest
     container_name: booklore
     labels:
       - "traefik.http.routers.booklore.rule=Host(`books.{{ secret_domain_full }}`)"
@@ -73,6 +73,12 @@ services:
       - "{{ appdata_path }}/booklore/books:/books"
       - "{{ appdata_path }}/booklore/bookdrop:/bookdrop"
     restart: unless-stopped
+    healthcheck:
+      test: wget -q -O - http://localhost:6060/api/v1/healthcheck
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
   booklore-db:
     image: lscr.io/linuxserver/mariadb:11.4.5
     container_name: booklore-db
