@@ -34,6 +34,27 @@ services:
       - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.{{ secret_domain_full }}"
       - "traefik.http.routers.traefik-secure.service=api@internal"
     restart: unless-stopped
+  pocket-id:
+    image: ghcr.io/pocket-id/pocket-id:v2
+    container_name: pocket-id
+    labels:
+      - "traefik.http.routers.pocket-it.rule=Host(`pocket-id.{{ secret_domain_full }}`)"
+    environment:
+      - "APP_URL=https://pocket-id.{{ secret_domain_full }}"
+      - TRUST_PROXY=true
+      - "MAXMIND_LICENSE_KEY={{ secret_maxmind_license }}"
+      - ENCRYPTION_KEY={{ pocket_id_encryption_key }}
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+    volumes:
+      - "{{ appdata_path }}/pocket-id/data:/app/data"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/pocket-id", "healthcheck"]
+      interval: 1m30s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
   dockhand:
     image: fnsys/dockhand:latest
     container_name: dockhand
