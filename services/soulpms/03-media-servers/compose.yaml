@@ -51,27 +51,28 @@ services:
       - "{{ appdata_path }}/audiobookshelf/config:/config"
       - "{{ data_path }}:/data"
     restart: unless-stopped
-  booklore:
+  grimmory:
     image: ghcr.io/grimmory-tools/grimmory:latest
-    container_name: booklore
+    container_name: grimmory
     labels:
-      - "traefik.http.routers.booklore.rule=Host(`books.{{ secret_domain_full }}`)"
-      - traefik.http.services.booklore.loadbalancer.server.port=6060
+      - "traefik.http.routers.grimmory.rule=Host(`books.{{ secret_domain_full }}`)"
+      - traefik.http.services.grimmory.loadbalancer.server.port=6060
     environment:
       - "PUID={{ docker_compose_generator_uid }}"
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
-      - DATABASE_URL=jdbc:mariadb://booklore-db:3306/booklore
+      - DATABASE_URL=jdbc:mariadb://grimmory-db:3306/booklore
       - DATABASE_USERNAME=booklore
       - "DATABASE_PASSWORD={{ secret_bookloredb_pass }}"
       - BOOKLORE_PORT=6060
     depends_on:
-      booklore-db:
+      grimmory-db:
         condition: service_healthy
     volumes:
       - "{{ appdata_path }}/booklore/data:/app/data"
-      - "{{ appdata_path }}/booklore/books:/books"
       - "{{ appdata_path }}/booklore/bookdrop:/bookdrop"
+      - "{{ appdata_path }}/booklore/books:/books"
+      - "{{ data_path }}:/data"
     restart: unless-stopped
     healthcheck:
       test: wget -q -O - http://localhost:6060/api/v1/healthcheck
@@ -79,9 +80,9 @@ services:
       retries: 5
       start_period: 60s
       timeout: 10s
-  booklore-db:
+  grimmory-db:
     image: lscr.io/linuxserver/mariadb:11.4.5
-    container_name: booklore-db
+    container_name: grimmory-db
     labels:
       - traefik.enable=false
     environment:

@@ -164,7 +164,7 @@ services:
     image: ghcr.io/calibrain/shelfmark:latest
     container_name: shelfmark
     labels:
-      - "traefik.http.routers.shelfmark.rule=Host(`shelfmark.p.{{ local_domain }}`)"
+      - "traefik.http.routers.shelfmark.rule=Host(`shelfmark.{{ secret_domain_full }}`)"
     environment:
       - "PUID={{ docker_compose_generator_uid }}"
       - "PGID={{ docker_compose_generator_gid }}"
