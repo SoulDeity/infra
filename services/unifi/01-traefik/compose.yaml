@@ -28,3 +28,15 @@ services:
       - --certificatesresolvers.cloudflare.acme.storage=/letsencrypt/acme.json
       - --serversTransport.insecureSkipVerify=true
     restart: unless-stopped
+  dockhand-hawser:
+    image: ghcr.io/finsys/hawser:latest
+    container_name: dockhand-hawser
+    labels:
+      - traefik.enable=false
+    ports:
+      - 2376:2376
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - "TOKEN={{ secret_dockhand_token }}"
+    restart: unless-stopped

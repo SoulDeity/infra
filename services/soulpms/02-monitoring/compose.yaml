@@ -24,19 +24,19 @@ services:
     environment:
       - MODE=standalone
     restart: unless-stopped
-  dozzle:
-    image: amir20/dozzle:latest
-    container_name: dozzle
-    labels:
-      - "traefik.http.routers.dozzle.rule=Host(`dozzle.p.{{ local_domain }}`)"
-      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - "{{ appdata_path }}/dozzle/data:/data"
-    environment:
-      - "TZ={{ host_timezone }}"
-      - DOZZLE_REMOTE_AGENT=soulapps:7007,soulcloud:7007,unifi:7007
-    restart: unless-stopped
+  # dozzle:
+  #   image: amir20/dozzle:latest
+  #   container_name: dozzle
+  #   labels:
+  #     - "traefik.http.routers.dozzle.rule=Host(`dozzle.p.{{ local_domain }}`)"
+  #     - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - "{{ appdata_path }}/dozzle/data:/data"
+  #   environment:
+  #     - "TZ={{ host_timezone }}"
+  #     - DOZZLE_REMOTE_AGENT=soulapps:7007,soulcloud:7007,unifi:7007
+  #   restart: unless-stopped
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

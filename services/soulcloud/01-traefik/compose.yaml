@@ -34,3 +34,15 @@ services:
       - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.{{ secret_domain_cloud }}"
       - "traefik.http.routers.traefik-secure.service=api@internal"
     restart: unless-stopped
+  dockhand-hawser:
+    image: ghcr.io/finsys/hawser:latest
+    container_name: dockhand-hawser
+    labels:
+      - traefik.enable=false
+    ports:
+      - 2376:2376
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - "TOKEN={{ secret_dockhand_token }}"
+    restart: unless-stopped
