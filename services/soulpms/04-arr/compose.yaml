@@ -27,18 +27,23 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
-  overseerr:
-    image: lscr.io/linuxserver/overseerr
-    container_name: overseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr
+    container_name: seerr
+    init: true
     labels:
-      - "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ secret_domain_full }}`)"
+      - "traefik.http.routers.seerr.rule=Host(`seerr.{{ secret_domain_full }}`)"
     volumes:
-      - "{{ appdata_path }}/overseerr:/config"
+      - "{{ appdata_path }}/seerr:/app/config"
     environment:
-      - "PUID={{ docker_compose_generator_uid }}"
-      - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
   pulsarr:
     image: lakker/pulsarr
     container_name: pulsarr
