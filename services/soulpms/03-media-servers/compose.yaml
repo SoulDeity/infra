@@ -44,6 +44,7 @@ services:
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf
     container_name: audiobookshelf
+    user: "{{ docker_compose_generator_uid }}:{{ docker_compose_generator_gid }}"
     labels:
       - "traefik.http.routers.audiobookshelf.rule=Host(`abs.{{ secret_domain_full }}`)"
     volumes:
@@ -58,8 +59,8 @@ services:
       - "traefik.http.routers.grimmory.rule=Host(`books.{{ secret_domain_full }}`)"
       - traefik.http.services.grimmory.loadbalancer.server.port=6060
     environment:
-      - "PUID={{ docker_compose_generator_uid }}"
-      - "PGID={{ docker_compose_generator_gid }}"
+      - "APP_USER_ID={{ docker_compose_generator_uid }}"
+      - "APP_GROUP_ID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
       - DATABASE_URL=jdbc:mariadb://grimmory-db:3306/booklore
       - DATABASE_USERNAME=booklore
