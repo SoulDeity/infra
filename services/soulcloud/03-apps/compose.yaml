@@ -5,3 +5,9 @@ services:
     labels:
       - "traefik.http.routers.ittools.rule=Host(`tools.{{ secret_domain_cloud }}`)"
     restart: unless-stopped
+  golink:
+    image: ghcr.io/tailscale/golink:main
+    container_name: golink
+    volumes:
+      - "{{ appdata_path }}/golink:/home/nonroot"
+    restart: unless-stopped
