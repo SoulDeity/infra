@@ -123,7 +123,7 @@ services:
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
   lidarr:
-    image: lscr.io/linuxserver/lidarr:develop
+    image: lscr.io/linuxserver/lidarr:nightly
     container_name: lidarr
     depends_on:
       - nzbget
@@ -178,20 +178,43 @@ services:
       - "{{ appdata_path }}/shelfmark/config:/config"
       - "{{ data_path }}:/data"
     restart: unless-stopped
-  soulseek:
-    image: realies/soulseek
-    container_name: soulseek
+  slskd:
+    image: slskd/slskd
+    container_name: slskd
     labels:
-      - "traefik.http.routers.soulseek.rule=Host(`soulseek.p.{{ local_domain }}`)"
-      - traefik.http.services.soulseek.loadbalancer.server.port=6080
+      - "traefik.http.routers.slskd.rule=Host(`slskd.p.{{ local_domain }}`)"
+      - traefik.http.services.slskd.loadbalancer.server.port=5030
     ports:
-      - 56385:56385
-      - 56386:56386
+      - "50300:50300"
     environment:
       - "PUID={{ docker_compose_generator_uid }}"
       - "PGID={{ docker_compose_generator_gid }}"
-      - "TZ={{ host_timezone }}"
+      - SLSKD_REMOTE_CONFIGURATION=true
+      - "SLSKD_USERNAME={{ soulseek_username }}"
+      - "SLSKD_PASSWORD={{ secret_slskd_password }}"
+      - "SLSKD_API_KEY={{ soulseek_password }}"
+      - "SLSKD_SLSK_USERNAME={{ soulseek_username }}"
+      - "SLSKD_SLSK_PASSWORD={{ soulseek_password }}"
+      - "SLSKD_DOWNLOADS_DIR=/data/soulseek/complete"
+      - "SLSKD_INCOMPLETE_DIR=/data/soulseek/downloading"
+      - "SLSKD_SHARED_DIR=/data/media/music;/data/media/audiobooks"
     volumes:
-      - "{{ appdata_path }}/soulseek:/data/.SoulseekQt"
-      - "{{ data_path }}:/mnt/storage"
+      - "{{ appdata_path }}/slskd:/app"
+      - "{{ data_path }}:/data"
+    restart: unless-stopped
+  aurral:
+    image: ghcr.io/lklynet/aurral:latest
+    container_name: aurral
+    labels:
+      - "traefik.http.routers.aurral.rule=Host(`aurral.p.{{ local_domain }}`)"
+    environment:
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "DOWNLOAD_FOLDER={{ data_path }}/media/music/aurral"
+      # - "SOULSEEK_USERNAME={{ soulseek_username }}"
+      # - "SOULSEEK_PASSWORD={{ soulseek_password }}"
+    volumes:
+      - "{{ appdata_path }}/aurral:/app/backend/data"
+      - "{{ data_path }}/media/music/aurral:/app/downloads"
+      - "{{ data_path }}/media/music/library:/data:ro"
     restart: unless-stopped

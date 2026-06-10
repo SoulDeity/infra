@@ -114,4 +114,5 @@ services:
     environment:
       - "ND_LASTFM_APIKEY={{ lidify_last_fm_api_key }}"
       - "ND_LASTFM_SECRET={{ lidify_last_fm_api_secret }}"
+      - ND_SCANNER_PURGEMISSING=always
     restart: unless-stopped
