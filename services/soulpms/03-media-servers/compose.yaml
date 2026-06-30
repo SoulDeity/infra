@@ -29,17 +29,15 @@ services:
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
     ports:
       - 8096:8096
-      - 1900:1900/udp
       - 7359:7359/udp
     volumes:
       - "{{ appdata_path }}/jellyfin:/config"
-      - /dev/shm:/config/transcodes
       - "{{ data_path }}:/data:ro"
     environment:
       - "PUID={{ docker_compose_generator_uid }}"
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
-      - "JELLYFIN_PublishedServerUrl=jf.p.{{ local_domain }}"
+      - "JELLYFIN_PublishedServerUrl=https://jf.p.{{ local_domain }}"
     restart: unless-stopped
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf
