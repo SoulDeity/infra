@@ -122,20 +122,37 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
-  lidarr:
-    image: lscr.io/linuxserver/lidarr:nightly
-    container_name: lidarr
-    depends_on:
-      - nzbget
+  # lidarr:
+  #   image: lscr.io/linuxserver/lidarr:nightly
+  #   container_name: lidarr
+  #   depends_on:
+  #     - nzbget
+  #   labels:
+  #     - "traefik.http.routers.lidarr.rule=Host(`lidarr.p.{{ local_domain }}`)"
+  #   volumes:
+  #     - "{{ appdata_path }}/lidarr:/config"
+  #     - "{{ data_path }}:/data"
+  #   environment:
+  #     - "PUID={{ docker_compose_generator_uid }}"
+  #     - "PGID={{ docker_compose_generator_gid }}"
+  #     - "TZ={{ host_timezone }}"
+  #   restart: unless-stopped
+  droppedneedle:
+    image: ghcr.io/habirabbu/droppedneedle:latest
+    container_name: droppedneedle
     labels:
-      - "traefik.http.routers.lidarr.rule=Host(`lidarr.p.{{ local_domain }}`)"
-    volumes:
-      - "{{ appdata_path }}/lidarr:/config"
-      - "{{ data_path }}:/data"
+      - "traefik.http.routers.droppedneedle.rule=Host(`droppedneedle.p.{{ local_domain }}`)"
     environment:
       - "PUID={{ docker_compose_generator_uid }}"
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
+      - PORT=8688
+      - SLSKD_DOWNLOADS_PATH=/slskd-downloads
+    volumes:
+      - "{{ appdata_path }}/droppedneedle/config:/app/config"
+      - "{{ appdata_path }}/droppedneedle/cache:/app/cache"
+      - "{{ data_path }}/media/music/library:/music:rw"
+      - "{{ data_path }}/soulseek/complete:/slskd-downloads:rw"
     restart: unless-stopped
   pinchflat:
     image: ghcr.io/kieraneglin/pinchflat:latest
@@ -151,7 +168,7 @@ services:
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
   recyclarr:
-    image: ghcr.io/recyclarr/recyclarr
+    image: ghcr.io/recyclarr/recyclarr:8
     container_name: recyclarr
     depends_on:
       - sonarr
@@ -202,19 +219,19 @@ services:
       - "{{ appdata_path }}/slskd:/app"
       - "{{ data_path }}:/data"
     restart: unless-stopped
-  aurral:
-    image: ghcr.io/lklynet/aurral:latest
-    container_name: aurral
-    labels:
-      - "traefik.http.routers.aurral.rule=Host(`aurral.p.{{ local_domain }}`)"
-    environment:
-      - "PUID={{ docker_compose_generator_uid }}"
-      - "PGID={{ docker_compose_generator_gid }}"
-      - "DOWNLOAD_FOLDER={{ data_path }}/media/music/aurral"
-      # - "SOULSEEK_USERNAME={{ soulseek_username }}"
-      # - "SOULSEEK_PASSWORD={{ soulseek_password }}"
-    volumes:
-      - "{{ appdata_path }}/aurral:/app/backend/data"
-      - "{{ data_path }}/media/music/aurral:/app/downloads"
-      - "{{ data_path }}/media/music/library:/data:ro"
-    restart: unless-stopped
+  # aurral:
+  #   image: ghcr.io/lklynet/aurral:latest
+  #   container_name: aurral
+  #   labels:
+  #     - "traefik.http.routers.aurral.rule=Host(`aurral.p.{{ local_domain }}`)"
+  #   environment:
+  #     - "PUID={{ docker_compose_generator_uid }}"
+  #     - "PGID={{ docker_compose_generator_gid }}"
+  #     - "DOWNLOAD_FOLDER={{ data_path }}/media/music/aurral"
+  #     # - "SOULSEEK_USERNAME={{ soulseek_username }}"
+  #     # - "SOULSEEK_PASSWORD={{ soulseek_password }}"
+  #   volumes:
+  #     - "{{ appdata_path }}/aurral:/app/backend/data"
+  #     - "{{ data_path }}/media/music/aurral:/app/downloads"
+  #     - "{{ data_path }}/media/music/library:/data:ro"
+  #   restart: unless-stopped

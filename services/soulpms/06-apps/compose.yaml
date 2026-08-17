@@ -180,6 +180,7 @@ services:
     restart: unless-stopped
   sparkyfitness-frontend:
     image: codewithcj/sparkyfitness:latest # Use pre-built image
+    container_name: sparkyfitness-frontend
     labels:
       - "traefik.http.routers.sparkyfitness.rule=Host(`health.{{ secret_domain_full }}`)"
     environment:
@@ -193,6 +194,7 @@ services:
       - sparkyfitness-server # Frontend depends on the server
   sparkyfitness-server:
     image: codewithcj/sparkyfitness_server:latest # Use pre-built image
+    container_name: sparkyfitness-server
     environment:
       - "SPARKY_FITNESS_DB_HOST=sparkyfitness-db"
       - "SPARKY_FITNESS_DB_NAME={{ sparkyfitness_db_name }}"
