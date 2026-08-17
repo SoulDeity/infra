@@ -178,3 +178,51 @@ services:
       retries: 3
       start_period: 20s
     restart: unless-stopped
+  sparkyfitness-frontend:
+    image: codewithcj/sparkyfitness:latest # Use pre-built image
+    labels:
+      - "traefik.http.routers.sparkyfitness.rule=Host(`health.{{ secret_domain_full }}`)"
+    environment:
+      - "SPARKY_FITNESS_FRONTEND_URL=https://health.{{ secret_domain_full }}"
+      - SPARKY_FITNESS_SERVER_HOST=sparkyfitness-server
+      - SPARKY_FITNESS_SERVER_PORT=3010
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+    restart: unless-stopped
+    depends_on:
+      - sparkyfitness-server # Frontend depends on the server
+  sparkyfitness-server:
+    image: codewithcj/sparkyfitness_server:latest # Use pre-built image
+    environment:
+      - "SPARKY_FITNESS_DB_HOST=sparkyfitness-db"
+      - "SPARKY_FITNESS_DB_NAME={{ sparkyfitness_db_name }}"
+      - "SPARKY_FITNESS_DB_USER={{ sparkyfitness_db_user }}"
+      - "SPARKY_FITNESS_DB_PASSWORD={{ sparkyfitness_db_password }}"
+      - "SPARKY_FITNESS_APP_DB_USER={{ sparkyfitness_db_user }}"
+      - "SPARKY_FITNESS_APP_DB_PASSWORD={{ sparkyfitness_db_password }}"
+      - "SPARKY_FITNESS_FRONTEND_URL=https://health.{{ secret_domain_full }}"
+      - "SPARKY_FITNESS_API_ENCRYPTION_KEY={{ sparkyfitness_api_encryption_key }}"
+      - "BETTER_AUTH_SECRET={{ sparkyfitness_better_auth_secret }}"
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+      - "TZ={{ host_timezone }}"
+    restart: unless-stopped
+    depends_on:
+      - sparkyfitness-db # Backend depends on the database being available
+    volumes:
+      - "{{ appdata_path }}/sparkyfitness/backup:/app/SparkyFitnessServer/backup" # Mount volume for backups
+      - "{{ appdata_path }}/sparkyfitness/uploads:/app/SparkyFitnessServer/uploads" # Mount volume for Profile pictures and excercise images
+  sparkyfitness-db:
+    image: postgres:18.3-alpine
+    container_name: sparkyfitness-db
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+    environment:
+      - "POSTGRES_DB={{ sparkyfitness_db_name }}"
+      - "POSTGRES_USER={{ sparkyfitness_db_user }}"
+      - "POSTGRES_PASSWORD={{ sparkyfitness_db_password }}"
+      - "PUID={{ docker_compose_generator_uid }}"
+      - "PGID={{ docker_compose_generator_gid }}"
+    volumes:
+      - "{{ appdata_path }}/sparkyfitness-db:/var/lib/postgresql"
