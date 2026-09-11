@@ -113,6 +113,8 @@ bash_aliases:
 # soulrestic
 restic_healthchecks_id: "{{ restic_pms_healthchecks_id }}"
 restic_forget_healthchecks_id: "{{ restic_pms_forget_healthchecks_id }}"
+restic_check_healthchecks_id: "{{ restic_pms_check_healthchecks_id }}"
+restic_check_cron_weekday: 0 # Sunday
 restic_backup_locations:
   - /mnt/tank
 restic_backup_excludes: #defaults to blank

@@ -10,6 +10,15 @@
     system: false
   become: true
 
+- name: Create log directory
+  file:
+    path: /home/restic/log
+    state: directory
+    mode: "0750"
+    owner: restic
+    group: restic
+  become: true
+
 - name: Install backrest
   template:
     src: files/backrest.sh
@@ -17,6 +26,7 @@
     mode: "0700"
     owner: restic
   become: true
+  no_log: true
 
 - name: Install includes files
   copy:
@@ -42,7 +52,7 @@
     group: restic
   become: true
 
-- name: Set cap_sys_chroot=+ep on restic
+- name: Set cap_dac_read_search=+ep on restic
   community.general.capabilities:
     path: /usr/bin/restic
     capability: cap_dac_read_search=+ep
@@ -51,15 +61,28 @@
 - name: Schedule backup
   cron:
     name: restic backup
-    hour: 2
-    minute: 0
+    hour: "{{ restic_cron_hour }}"
+    minute: "{{ restic_cron_minute }}"
     job: /home/restic/backrest.sh cron_backup
     user: restic
   become: true
 
-- name: backrest fail2ban config
-  template:
-    src: files/backrest-logrotate
-    dest: /etc/logrotate.d/backrest
-    mode: "0600"
+- name: Schedule integrity check
+  cron:
+    name: restic check
+    weekday: "{{ restic_check_cron_weekday }}"
+    hour: "{{ restic_check_cron_hour }}"
+    minute: "{{ restic_check_cron_minute }}"
+    job: /home/restic/backrest.sh cron_check
+    user: restic
+  become: true
+  when: restic_check_healthchecks_id is defined
+
+# Superseded by prune_logs() in backrest.sh. Log filenames are unique per run,
+# so logrotate rotated each file exactly once to .log.1.gz -- which no longer
+# matched the *.log glob -- and `rotate 14` never deleted anything.
+- name: Remove obsolete logrotate config
+  file:
+    path: /etc/logrotate.d/backrest
+    state: absent
   become: true

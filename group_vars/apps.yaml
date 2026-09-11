@@ -25,6 +25,8 @@ bash_aliases:
 # soulrestic
 restic_healthchecks_id: "{{ restic_apps_healthchecks_id }}"
 restic_forget_healthchecks_id: "{{ restic_apps_forget_healthchecks_id }}"
+restic_check_healthchecks_id: "{{ restic_apps_check_healthchecks_id }}"
+restic_check_cron_weekday: 3 # Wednesday
 restic_backup_locations:
   - "{{ appdata_path }}"
 

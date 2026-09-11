@@ -24,6 +24,8 @@ bash_aliases:
 # soulrestic
 restic_healthchecks_id: "{{ restic_cloud_healthchecks_id }}"
 restic_forget_healthchecks_id: "{{ restic_cloud_forget_healthchecks_id }}"
+restic_check_healthchecks_id: "{{ restic_cloud_check_healthchecks_id }}"
+restic_check_cron_weekday: 5 # Friday
 restic_backup_locations:
   - "{{ appdata_path }}"
 
