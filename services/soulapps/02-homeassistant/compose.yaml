@@ -1,0 +1,59 @@
+services:
+  llama.cpp:
+    container_name: llama.cpp
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda12
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/llama.cpp/huggingface:/root/.cache/huggingface"
+      - "{{ appdata_path }}/llama.cpp/config:/config"
+    ports:
+      - 8080:8080
+    restart: always
+    command:
+      - "--models-preset"
+      - "/config/config.ini"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+  wyoming-stt:
+    container_name: wyoming-stt
+    image: ghcr.io/tboby/wyoming-onnx-asr
+    labels:
+      - traefik.enable=false
+    ports:
+      - 10300:10300
+    volumes:
+      - "{{ appdata_path }}/wyoming-stt:/data"
+    restart: always
+    command: ["--model-en", "nemo-parakeet-tdt-0.6b-v3", "--uri", "tcp://0.0.0.0:10300"]
+  kokoro-tts:
+    container_name: kokoro-tts
+    image: ghcr.io/remsky/kokoro-fastapi-cpu
+    labels:
+      - traefik.enable=false
+    ports:
+      - 8880:8880
+    restart: always
+  searxng:
+    image: searxng/searxng
+    container_name: searxng
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/searxng/core-config:/etc/searxng/:Z"
+      - "{{ appdata_path }}/searxng/core-data:/var/cache/searxng/"
+    restart: unless-stopped
+  searxng-valkey:
+    container_name: searxng-valkey
+    image: docker.io/valkey/valkey:9-alpine
+    command: valkey-server --save 30 1 --loglevel warning
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/searxng/valkey-data:/data/"
+    restart: unless-stopped
