@@ -1,0 +1,28 @@
+services:
+  dockhand-hawser:
+    image: ghcr.io/finsys/hawser:latest
+    container_name: dockhand-hawser
+    ports:
+      - 2376:2376
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - "TOKEN={{ secret_dockhand_token }}"
+    restart: unless-stopped
+  tsdproxy:
+    image: almeidapaulopt/tsdproxy:2
+    container_name: tsdproxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{ appdata_path}}/tsdproxy/data:/data"
+      - "{{ appdata_path}}/tsdproxy/config:/config"
+    environment:
+      - "TS_AUTHKEY={{ tsdproxy_soulcloud_tailscale_authkey }}"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "dash"
+      tsdproxy.dash.visible: "false"
+      tsdproxy.port.1: "443/https:8080/http"

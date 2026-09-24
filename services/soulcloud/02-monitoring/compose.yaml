@@ -3,7 +3,9 @@ services:
     image: louislam/uptime-kuma:2
     container_name: uptime-kuma
     labels:
-      - traefik.http.routers.uptime.rule=Host(`uptime.{{ secret_domain_cloud }}`)
+      tsdproxy.enable: "true"
+      tsdproxy.name: "uptime"
+      tsdproxy.port.1: "443/https:3001/http"
     volumes:
       - "{{ appdata_path }}/uptime-kuma:/app/data"
     restart: unless-stopped
@@ -11,7 +13,9 @@ services:
     image: lscr.io/linuxserver/healthchecks
     container_name: healthchecks
     labels:
-      - "traefik.http.routers.healthchecks.rule=Host(`hc.{{ secret_domain_cloud }}`)"
+      tsdproxy.enable: "true"
+      tsdproxy.name: "hc"
+      tsdproxy.port.1: "443/https:8000/http"
     volumes:
       - "{{ appdata_path }}/healthchecks:/config"
     environment:
@@ -23,6 +27,7 @@ services:
       - PING_BODY_LIMIT=100000
       - SITE_NAME=Health Checks
       - "SITE_ROOT=https://hc.{{ secret_domain_cloud }}"
+      - "ALLOWED_HOSTS=hc.{{ secret_domain_cloud }}"
       - "SUPERUSER_EMAIL={{ secret_hc_email }}"
       - "SUPERUSER_PASSWORD={{ secret_hc_pass }}"
     restart: unless-stopped
@@ -30,7 +35,9 @@ services:
     image: lscr.io/linuxserver/librespeed
     container_name: librespeed
     labels:
-      - "traefik.http.routers.librespeed.rule=Host(`speed.{{ secret_domain_cloud }}`)"
+      tsdproxy.enable: "true"
+      tsdproxy.name: "speed"
+      tsdproxy.port.1: "443/https:80/http"
     volumes:
       - "{{ appdata_path }}/librespeed:/config"
     environment:
@@ -40,16 +47,3 @@ services:
       - MODE=standalone
       - TELEMETRY=false
     restart: unless-stopped
-  # dozzle:
-  #   image: amir20/dozzle:latest
-  #   container_name: dozzle
-  #   command: agent
-  #   labels:
-  #     - traefik.enable=false
-  #   ports:
-  #     - 7007:7007
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   environment:
-  #     - "TZ={{ host_timezone }}"
-  #   restart: unless-stopped
