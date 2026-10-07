@@ -1,0 +1,23 @@
+services:
+  hbbs:
+    container_name: hbbs
+    image: rustdesk/rustdesk-server:latest
+    command: hbbs
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/rustdesk/hbbs:/root"
+    network_mode: "host"
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+  hbbr:
+    container_name: hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr
+    labels:
+      - traefik.enable=false
+    volumes:
+      - "{{ appdata_path }}/rustdesk/hbbr:/root"
+    network_mode: "host"
+    restart: unless-stopped
