@@ -13,18 +13,6 @@ services:
       - "BASE_URL=https://mealie.{{ secret_domain_full }}"
       - ALLOW_SIGNUP=false
     restart: unless-stopped
-  freshrss:
-    image: lscr.io/linuxserver/freshrss:latest
-    container_name: freshrss
-    labels:
-      - "traefik.http.routers.freshrss.rule=Host(`rss.p.{{ local_domain }}`)"
-    volumes:
-      - "{{ appdata_path }}/freshrss:/config"
-    environment:
-      - "PUID={{ docker_compose_generator_uid }}"
-      - "PGID={{ docker_compose_generator_gid }}"
-      - "TZ={{ host_timezone }}"
-    restart: unless-stopped
   searxng:
     image: searxng/searxng
     container_name: searxng
