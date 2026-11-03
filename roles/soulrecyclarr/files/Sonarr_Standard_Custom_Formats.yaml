@@ -14,6 +14,7 @@ custom_formats:
       - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
       - 44e7c4de10ae50265753082e5dc76047 # Repack v3
       - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
+      - 44ccbcbc74506f208973e1463b11705f # With Audio Descriptions
 
       # General Streaming Services
       - d660701077794679fd59e8bdf4ce3a29 # AMZN
