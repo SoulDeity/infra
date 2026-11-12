@@ -1,0 +1,21 @@
+---
+# Manages AdGuard Home settings through its HTTP API, so the web UI keeps
+# working for everything not listed here. Not part of ironicbadger/infra:
+# upstream configures AdGuard by hand in the UI.
+
+adguard_api_url: "http://127.0.0.1:3000"
+
+# Query log retention. Set on every node (adguardhome-sync does not sync it).
+adguard_querylog_interval_hours: 168
+
+# Subset of /control/dns_config to enforce on the origin node. Keys are the
+# API field names; anything not listed is left as configured in the UI.
+adguard_dns_config: {}
+
+# Extra rewrites on top of the ones generated from dhcp_reservations.
+# Same domain here wins over a generated one. Wildcards allowed (*.example).
+adguard_extra_rewrites: []
+
+# Rewrites on the origin node are authoritative: anything not generated from
+# dhcp_reservations or listed in adguard_extra_rewrites is deleted.
+adguard_rewrites_authoritative: true

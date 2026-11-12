@@ -1,0 +1,150 @@
+---
+- name: Wait for the AdGuard Home API
+  ansible.builtin.uri:
+    url: "{{ adguard_api_url }}/control/status"
+    url_username: "{{ adguard_username }}"
+    url_password: "{{ adguard_password }}"
+    force_basic_auth: true
+  register: adguard_status
+  until: adguard_status.status == 200
+  retries: 10
+  delay: 3
+  check_mode: false
+
+## Query log retention (every node)
+
+- name: Read query log config
+  ansible.builtin.uri:
+    url: "{{ adguard_api_url }}/control/querylog/config"
+    url_username: "{{ adguard_username }}"
+    url_password: "{{ adguard_password }}"
+    force_basic_auth: true
+  register: adguard_querylog
+  check_mode: false
+
+- name: Set query log retention to {{ adguard_querylog_interval_hours }}h
+  ansible.builtin.uri:
+    url: "{{ adguard_api_url }}/control/querylog/config/update"
+    method: PUT
+    url_username: "{{ adguard_username }}"
+    url_password: "{{ adguard_password }}"
+    force_basic_auth: true
+    body_format: json
+    body: "{{ adguard_querylog.json | combine({'interval': adguard_querylog_interval_hours * 3600000}) }}"
+  changed_when: true
+  when: (adguard_querylog.json.interval | int) != (adguard_querylog_interval_hours * 3600000)
+
+## DNS settings and rewrites (origin only; adguardhome-sync copies them)
+
+- name: Configure DNS settings and rewrites on the sync origin
+  when: adguardhome_sync_enabled | default(false)
+  block:
+    - name: Read DNS config
+      ansible.builtin.uri:
+        url: "{{ adguard_api_url }}/control/dns_info"
+        url_username: "{{ adguard_username }}"
+        url_password: "{{ adguard_password }}"
+        force_basic_auth: true
+      register: adguard_dns_info
+      check_mode: false
+
+    - name: Compare DNS settings
+      ansible.builtin.set_fact:
+        adguard_dns_current: >-
+          {{ adguard_dns_info.json | dict2items
+             | selectattr('key', 'in', adguard_dns_config.keys() | list)
+             | items2dict }}
+
+    - name: Show DNS settings that differ
+      ansible.builtin.debug:
+        msg: "{{ item }}: {{ adguard_dns_current[item] | default('unset') }} -> {{ adguard_dns_config[item] }}"
+      loop: "{{ adguard_dns_config.keys() | list }}"
+      when: adguard_dns_current[item] | default(none) != adguard_dns_config[item]
+
+    - name: Update DNS settings
+      ansible.builtin.uri:
+        url: "{{ adguard_api_url }}/control/dns_config"
+        method: POST
+        url_username: "{{ adguard_username }}"
+        url_password: "{{ adguard_password }}"
+        force_basic_auth: true
+        body_format: json
+        body: "{{ adguard_dns_config }}"
+      changed_when: true
+      notify: Restart adguardhome-sync
+      when: adguard_dns_current != adguard_dns_config
+
+    - name: Read current rewrites
+      ansible.builtin.uri:
+        url: "{{ adguard_api_url }}/control/rewrite/list"
+        url_username: "{{ adguard_username }}"
+        url_password: "{{ adguard_password }}"
+        force_basic_auth: true
+      register: adguard_rewrites
+      check_mode: false
+
+    # <hostname>.<domain> for every reservation, <custom_dns>.<domain> for
+    # each custom name, then adguard_extra_rewrites on top (same domain wins).
+    - name: Build desired rewrites
+      ansible.builtin.set_fact:
+        adguard_desired_rewrites: >-
+          {{ dict(dhcp_reservations | map(attribute='hostname')
+                  | map('regex_replace', '$', '.' ~ default_domain)
+                  | zip(dhcp_reservations | map(attribute='ip')))
+             | combine(dict(dhcp_reservations | subelements('custom_dns', skip_missing=true)
+                            | map(attribute='1')
+                            | map('regex_replace', '$', '.' ~ default_domain)
+                            | zip(dhcp_reservations | subelements('custom_dns', skip_missing=true)
+                                  | map(attribute='0') | map(attribute='ip'))))
+             | combine(dict(adguard_extra_rewrites | map(attribute='domain')
+                            | zip(adguard_extra_rewrites | map(attribute='answer')))) }}
+
+    - name: Diff desired against current rewrites
+      ansible.builtin.set_fact:
+        adguard_rewrites_add: "{{ desired | difference(current) | sort }}"
+        adguard_rewrites_delete: "{{ (current | difference(desired) | sort) if adguard_rewrites_authoritative else [] }}"
+      vars:
+        desired: "{{ adguard_desired_rewrites | dict2items | map(attribute='key')
+                     | zip(adguard_desired_rewrites | dict2items | map(attribute='value'))
+                     | map('join', ' -> ') | list }}"
+        current: "{{ adguard_rewrites.json | map(attribute='domain')
+                     | zip(adguard_rewrites.json | map(attribute='answer'))
+                     | map('join', ' -> ') | list }}"
+
+    - name: Rewrite changes
+      ansible.builtin.debug:
+        msg:
+          desired: "{{ adguard_desired_rewrites | length }}"
+          current: "{{ adguard_rewrites.json | length }}"
+          add: "{{ adguard_rewrites_add }}"
+          delete: "{{ adguard_rewrites_delete }}"
+
+    - name: Delete rewrites
+      ansible.builtin.uri:
+        url: "{{ adguard_api_url }}/control/rewrite/delete"
+        method: POST
+        url_username: "{{ adguard_username }}"
+        url_password: "{{ adguard_password }}"
+        force_basic_auth: true
+        body_format: json
+        body:
+          domain: "{{ item.split(' -> ')[0] }}"
+          answer: "{{ item.split(' -> ')[1] }}"
+      loop: "{{ adguard_rewrites_delete }}"
+      changed_when: true
+      notify: Restart adguardhome-sync
+
+    - name: Add rewrites
+      ansible.builtin.uri:
+        url: "{{ adguard_api_url }}/control/rewrite/add"
+        method: POST
+        url_username: "{{ adguard_username }}"
+        url_password: "{{ adguard_password }}"
+        force_basic_auth: true
+        body_format: json
+        body:
+          domain: "{{ item.split(' -> ')[0] }}"
+          answer: "{{ item.split(' -> ')[1] }}"
+      loop: "{{ adguard_rewrites_add }}"
+      changed_when: true
+      notify: Restart adguardhome-sync

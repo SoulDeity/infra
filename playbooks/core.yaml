@@ -35,5 +35,10 @@
     - role: core-keepalived
       tags: keepalived
 
+    # Must stay before core-adguardhome-sync: that role ends the play early
+    # (meta: end_host) on nodes that are not the sync origin.
+    - role: core-adguardhome-config
+      tags: adguard-config
+
     - role: core-adguardhome-sync
       tags: sync

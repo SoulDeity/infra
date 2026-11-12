@@ -36,6 +36,40 @@ adguard_config_dest: "/etc/adguardhome/AdGuardHome.yaml"
 # in the role defaults). Settings live in the origin node's UI/API and
 # adguardhome-sync copies them to the replica.
 
+# AdGuard Home settings pushed through the API (core-adguardhome-config).
+# Rewrites for every host in group_vars/dns.yaml are generated automatically;
+# these are the extras on top. Exact names win over wildcards in AdGuard.
+core_vip: "{{ core_vip_cidr | split('/') | first }}"
+
+adguard_extra_rewrites:
+  # wildcards: per-host subdomains go to that host's Traefik, everything else
+  # under the local domain goes to Caddy on the core nodes (the VIP)
+  - { domain: "*.n.{{ secret_domain_local }}", answer: 10.42.0.1 }
+  - { domain: "*.p.{{ secret_domain_local }}", answer: 10.42.1.1 }
+  - { domain: "*.a.{{ secret_domain_local }}", answer: 10.42.1.3 }
+  - { domain: "*.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
+  # served by Caddy on the core nodes
+  - { domain: "home.{{ secret_domain_full }}", answer: "{{ core_vip }}" }
+  - { domain: "proxmox.p.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
+  # served by Traefik on soulapps
+  - { domain: "frigate.{{ secret_domain_local }}", answer: 10.42.1.3 }
+  # UniFi devices look for the controller at http://unifi:8080/inform
+  - { domain: "unifi", answer: 10.42.0.250 }
+
+adguard_dns_config:
+  upstream_dns:
+    - 1.1.1.1
+    - 1.0.0.1
+    - 9.9.9.9
+    - 149.112.112.112
+  upstream_mode: load_balance
+  dnssec_enabled: true
+  # 0 = no per-client limit. The default (20 qps) counts each Docker host as a
+  # single client, so busy hosts like soulpms get queries dropped.
+  ratelimit: 0
+
+adguard_querylog_interval_hours: 168 # 7 days; was 30 days on the SD cards
+
 # AdGuard Home Sync settings (runs on the MASTER node only)
 adguardhome_sync_version: "0.6.12"
 adguardhome_sync_cron: "*/5 * * * *"
