@@ -23,12 +23,18 @@
 
 {% if endpoint.wildcard_endpoints is defined %}
 {% for wildcard_endpoint in endpoint.wildcard_endpoints %}
-    @{{ ( wildcard_endpoint.fqdn | split(".") )[0] }} host {{ wildcard_endpoint.fqdn }}
-    handle @{{ ( wildcard_endpoint.fqdn | split(".") )[0] }} {
+{# Deviation from upstream: matcher named after the full FQDN, not just its
+   first label, so proxmox.p.* and proxmox.n.* don't collide. #}
+{% set matcher = wildcard_endpoint.fqdn | replace('.', '-') %}
+    @{{ matcher }} host {{ wildcard_endpoint.fqdn }}
+    handle @{{ matcher }} {
 {% if wildcard_endpoint.tls_insecure | default(false) %}
         reverse_proxy {{ wildcard_endpoint.upstream }} {
             transport http {
                 tls_insecure_skip_verify
+{% if wildcard_endpoint.http_versions is defined %}
+                versions {{ wildcard_endpoint.http_versions | join(' ') }}
+{% endif %}
             }
         }
     }
