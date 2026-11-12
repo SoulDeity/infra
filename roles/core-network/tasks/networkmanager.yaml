@@ -5,10 +5,29 @@
     enabled: true
     state: started
 
+# Deviation from upstream: upstream ran `nmcli con mod` and `nmcli con up`
+# on every run, which re-applies the profile and briefly drops eth0 -- on the
+# keepalived MASTER that can bounce the DNS VIP. Here the profile is only
+# modified and re-activated when its settings actually differ.
+
 - name: List NetworkManager connections
   ansible.builtin.command: nmcli -t -f NAME con show
   register: nm_connections
   changed_when: false
+  check_mode: false
+
+- name: Desired NetworkManager connection settings
+  ansible.builtin.set_fact:
+    nm_mod_args: []
+    nm_desired:
+      connection.interface-name: "{{ core_network_interface }}"
+      connection.autoconnect: "yes"
+      connection.autoconnect-priority: "{{ network_nm_autoconnect_priority | string }}"
+      ipv4.method: manual
+      ipv4.addresses: "{{ core_ipv4_address }}/{{ core_ipv4_prefix }}"
+      ipv4.gateway: "{{ core_ipv4_gateway }}"
+      ipv4.dns: "{{ core_dns_servers | join(',') }}"
+      ipv6.method: ignore
 
 - name: Create NetworkManager connection
   ansible.builtin.command: >-
@@ -19,26 +38,45 @@
     ipv4.gateway {{ core_ipv4_gateway }}
     ipv4.dns "{{ core_dns_servers | join(' ') }}"
     ipv6.method ignore
-  when: network_nm_connection_name not in nm_connections.stdout_lines
-
-- name: Update NetworkManager connection
-  ansible.builtin.command: >-
-    nmcli con mod {{ network_nm_connection_name }}
-    ipv4.method manual
-    ipv4.addresses {{ core_ipv4_address }}/{{ core_ipv4_prefix }}
-    ipv4.gateway {{ core_ipv4_gateway }}
-    ipv4.dns "{{ core_dns_servers | join(' ') }}"
-    ipv6.method ignore
-  when: network_nm_connection_name in nm_connections.stdout_lines
-
-- name: Set autoconnect priority
-  ansible.builtin.command: >-
-    nmcli con mod {{ network_nm_connection_name }}
     connection.autoconnect yes
     connection.autoconnect-priority {{ network_nm_autoconnect_priority }}
+  register: nm_created
+  when: network_nm_connection_name not in nm_connections.stdout_lines
+
+- name: Read current NetworkManager connection settings
+  ansible.builtin.command:
+    argv:
+      - nmcli
+      - -g
+      - "{{ nm_desired.keys() | join(',') }}"
+      - con
+      - show
+      - "{{ network_nm_connection_name }}"
+  register: nm_current
+  changed_when: false
+  check_mode: false
+  when: network_nm_connection_name in nm_connections.stdout_lines
+
+# nmcli -g prints one value per line, in the order the fields were requested
+- name: Collect settings that differ from the desired state
+  ansible.builtin.set_fact:
+    nm_mod_args: "{{ nm_mod_args + [item.0, item.1] }}"
+  loop: "{{ nm_desired.keys() | list | zip(nm_desired.values() | list, nm_current.stdout_lines | default([])) | list }}"
+  loop_control:
+    label: "{{ item.0 }}: {{ item.2 }} -> {{ item.1 }}"
+  when:
+    - nm_current is not skipped
+    - item.1 != item.2
+
+- name: Update NetworkManager connection
+  ansible.builtin.command:
+    argv: "{{ ['nmcli', 'con', 'mod', network_nm_connection_name] + nm_mod_args }}"
+  register: nm_modified
+  when: nm_mod_args | length > 0
 
 - name: Bring up NetworkManager connection
   ansible.builtin.command: nmcli con up {{ network_nm_connection_name }}
+  when: (nm_created is changed) or (nm_modified is changed)
 
 - name: Check DHCP service unit files
   ansible.builtin.stat:

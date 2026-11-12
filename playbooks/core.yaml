@@ -2,6 +2,12 @@
 - name: Core edge nodes (DNS + VIP)
   hosts: core
   become: true
+  # Deviation from upstream: one node at a time, BACKUP (core-pi4-2) first,
+  # so the two DNS nodes are never restarted together and a bad change shows
+  # up on the backup before it reaches the VIP holder. If the first node
+  # fails, the play stops before touching the second.
+  serial: 1
+  order: reverse_inventory
   vars_files:
     - "../vars/vault.yaml"
 
