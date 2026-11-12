@@ -107,6 +107,18 @@ caddy_endpoints:
     fqdn: "mcmap.{{ secret_domain_full }}"
     upstream: http://10.42.10.200:8081
     tls_provider: cloudflare
+  # Two levels below the local domain, so the *.<local domain> wildcard cert
+  # doesn't cover them: they need their own site blocks (and certs).
+  - friendly_name: soulpms proxmox
+    fqdn: "proxmox.p.{{ secret_domain_local }}"
+    upstream: https://10.42.1.1:8006
+    tls_insecure: true
+    tls_provider: cloudflare
+  - friendly_name: soulnet proxmox
+    fqdn: "proxmox.n.{{ secret_domain_local }}"
+    upstream: https://10.42.0.1:8006
+    tls_insecure: true
+    tls_provider: cloudflare
   - friendly_name: wildcard for local domain
     fqdn: "*.{{ secret_domain_local }}"
     tls_provider: cloudflare
@@ -114,14 +126,6 @@ caddy_endpoints:
       - friendly_name: AdGuard Home
         fqdn: "dns.{{ secret_domain_local }}"
         upstream: localhost:3000
-      - friendly_name: soulpms proxmox
-        fqdn: "proxmox.p.{{ secret_domain_local }}"
-        upstream: https://10.42.1.1:8006
-        tls_insecure: true
-      - friendly_name: soulnet proxmox
-        fqdn: "proxmox.n.{{ secret_domain_local }}"
-        upstream: https://10.42.0.1:8006
-        tls_insecure: true
       - friendly_name: opnsense
         fqdn: "opnsense.{{ secret_domain_local }}"
         upstream: https://10.42.0.254:443
