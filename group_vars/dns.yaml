@@ -11,7 +11,6 @@
 default_domain: "{{ secret_domain_local }}"
 
 dhcp_reservations:
-
   ## Network infrastructure
   - { mac: f4:93:9f:ef:dd:75, ip: 10.42.0.1, hostname: soulnet, custom_dns: ["n"] }
   - { mac: 00:19:56:08:2c:00, ip: 10.42.0.2, hostname: cisco-catalyst-3560g-48ps }
@@ -43,6 +42,8 @@ dhcp_reservations:
   - { mac: ec:71:db:82:72:26, ip: 10.42.2.11, hostname: reolink-driveway }
   - { mac: b4:6d:c2:c4:57:e4, ip: 10.42.2.12, hostname: reolink-garage }
   - { mac: b4:6d:c2:c5:7a:55, ip: 10.42.2.13, hostname: reolink-cayden }
+  - { mac: bf:fb:e4:7e:1c:72, ip: 10.42.2.14, hostname: unifi-backyard }
+  - { mac: bf:fb:e4:7e:1e:fb, ip: 10.42.2.15, hostname: unifi-westside }
   - { mac: c0:6d:1a:f3:19:46, ip: 10.42.2.20, hostname: wyze-workbench }
 
   ## Primary clients
