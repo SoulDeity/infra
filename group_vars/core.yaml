@@ -18,6 +18,9 @@ keepalived_router_id: 53
 # keepalived_auth_pass comes from vars/vault.yaml
 keepalived_advert_interval: 1
 keepalived_check_interval: 2
+# Health check (and core-update.yaml) look this name up on 127.0.0.1. It's a
+# local rewrite (the *.<local domain> wildcard), so no upstream is involved.
+keepalived_check_name: "dns.{{ default_domain }}"
 
 # Chrony NTP pools
 chrony_pools:

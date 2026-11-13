@@ -5,8 +5,8 @@
     state: present
 
 - name: Install AdGuard health check script
-  ansible.builtin.copy:
-    src: check-adguard.sh
+  ansible.builtin.template:
+    src: check-adguard.sh.j2
     dest: "{{ keepalived_check_script }}"
     mode: "0755"
 

@@ -10,3 +10,7 @@ keepalived_check_interval: 2
 keepalived_virtual_ip: "{{ core_vip_cidr }}"
 keepalived_check_script: "/usr/local/bin/check-adguard.sh"
 keepalived_check_weight: -30
+keepalived_check_name: "dns.{{ default_domain }}"
+keepalived_check_timeout: 3
+keepalived_check_fall: 2
+keepalived_check_rise: 2

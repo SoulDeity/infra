@@ -7,6 +7,10 @@ vrrp_script chk_adguard {
   script "{{ keepalived_check_script }}"
   interval {{ keepalived_check_interval }}
   weight {{ keepalived_check_weight }}
+  timeout {{ keepalived_check_timeout }}
+  # two failures in a row before dropping priority, two passes to recover
+  fall {{ keepalived_check_fall }}
+  rise {{ keepalived_check_rise }}
 }
 
 vrrp_instance {{ keepalived_instance_name }} {

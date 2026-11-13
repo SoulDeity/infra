@@ -1,0 +1,100 @@
+---
+# Patch the core edge nodes one at a time without losing DNS.
+# (Not in upstream, which has no update path for the core nodes.)
+#
+#   make core-update                       # upgrade, reboot only if needed
+#   make core-update ARGS="-e core_reboot=true"   # always reboot
+#   make core-update ARGS="--check"        # show what would be upgraded
+#
+# Order per node, BACKUP (core-pi4-2) first:
+#   1. refuse to start unless the *other* node is answering DNS
+#   2. apt dist-upgrade + autoremove
+#   3. reboot if a new kernel was installed or a package asked for it
+#   4. wait until AdGuard answers locally and keepalived has settled
+#      (MASTER holds the VIP again) before moving on to the next node
+- name: Update core edge nodes
+  hosts: core
+  become: true
+  serial: 1
+  order: reverse_inventory
+  vars_files:
+    - "../vars/vault.yaml"
+  vars:
+    core_reboot: false
+    core_peer: "{{ groups['core'] | difference([inventory_hostname]) | first }}"
+    core_dig: "dig +time=1 +tries=1 +short {{ keepalived_check_name }}"
+
+  tasks:
+    - name: Check the other node is answering DNS before touching this one
+      ansible.builtin.command: "{{ core_dig }} @{{ hostvars[core_peer]['core_ipv4_address'] }}"
+      register: peer_dns
+      changed_when: false
+      check_mode: false
+      failed_when: peer_dns.rc != 0 or peer_dns.stdout | length == 0
+
+    - name: Upgrade packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        autoremove: true
+      register: apt_upgrade
+
+    - name: Show upgraded packages
+      ansible.builtin.debug:
+        msg: "{{ apt_upgrade.stdout_lines | default([]) | select('match', '^(Inst|Setting up) ') | list }}"
+      when: apt_upgrade is changed
+
+    # Debian doesn't reliably create /run/reboot-required, so also compare the
+    # running kernel with the newest one installed.
+    - name: Check whether a reboot is needed
+      ansible.builtin.shell: |
+        set -eu
+        [ -f /run/reboot-required ] && echo "reboot-required flag" && exit 0
+        newest=$(ls /lib/modules | sort -V | tail -n1)
+        [ "$newest" != "$(uname -r)" ] && echo "kernel $(uname -r) -> $newest" && exit 0
+        exit 0
+      register: reboot_check
+      changed_when: false
+      check_mode: false
+
+    - name: Reboot ({{ reboot_check.stdout | default('requested', true) }})
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+      when: core_reboot | bool or reboot_check.stdout | length > 0
+
+    - name: Wait for AdGuard Home to answer locally
+      ansible.builtin.command: "{{ core_dig }} @127.0.0.1"
+      register: local_dns
+      until: local_dns.rc == 0 and local_dns.stdout | length > 0
+      retries: 30
+      delay: 2
+      changed_when: false
+      check_mode: false
+
+    - name: Wait for keepalived
+      ansible.builtin.command: systemctl is-active keepalived
+      register: keepalived_active
+      until: keepalived_active.rc == 0
+      retries: 15
+      delay: 2
+      changed_when: false
+      check_mode: false
+
+    - name: Wait for the MASTER to take the VIP back
+      ansible.builtin.command: "ip -4 -o addr show dev {{ core_network_interface }}"
+      register: vip_addr
+      until: (core_vip ~ '/') in vip_addr.stdout
+      retries: 15
+      delay: 2
+      changed_when: false
+      check_mode: false
+      when: keepalived_state == 'MASTER'
+
+    - name: Check the VIP is answering DNS
+      ansible.builtin.command: "{{ core_dig }} @{{ core_vip }}"
+      register: vip_dns
+      until: vip_dns.rc == 0 and vip_dns.stdout | length > 0
+      retries: 10
+      delay: 2
+      changed_when: false
+      check_mode: false
