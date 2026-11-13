@@ -1,0 +1,84 @@
+---
+# Hosts that serve local DNS: the Pi-hole LXC (being retired) and the core
+# edge nodes. Everything here is the single source of truth for fixed IPs.
+#
+# - DHCP: reservations are served by OPNsense (Services > Dnsmasq DNS & DHCP >
+#   Hosts). Keep that table in sync with this list (it has CSV import/export).
+# - DNS: the core nodes generate an exact AdGuard rewrite
+#   <hostname>.<local domain> -> ip for every entry, plus <custom_dns>.<local
+#   domain> for each custom_dns name (see core-adguardhome-config).
+
+default_domain: "{{ secret_domain_local }}"
+
+dhcp_reservations:
+
+  ## Network infrastructure
+  - { mac: f4:93:9f:ef:dd:75, ip: 10.42.0.1, hostname: soulnet, custom_dns: ["n"] }
+  - { mac: 00:19:56:08:2c:00, ip: 10.42.0.2, hostname: cisco-catalyst-3560g-48ps }
+  - { mac: 60:22:32:fe:9c:e0, ip: 10.42.0.3, hostname: unifi-u6-pro-upstairs }
+  - { mac: 74:ac:b9:a3:d9:a1, ip: 10.42.0.4, hostname: unifi-u6-lite-basement }
+  - { mac: 80:2a:a8:dc:44:22, ip: 10.42.0.5, hostname: unifi-edgeswitch-24-500w }
+  - { mac: dc:a6:32:96:19:1e, ip: 10.42.0.51, hostname: core-pi4-1 }
+  - { mac: dc:a6:32:97:0a:fe, ip: 10.42.0.52, hostname: core-pi4-2 }
+  - { mac: bc:24:11:61:9a:3e, ip: 10.42.0.250, hostname: unifi }
+  - { mac: bc:24:11:70:5a:44, ip: 10.42.0.252, hostname: caddy }
+  - { mac: bc:24:11:90:0a:9c, ip: 10.42.0.253, hostname: pihole }
+  - { mac: 70:54:d2:45:9d:86, ip: 10.42.0.254, hostname: opnsense }
+
+  ## Servers
+  - { mac: 30:9c:23:a5:a9:b6, ip: 10.42.1.1, hostname: soulpms, custom_dns: ["p"] }
+  - { mac: 6c:4b:90:c0:db:ff, ip: 10.42.1.2, hostname: soulhass }
+  - { mac: 2c:f0:5d:46:fa:d5, ip: 10.42.1.3, hostname: soulapps, custom_dns: ["a"] }
+  - { mac: 24:58:7c:d7:41:14, ip: 10.42.1.12, hostname: soulp1s }
+
+  ## Media players and TVs
+  - { mac: 48:b0:2d:09:4d:21, ip: 10.42.1.100, hostname: shield-living-room }
+  - { mac: 48:b0:2d:c2:7e:7c, ip: 10.42.1.101, hostname: shield-family-room }
+  - { mac: 78:be:81:17:e6:b3, ip: 10.42.1.102, hostname: onn-4k-pro-bedroom }
+  - { mac: 6c:56:97:53:f4:cb, ip: 10.42.1.105, hostname: firetv-guest }
+  - { mac: 00:06:78:b6:0a:72, ip: 10.42.1.106, hostname: denon-living-room-avr }
+
+  ## Cameras
+  - { mac: 48:9e:9d:d8:84:d5, ip: 10.42.2.10, hostname: reolink-doorbell }
+  - { mac: ec:71:db:82:72:26, ip: 10.42.2.11, hostname: reolink-driveway }
+  - { mac: b4:6d:c2:c4:57:e4, ip: 10.42.2.12, hostname: reolink-garage }
+  - { mac: b4:6d:c2:c5:7a:55, ip: 10.42.2.13, hostname: reolink-cayden }
+  - { mac: c0:6d:1a:f3:19:46, ip: 10.42.2.20, hostname: wyze-workbench }
+
+  ## Primary clients
+  - { mac: f0:2f:74:18:35:8f, ip: 10.42.3.10, hostname: souldesktop }
+  - { mac: 50:5a:65:81:62:d7, ip: 10.42.3.15, hostname: souldeck }
+
+  ## Local IoT
+  - { mac: 68:ff:7b:01:d9:21, ip: 10.42.5.10, hostname: tplink-plug-bedroom }
+  - { mac: d8:0d:17:9a:a4:f1, ip: 10.42.5.11, hostname: tplink-plug-living-room }
+  - { mac: d8:0d:17:9a:77:5b, ip: 10.42.5.12, hostname: tplink-plug-family-room }
+  - { mac: 68:ff:7b:01:c9:2b, ip: 10.42.5.13, hostname: tplink-plug-workbench }
+  - { mac: c4:d8:d5:0b:d4:b4, ip: 10.42.5.20, hostname: ratgdo-garage-door }
+  - { mac: 20:f8:3b:0a:57:23, ip: 10.42.5.30, hostname: home-assistant-voice-bedroom }
+  - { mac: 20:f8:3b:0a:46:ae, ip: 10.42.5.31, hostname: home-assistant-voice-living-room }
+  - { mac: 20:f8:3b:0a:53:d1, ip: 10.42.5.32, hostname: home-assistant-voice-family-room }
+  - { mac: e8:68:e7:f3:5b:64, ip: 10.42.5.33, hostname: sonoffs31-washer }
+  - { mac: bc:ff:4d:84:e6:4b, ip: 10.42.5.34, hostname: sonoffs31-workbench }
+  - { mac: bc:ff:4d:84:f0:b2, ip: 10.42.5.35, hostname: sonoffs31-christmas-tree }
+
+  ## Cloud IoT
+  - { mac: 64:90:c1:19:ee:2b, ip: 10.42.5.200, hostname: roborock-vacuum }
+  - { mac: 64:16:66:af:52:a6, ip: 10.42.5.201, hostname: nest-thermostat }
+  - { mac: 00:17:88:68:f7:01, ip: 10.42.5.202, hostname: hue-bridge }
+  - { mac: f8:a2:6d:58:67:23, ip: 10.42.5.203, hostname: canon-printer }
+  - { mac: cc:6a:10:ad:4b:84, ip: 10.42.5.204, hostname: myq-garage-opener }
+  - { mac: 48:e7:29:c0:9f:00, ip: 10.42.5.205, hostname: hatch-rest-cayden }
+  - { mac: b0:b2:1c:af:c9:5c, ip: 10.42.5.206, hostname: hatch-rest-bedroom }
+  - { mac: b0:4a:39:c8:10:c9, ip: 10.42.5.207, hostname: roborock-vacuum-a125 }
+  - { mac: 04:c2:9b:fa:6b:57, ip: 10.42.5.208, hostname: aura-picture-frame }
+  - { mac: 60:74:f4:bf:1a:56, ip: 10.42.5.209, hostname: govee-outdoor-lights }
+  - { mac: 28:6b:b4:1e:f7:dd, ip: 10.42.5.210, hostname: samsung-refridgerator }
+  - { mac: 1c:e8:9e:e2:8b:f8, ip: 10.42.5.211, hostname: samsung-microwave }
+  - { mac: 28:6b:b4:11:bf:de, ip: 10.42.5.212, hostname: samsung-range }
+  - { mac: 44:67:55:2f:97:cd, ip: 10.42.5.213, hostname: orbit-bhyve-hub }
+
+  ## VMs and containers on soulpms
+  - { mac: bc:24:11:b0:a1:91, ip: 10.42.10.101, hostname: soulcrypto }
+  - { mac: 02:90:d9:fa:23:c5, ip: 10.42.10.200, hostname: soulpelican }
+  - { mac: ca:79:1d:57:e7:c1, ip: 10.42.10.201, hostname: soulwing }

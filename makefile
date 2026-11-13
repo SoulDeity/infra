@@ -1,3 +1,13 @@
+### Core edge nodes (DNS + VIP) - pass extra args with ARGS="--tags caddy"
+core:
+	ansible-playbook playbooks/core.yaml $(ARGS)
+
+core-check:
+	ansible-playbook playbooks/core.yaml --check --diff $(ARGS)
+
+core-update:
+	ansible-playbook playbooks/core-update.yaml $(ARGS)
+
 ### Network Infrastructure
 pihole:
 	ansible-playbook -b run.yaml --limit pihole --ask-become-pass

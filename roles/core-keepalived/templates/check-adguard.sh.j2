@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# {{ ansible_managed }}
+# keepalived health check: pass only if AdGuard Home actually answers a DNS
+# query. (Upstream checks `systemctl is-active adguardhome`, which still
+# passes when the service is running but hung.)
+# The name is a local rewrite, so this doesn't depend on upstream resolvers.
+# dig exits 0 on any reply and 9 when nothing answers.
+out=$(dig @127.0.0.1 +time=1 +tries=1 +short {{ keepalived_check_name }}) || exit 1
+[ -n "$out" ]

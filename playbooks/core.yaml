@@ -1,0 +1,44 @@
+---
+- name: Core edge nodes (DNS + VIP)
+  hosts: core
+  become: true
+  # Deviation from upstream: one node at a time, BACKUP (core-pi4-2) first,
+  # so the two DNS nodes are never restarted together and a bad change shows
+  # up on the backup before it reaches the VIP holder. If the first node
+  # fails, the play stops before touching the second.
+  serial: 1
+  order: reverse_inventory
+  vars_files:
+    - "../vars/vault.yaml"
+
+  pre_tasks:
+    - name: Set timezone
+      community.general.timezone:
+        name: "{{ ntp_timezone }}"
+
+  roles:
+    - role: ironicbadger.packages
+      tags: packages
+
+    - role: core-network
+      tags: network
+
+    - role: core-chrony
+      tags: chrony
+
+    - role: core-adguardhome
+      tags: adguard
+
+    - role: core-caddy
+      tags: caddy
+
+    - role: core-keepalived
+      tags: keepalived
+
+    # Must stay before core-adguardhome-sync: that role ends the play early
+    # (meta: end_host) on nodes that are not the sync origin.
+    - role: core-adguardhome-config
+      tags: adguard-config
+
+    - role: core-adguardhome-sync
+      tags: sync

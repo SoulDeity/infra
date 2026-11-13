@@ -1,0 +1,151 @@
+---
+# Core edge nodes (DNS + VIP) configuration
+# Based on ironicbadger/infra core-* roles. Values match what is running on
+# core-pi4-1 / core-pi4-2 as deployed in Jan 2026.
+
+# Network settings
+core_network_interface: "eth0"
+core_ipv4_prefix: 20
+core_ipv4_gateway: "10.42.0.254"
+core_dns_servers:
+  - "1.1.1.1"
+  - "1.0.0.1"
+
+# Keepalived / VIP settings
+core_vip_cidr: "10.42.0.53/20"
+keepalived_instance_name: "VI_DNS"
+keepalived_router_id: 53
+# keepalived_auth_pass comes from vars/vault.yaml
+keepalived_advert_interval: 1
+keepalived_check_interval: 2
+# Health check (and core-update.yaml) look this name up on 127.0.0.1. It's a
+# local rewrite (the *.<local domain> wildcard), so no upstream is involved.
+keepalived_check_name: "dns.{{ default_domain }}"
+
+# Chrony NTP pools
+chrony_pools:
+  - "0.pool.ntp.org"
+  - "1.pool.ntp.org"
+  - "2.pool.ntp.org"
+  - "3.pool.ntp.org"
+
+# AdGuard Home settings
+adguard_version: "0.107.71"
+adguard_install_dir: "/opt/adguardhome"
+adguard_config_dir: "/etc/adguardhome"
+adguard_work_dir: "/var/lib/adguardhome"
+adguard_config_dest: "/etc/adguardhome/AdGuardHome.yaml"
+# AdGuardHome.yaml is NOT managed by Ansible (adguard_overwrite_config: false
+# in the role defaults). Settings live in the origin node's UI/API and
+# adguardhome-sync copies them to the replica.
+
+# AdGuard Home settings pushed through the API (core-adguardhome-config).
+# Rewrites for every host in group_vars/dns.yaml are generated automatically;
+# these are the extras on top. Exact names win over wildcards in AdGuard.
+core_vip: "{{ core_vip_cidr | split('/') | first }}"
+
+adguard_extra_rewrites:
+  # wildcards: per-host subdomains go to that host's Traefik, everything else
+  # under the local domain goes to Caddy on the core nodes (the VIP)
+  - { domain: "*.n.{{ secret_domain_local }}", answer: 10.42.0.1 }
+  - { domain: "*.p.{{ secret_domain_local }}", answer: 10.42.1.1 }
+  - { domain: "*.a.{{ secret_domain_local }}", answer: 10.42.1.3 }
+  - { domain: "*.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
+  # served by Caddy on the core nodes
+  - { domain: "home.{{ secret_domain_full }}", answer: "{{ core_vip }}" }
+  - { domain: "proxmox.p.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
+  - { domain: "proxmox.n.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
+  - { domain: "opnsense.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
+  # served by Traefik on soulapps
+  - { domain: "frigate.{{ secret_domain_local }}", answer: 10.42.1.3 }
+  # UniFi devices look for the controller at http://unifi:8080/inform
+  - { domain: "unifi", answer: 10.42.0.250 }
+
+adguard_dns_config:
+  upstream_dns:
+    - 1.1.1.1
+    - 1.0.0.1
+    - 9.9.9.9
+    - 149.112.112.112
+  upstream_mode: load_balance
+  dnssec_enabled: true
+  # 0 = no per-client limit. The default (20 qps) counts each Docker host as a
+  # single client, so busy hosts like soulpms get queries dropped.
+  ratelimit: 0
+
+adguard_querylog_interval_hours: 168 # 7 days; was 30 days on the SD cards
+
+# AdGuard Home Sync settings (runs on the MASTER node only)
+adguardhome_sync_version: "0.6.12"
+adguardhome_sync_cron: "*/5 * * * *"
+adguardhome_sync_origin_url: "http://{{ hostvars['core-pi4-1']['core_ipv4_address'] }}:3000"
+adguardhome_sync_replica_url: "http://{{ hostvars['core-pi4-2']['core_ipv4_address'] }}:3000"
+# adguard_username and adguard_password come from vars/vault.yaml
+
+# Packages for core nodes (ironicbadger.packages)
+package_list:
+  - btop
+  - curl
+  - wget
+  - vim
+  - htop
+  - net-tools
+  - dnsutils
+
+# Caddy reverse proxy settings
+caddy_binary_path: /usr/local/bin/caddy
+caddyfile_path: /etc/caddy
+
+caddy_tls_providers:
+  - provider: cloudflare
+    challenge_type: dns
+    provider_api_token: "{{ secret_cloudflare_caddy_api }}"
+
+caddy_endpoints:
+  - friendly_name: Home Assistant
+    fqdn: "home.{{ secret_domain_full }}"
+    upstream: http://10.42.1.2:8123
+    tls_provider: cloudflare
+  - friendly_name: Minecraft Map
+    fqdn: "mcmap.{{ secret_domain_full }}"
+    upstream: http://10.42.10.200:8081
+    tls_provider: cloudflare
+  # Two levels below the local domain, so the *.<local domain> wildcard cert
+  # doesn't cover them: they need their own site blocks (and certs).
+  - friendly_name: soulpms proxmox
+    fqdn: "proxmox.p.{{ secret_domain_local }}"
+    upstream: https://10.42.1.1:8006
+    tls_insecure: true
+    tls_provider: cloudflare
+  - friendly_name: soulnet proxmox
+    fqdn: "proxmox.n.{{ secret_domain_local }}"
+    upstream: https://10.42.0.1:8006
+    tls_insecure: true
+    tls_provider: cloudflare
+  - friendly_name: wildcard for local domain
+    fqdn: "*.{{ secret_domain_local }}"
+    tls_provider: cloudflare
+    wildcard_endpoints:
+      - friendly_name: AdGuard Home
+        fqdn: "dns.{{ secret_domain_local }}"
+        upstream: localhost:3000
+      - friendly_name: opnsense
+        fqdn: "opnsense.{{ secret_domain_local }}"
+        upstream: https://10.42.0.254:443
+        tls_insecure: true
+        # OPNsense's web UI misbehaves over HTTP/2 behind a proxy. (The old
+        # caddy LXC said "1.1 1.2"; 1.2 isn't an HTTP version and Caddy 2.10
+        # rejects it.)
+        http_versions: ["1.1"]
+      - friendly_name: soulcrypto
+        fqdn: "start.{{ secret_domain_local }}"
+        upstream: https://10.42.10.101
+        tls_insecure: true
+      - friendly_name: pelican panel
+        fqdn: "games.{{ secret_domain_local }}"
+        upstream: https://10.42.10.200
+        tls_insecure: true
+      - friendly_name: pelican wing
+        fqdn: "node.{{ secret_domain_local }}"
+        upstream: https://10.42.10.200:8080
+        tls_insecure: true

@@ -1,0 +1,15 @@
+---
+# core-pi4-2 - BACKUP node for VIP, AdGuard sync replica
+
+core_ipv4_address: "10.42.0.52"
+keepalived_state: "BACKUP"
+keepalived_priority: 110
+adguard_arch: "arm64"
+core_network_interface: "eth0"
+network_backend: "networkmanager"
+
+# Replica: sync runs on the master only
+adguardhome_sync_enabled: false
+
+# Caddy binary URL (the variable name says amd64 but this is the arm64 build)
+caddy_amd64_linux_binary_url: "https://caddyserver.com/api/download?os=linux&arch=arm64&p=github.com%2Fcaddy-dns%2Fcloudflare"
