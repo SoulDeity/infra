@@ -1,0 +1,6 @@
+---
+- name: Restart tailnet-route-rules
+  ansible.builtin.systemd:
+    name: tailnet-route-rules
+    state: restarted
+    daemon_reload: true

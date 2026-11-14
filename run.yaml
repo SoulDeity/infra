@@ -75,6 +75,8 @@
   roles:
     - role: geerlingguy.docker
     - role: artis3n.tailscale
+    - role: soultailnet-rules
+      tags: tailnet-rules
     - role: ironicbadger.bash_aliases
     - role: ironicbadger.figurine
     - role: soultraefik

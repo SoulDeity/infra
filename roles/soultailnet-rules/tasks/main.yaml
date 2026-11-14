@@ -1,0 +1,14 @@
+---
+- name: Install tailnet route rules unit
+  ansible.builtin.template:
+    src: tailnet-route-rules.service.j2
+    dest: /etc/systemd/system/tailnet-route-rules.service
+    mode: "0644"
+  notify: Restart tailnet-route-rules
+
+- name: Enable and start tailnet route rules
+  ansible.builtin.systemd:
+    name: tailnet-route-rules
+    enabled: true
+    state: started
+    daemon_reload: true
