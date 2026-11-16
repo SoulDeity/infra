@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+# See roles/soultailnet-rules/defaults/main.yaml for why these exist.
+[Unit]
+Description=Keep tsdproxy WireGuard traffic out of the accepted Tailscale subnet route
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+{% for port in tailnet_rules_udp_allowed_ports %}
+ExecStartPre=-/usr/sbin/ip rule del priority {{ tailnet_rules_priority_base + loop.index0 }}
+ExecStart=/usr/sbin/ip rule add priority {{ tailnet_rules_priority_base + loop.index0 }} to {{ tailnet_rules_subnet }} ipproto udp dport {{ port }} lookup 52
+ExecStop=-/usr/sbin/ip rule del priority {{ tailnet_rules_priority_base + loop.index0 }}
+{% endfor %}
+ExecStartPre=-/usr/sbin/ip rule del priority {{ tailnet_rules_priority_base + 10 }}
+ExecStart=/usr/sbin/ip rule add priority {{ tailnet_rules_priority_base + 10 }} to {{ tailnet_rules_subnet }} ipproto udp unreachable
+ExecStop=-/usr/sbin/ip rule del priority {{ tailnet_rules_priority_base + 10 }}
+
+[Install]
+WantedBy=multi-user.target

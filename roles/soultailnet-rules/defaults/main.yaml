@@ -1,0 +1,16 @@
+---
+# For hosts that run `tailscale --accept-routes` AND tsdproxy (tsnet) nodes.
+#
+# With accept-routes on, everything for the home subnet goes into tailscale0
+# (routing table 52). That includes the WireGuard/disco UDP of tsdproxy's own
+# Tailscale nodes, which then runs Tailscale-inside-Tailscale through the
+# OPNsense subnet router; large packets (TLS handshakes) get dropped and the
+# tsdproxy services time out from the LAN.
+#
+# Fix: send only DNS (what Uptime Kuma's DNS monitors need) to table 52 and
+# refuse all other UDP to the home subnet, so tsnet falls back to a normal path.
+# TCP and ICMP (HTTP and ping monitors) are untouched.
+tailnet_rules_subnet: "10.42.0.0/20"
+tailnet_rules_udp_allowed_ports: [53]
+# Tailscale's own rules sit at 5210-5270; ours must come before them.
+tailnet_rules_priority_base: 5190
