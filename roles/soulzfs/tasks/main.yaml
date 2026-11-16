@@ -21,3 +21,6 @@
 
 - name: Sanoid
   include_tasks: sanoid.yaml
+
+- name: Healthchecks
+  include_tasks: healthchecks.yaml

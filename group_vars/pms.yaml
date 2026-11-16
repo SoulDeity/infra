@@ -110,6 +110,10 @@ bash_aliases:
   - { alias: "nvmetemp", command: "nvme smart-log /dev/nvme0n1 | grep temperature" }
   - { alias: "itop", command: "sudo intel_gpu_top" }
 
+# soulzfs healthchecks (check ids live in the vault)
+zfs_healthchecks_id: "{{ zfs_scrub_healthchecks_id | default('') }}"
+sanoid_healthchecks_id: "{{ sanoid_pms_healthchecks_id | default('') }}"
+
 # soulrestic
 restic_healthchecks_id: "{{ restic_pms_healthchecks_id }}"
 restic_forget_healthchecks_id: "{{ restic_pms_forget_healthchecks_id }}"

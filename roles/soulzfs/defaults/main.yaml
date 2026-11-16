@@ -22,6 +22,7 @@ sanoid_templates:
     autosnap: true
     autoprune: true
 
+
   appdata:
     frequently: 0
     hourly: 6
@@ -30,3 +31,10 @@ sanoid_templates:
     yearly: 0
     autosnap: true
     autoprune: true
+
+# Weekly scrub (installed with the healthchecks; see tasks/healthchecks.yaml).
+# Proxmox's own monthly scrub (/etc/cron.d/zfsutils-linux, 2nd Sunday) still
+# runs too; it reports to the same check via the zedlet.
+zfs_scrub_pools: [tank]
+zfs_scrub_weekday: "3" # Wednesday
+zfs_scrub_hour: "2"
