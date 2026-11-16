@@ -25,19 +25,39 @@
     group: root
     mode: "0755"
 
-- name: Download AdGuard Home
+# Deviation from upstream: adguard_version is a minimum, not an exact pin.
+# The installed version is only replaced when it's missing or older, so a
+# newer AdGuard (installed by core-update.yaml or the UI updater) is never
+# downgraded by a `make core` run.
+- name: Read installed AdGuard Home version
+  ansible.builtin.command: "{{ adguard_install_dir }}/AdGuardHome/AdGuardHome --version"
+  register: adguard_installed
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Decide whether to install AdGuard Home {{ adguard_version }}
+  ansible.builtin.set_fact:
+    adguard_installed_version: >-
+      {{ adguard_installed.stdout | default('') | regex_search('[0-9]+[.][0-9]+[.][0-9]+') | default('0', true) }}
+
+- name: Download AdGuard Home {{ adguard_version }}
   ansible.builtin.get_url:
     url: "https://github.com/AdguardTeam/AdGuardHome/releases/download/v{{ adguard_version }}/AdGuardHome_linux_{{ adguard_arch }}.tar.gz"
     dest: "/tmp/AdGuardHome_{{ adguard_version }}_{{ adguard_arch }}.tar.gz"
     mode: "0644"
+  when: adguard_installed_version is version(adguard_version, '<')
+  check_mode: false # only fetches into /tmp, so --check can test the extract
 
-- name: Install AdGuard Home
+- name: Install AdGuard Home {{ adguard_version }} (was {{ adguard_installed_version }})
   ansible.builtin.unarchive:
     src: "/tmp/AdGuardHome_{{ adguard_version }}_{{ adguard_arch }}.tar.gz"
     dest: "{{ adguard_install_dir }}"
     remote_src: true
     extra_opts:
       - "--strip-components=1"
+  when: adguard_installed_version is version(adguard_version, '<')
+  notify: Restart adguardhome
 
 - name: Deploy AdGuard config
   ansible.builtin.copy:

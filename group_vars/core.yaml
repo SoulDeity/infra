@@ -30,7 +30,9 @@ chrony_pools:
   - "3.pool.ntp.org"
 
 # AdGuard Home settings
-adguard_version: "0.107.71"
+# Minimum version: a fresh install gets at least this, and `make core` never
+# downgrades. `make core-update` installs the latest release.
+adguard_version: "0.107.80"
 adguard_install_dir: "/opt/adguardhome"
 adguard_config_dir: "/etc/adguardhome"
 adguard_work_dir: "/var/lib/adguardhome"
@@ -78,6 +80,8 @@ adguard_dns_config:
 adguard_querylog_interval_hours: 168 # 7 days; was 30 days on the SD cards
 
 # AdGuard Home Sync settings (runs on the MASTER node only)
+# Pinned on purpose: config format changes between releases. `make
+# core-update` reports newer releases but doesn't install them.
 adguardhome_sync_version: "0.6.12"
 adguardhome_sync_cron: "*/5 * * * *"
 adguardhome_sync_origin_url: "http://{{ hostvars['core-pi4-1']['core_ipv4_address'] }}:3000"

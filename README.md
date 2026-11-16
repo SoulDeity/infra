@@ -51,13 +51,19 @@ make core-check                         # dry run with diff, changes nothing
 make core                               # full playbook, BACKUP node first
 make core ARGS="--tags adguard-config"  # just DNS rewrites/settings
 make core ARGS="--tags caddy"           # just Caddy
-make core-update                        # apt upgrade, reboot only if needed
+make core-update                        # apt + AdGuard + Caddy updates, reboot if needed
 make core-update ARGS="-e core_reboot=true"  # always reboot
 ```
 
 Both playbooks run one node at a time, BACKUP first. `core-update` refuses to
 start on a node unless the other one is answering DNS, and waits for DNS and
 the VIP to come back before moving on.
+
+`core-update` installs the latest AdGuard Home release, and the latest Caddy
+build after validating the Caddyfile with it. `adguard_version` in
+`group_vars/core.yaml` is only a minimum, so `make core` never downgrades.
+adguardhome-sync stays pinned (`adguardhome_sync_version`); `core-update` says
+when a newer release exists.
 
 ### Where things live
 
