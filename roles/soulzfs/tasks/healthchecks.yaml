@@ -23,6 +23,26 @@
   notify: Restart zfs-zed
   become: true
 
+# Weekly scrub. Sends /start to the same check the zedlet reports the result
+# to, so healthchecks tracks start -> finish (and flags a scrub that started
+# but never finished, or never started at all). `zpool scrub` returns at once;
+# the scrub itself runs in the background for hours.
+- name: Schedule scrub
+  ansible.builtin.cron:
+    name: zfs scrub {{ item }}
+    cron_file: zfs-scrub-healthchecks
+    user: root
+    weekday: "{{ zfs_scrub_weekday }}"
+    hour: "{{ zfs_scrub_hour }}"
+    minute: "0"
+    job: >-
+      /usr/sbin/zpool scrub {{ item }} &&
+      curl -fsS -m 10 --retry 5 -o /dev/null
+      https://hc.{{ secret_domain_cloud }}/ping/{{ zfs_healthchecks_id }}/start
+  loop: "{{ zfs_scrub_pools }}"
+  when: zfs_healthchecks_id | default('') | length > 0
+  become: true
+
 - name: Install sanoid monitor script
   ansible.builtin.template:
     src: sanoid-monitor-healthchecks.sh.j2
