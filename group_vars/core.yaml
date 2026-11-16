@@ -52,13 +52,12 @@ adguard_extra_rewrites:
   - { domain: "*.a.{{ secret_domain_local }}", answer: 10.42.1.3 }
   - { domain: "*.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
   # served by Caddy on the core nodes
+  - { domain: "home.{{ secret_domain_full }}", answer: "{{ core_vip }}" }
   - { domain: "proxmox.p.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
   - { domain: "proxmox.n.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
   - { domain: "opnsense.{{ secret_domain_local }}", answer: "{{ core_vip }}" }
   # served by Traefik on soulapps
   - { domain: "frigate.{{ secret_domain_local }}", answer: 10.42.1.3 }
-  # served by Traefik on soulpms (Home Assistant only trusts Traefik as a proxy)
-  - { domain: "home.{{ secret_domain_full }}", answer: 10.42.1.1 }
   # UniFi devices look for the controller at http://unifi:8080/inform
   - { domain: "unifi", answer: 10.42.0.250 }
   # otherwise caught by the *.<local domain> wildcard and sent to Caddy
@@ -104,9 +103,16 @@ caddy_tls_providers:
     challenge_type: dns
     provider_api_token: "{{ secret_cloudflare_caddy_api }}"
 
-# home.<full domain> and mcmap.<full domain> are served by Traefik on soulpms,
-# not here (the old caddy LXC had stale copies of both).
+# mcmap.<full domain> is served by Traefik on soulpms, not here.
 caddy_endpoints:
+  # Home Assistant runs on its own box (soulhass), so serve it from the core
+  # nodes rather than soulpms' Traefik: it then stays reachable when soulpms is
+  # down. HA's http.trusted_proxies must list both core node IPs (.51, .52),
+  # or it answers 400 Bad Request.
+  - friendly_name: Home Assistant
+    fqdn: "home.{{ secret_domain_full }}"
+    upstream: http://10.42.1.2:8123
+    tls_provider: cloudflare
   # Two levels below the local domain, so the *.<local domain> wildcard cert
   # doesn't cover them: they need their own site blocks (and certs).
   - friendly_name: soulpms proxmox
