@@ -1,0 +1,12 @@
+#!/bin/sh
+# {{ ansible_managed }}
+# Report sanoid's snapshot freshness check to healthchecks. Catches sanoid
+# silently stopping (timer disabled, config broken, pool trouble).
+# --monitor-snapshots exits 0 OK, 1 WARNING, 2 CRITICAL; any non-zero code
+# fails the check. Thresholds come from sanoid.defaults.conf (hourly_warn 90m,
+# daily_warn 28h, ...).
+out=$(/usr/sbin/sanoid --monitor-snapshots 2>&1)
+rc=$?
+printf '%s\n' "$out" | curl -fsS -m 10 --retry 3 -o /dev/null \
+    --data-binary @- \
+    "https://hc.{{ secret_domain_cloud }}/ping/{{ sanoid_healthchecks_id }}/$rc" || true

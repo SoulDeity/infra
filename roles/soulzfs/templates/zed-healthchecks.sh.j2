@@ -1,0 +1,30 @@
+#!/bin/sh
+# {{ ansible_managed }}
+# ZED zedlet: report ZFS pool health to healthchecks.
+#   scrub_finish -> success ping if the pool is healthy, /fail otherwise
+#   statechange  -> /fail ping only when the pool is unhealthy (a success ping
+#                   here would reset the scrub check's timer)
+# The full `zpool status` is sent as the ping body so it shows in the check log.
+# Installed as scrub_finish-healthchecks.sh, with statechange-healthchecks.sh
+# linked to it.
+
+ZPOOL="${ZPOOL:-/usr/sbin/zpool}"
+pool="${ZEVENT_POOL:-}"
+[ -n "$pool" ] || exit 0
+
+if "$ZPOOL" status -x "$pool" 2>&1 | grep -q "is healthy"; then
+    healthy=1
+else
+    healthy=0
+fi
+
+case "${ZEVENT_SUBCLASS}" in
+    scrub_finish) [ "$healthy" = 1 ] && endpoint="" || endpoint="/fail" ;;
+    statechange)  [ "$healthy" = 1 ] && exit 0 || endpoint="/fail" ;;
+    *) exit 0 ;;
+esac
+
+"$ZPOOL" status -v "$pool" 2>&1 | curl -fsS -m 10 --retry 3 -o /dev/null \
+    --data-binary @- \
+    "https://hc.{{ secret_domain_cloud }}/ping/{{ zfs_healthchecks_id }}${endpoint}" || true
+exit 0

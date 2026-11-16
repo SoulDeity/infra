@@ -1,0 +1,44 @@
+---
+# Each part is only installed when its healthchecks check id is set.
+
+# ZED runs zedlets named <event>-<name>.sh from its directory, and only if
+# they're owned by root and not writable by group/other.
+- name: Install ZED healthchecks zedlet
+  ansible.builtin.template:
+    src: zed-healthchecks.sh.j2
+    dest: /etc/zfs/zed.d/scrub_finish-healthchecks.sh
+    owner: root
+    group: root
+    mode: "0755"
+  when: zfs_healthchecks_id | default('') | length > 0
+  notify: Restart zfs-zed
+  become: true
+
+- name: Also run it on statechange events
+  ansible.builtin.file:
+    src: scrub_finish-healthchecks.sh
+    dest: /etc/zfs/zed.d/statechange-healthchecks.sh
+    state: link
+  when: zfs_healthchecks_id | default('') | length > 0
+  notify: Restart zfs-zed
+  become: true
+
+- name: Install sanoid monitor script
+  ansible.builtin.template:
+    src: sanoid-monitor-healthchecks.sh.j2
+    dest: /usr/local/bin/sanoid-monitor-healthchecks
+    owner: root
+    group: root
+    mode: "0755"
+  when: sanoid_healthchecks_id | default('') | length > 0
+  become: true
+
+- name: Run sanoid monitor hourly
+  ansible.builtin.cron:
+    name: sanoid monitor healthchecks
+    cron_file: sanoid-monitor-healthchecks
+    user: root
+    minute: "47"
+    job: /usr/local/bin/sanoid-monitor-healthchecks
+  when: sanoid_healthchecks_id | default('') | length > 0
+  become: true
