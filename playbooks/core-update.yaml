@@ -9,9 +9,13 @@
 # Order per node, BACKUP (core-pi4-2) first:
 #   1. refuse to start unless the *other* node is answering DNS
 #   2. apt dist-upgrade + autoremove
-#   3. reboot if a new kernel was installed or a package asked for it
-#   4. wait until AdGuard answers locally and keepalived has settled
-#      (MASTER holds the VIP again) before moving on to the next node
+#   3. AdGuard Home: install the latest GitHub release if it's newer
+#   4. Caddy: download the latest build; if its version differs, validate the
+#      Caddyfile with it, then swap it in and restart Caddy
+#   5. reboot if a new kernel was installed or a package asked for it
+#   6. wait until AdGuard answers locally, Caddy is running and keepalived has
+#      settled (MASTER holds the VIP again) before moving on to the next node
+# adguardhome-sync is only reported (see adguardhome_sync_version).
 - name: Update core edge nodes
   hosts: core
   become: true
@@ -44,6 +48,87 @@
         msg: "{{ apt_upgrade.stdout_lines | default([]) | select('match', '^(Inst|Setting up) ') | list }}"
       when: apt_upgrade is changed
 
+    ## Applications
+
+    - name: Look up latest releases
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ item }}/releases/latest"
+        headers:
+          Accept: application/vnd.github+json
+      loop:
+        - AdguardTeam/AdGuardHome
+        - bakito/adguardhome-sync
+      register: core_latest
+      delegate_to: localhost
+      become: false
+      run_once: true
+      check_mode: false
+
+    - name: Record latest versions
+      ansible.builtin.set_fact:
+        core_latest_adguard: "{{ core_latest.results[0].json.tag_name | regex_replace('^v', '') }}"
+        core_latest_sync: "{{ core_latest.results[1].json.tag_name | regex_replace('^v', '') }}"
+
+    - name: Update AdGuard Home
+      ansible.builtin.include_role:
+        name: core-adguardhome
+      vars:
+        adguard_version: "{{ core_latest_adguard }}"
+
+    - name: Restart AdGuard Home now if it was updated
+      ansible.builtin.meta: flush_handlers
+
+    - name: Report adguardhome-sync updates (not installed automatically)
+      ansible.builtin.debug:
+        msg: >-
+          adguardhome-sync {{ core_latest_sync }} is available (pinned
+          {{ adguardhome_sync_version }}). Check its release notes for config
+          changes, then bump adguardhome_sync_version in group_vars/core.yaml.
+      when:
+        - adguardhome_sync_enabled | default(false)
+        - core_latest_sync is version(adguardhome_sync_version, '>')
+
+    - name: Download latest Caddy build
+      ansible.builtin.get_url:
+        url: "{{ caddy_amd64_linux_binary_url }}"
+        dest: /tmp/caddy.new
+        mode: "0755"
+        force: true
+      check_mode: false
+
+    - name: Compare Caddy versions
+      ansible.builtin.shell: |
+        set -eu
+        echo "$({{ caddy_binary_path }} version | cut -d' ' -f1)"
+        echo "$(/tmp/caddy.new version | cut -d' ' -f1)"
+      register: caddy_versions
+      changed_when: false
+      check_mode: false
+
+    - name: Install Caddy {{ caddy_versions.stdout_lines[1] }} (was {{ caddy_versions.stdout_lines[0] }})
+      when: caddy_versions.stdout_lines[0] != caddy_versions.stdout_lines[1]
+      block:
+        - name: Validate the Caddyfile with the new Caddy
+          ansible.builtin.command: /tmp/caddy.new validate --config {{ caddyfile_path }}/Caddyfile --adapter caddyfile
+          changed_when: false
+          check_mode: false
+
+        - name: Swap in the new Caddy binary
+          ansible.builtin.copy:
+            src: /tmp/caddy.new
+            dest: "{{ caddy_binary_path }}"
+            remote_src: true
+            owner: root
+            group: root
+            mode: "0755"
+
+        - name: Restart Caddy
+          ansible.builtin.systemd:
+            name: caddy
+            state: restarted
+
+    ## Reboot
+
     # Debian doesn't reliably create /run/reboot-required, so also compare the
     # running kernel with the newest one installed.
     - name: Check whether a reboot is needed
@@ -67,6 +152,15 @@
       register: local_dns
       until: local_dns.rc == 0 and local_dns.stdout | length > 0
       retries: 30
+      delay: 2
+      changed_when: false
+      check_mode: false
+
+    - name: Wait for Caddy
+      ansible.builtin.command: systemctl is-active caddy
+      register: caddy_active
+      until: caddy_active.rc == 0
+      retries: 15
       delay: 2
       changed_when: false
       check_mode: false
