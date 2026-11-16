@@ -111,7 +111,7 @@ bash_aliases:
   - { alias: "itop", command: "sudo intel_gpu_top" }
 
 # soulzfs healthchecks (check ids live in the vault)
-zfs_healthchecks_id: "{{ zfs_pms_healthchecks_id | default('') }}"
+zfs_healthchecks_id: "{{ zfs_scrub_healthchecks_id | default('') }}"
 sanoid_healthchecks_id: "{{ sanoid_pms_healthchecks_id | default('') }}"
 
 # soulrestic
