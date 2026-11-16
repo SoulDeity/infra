@@ -22,8 +22,11 @@ features:
   clientSettings: {{ adguardhome_sync_clients | lower }}
   services: {{ adguardhome_sync_services | lower }}
   filters: {{ adguardhome_sync_filters | lower }}
-  rewrites: {{ adguardhome_sync_rewrites | lower }}
+  # Deviation from upstream: rewrites belongs under dns (features.dns.rewrites).
+  # A top-level features.rewrites is silently ignored by 0.6.x and rejected by
+  # 0.7.0+'s config schema validation, so the service won't start.
   dns:
+    rewrites: {{ adguardhome_sync_rewrites | lower }}
     serverConfig: {{ adguardhome_sync_dns | lower }}
     accessLists: {{ adguardhome_sync_dns | lower }}
   dhcp:
