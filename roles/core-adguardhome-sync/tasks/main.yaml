@@ -18,19 +18,6 @@
   ansible.builtin.set_fact:
     sync_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
 
-- name: Download adguardhome-sync
-  ansible.builtin.get_url:
-    url: "https://github.com/bakito/adguardhome-sync/releases/download/v{{ adguardhome_sync_version }}/adguardhome-sync_{{ adguardhome_sync_version }}_linux_{{ sync_arch }}.tar.gz"
-    dest: "/tmp/adguardhome-sync_{{ adguardhome_sync_version }}.tar.gz"
-    mode: "0644"
-
-- name: Extract adguardhome-sync
-  ansible.builtin.unarchive:
-    src: "/tmp/adguardhome-sync_{{ adguardhome_sync_version }}.tar.gz"
-    dest: "{{ adguardhome_sync_install_dir }}"
-    remote_src: true
-    creates: "{{ adguardhome_sync_install_dir }}/adguardhome-sync"
-
 - name: Deploy adguardhome-sync config
   ansible.builtin.template:
     src: config.yaml.j2
@@ -39,6 +26,72 @@
     group: root
     mode: "0600"
   notify: Restart adguardhome-sync
+
+# Deviation from upstream: upstream extracts with `creates:`, so changing
+# adguardhome_sync_version never replaced an existing binary. Here the pinned
+# version is installed whenever it differs from what's there (so rolling back
+# is just changing the pin), after checking the config against the new binary.
+- name: Read installed adguardhome-sync version
+  ansible.builtin.command: "{{ adguardhome_sync_install_dir }}/adguardhome-sync --version"
+  register: sync_installed
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Install adguardhome-sync {{ adguardhome_sync_version }}
+  when: >-
+    (sync_installed.stdout | default('') | regex_search('[0-9]+[.][0-9]+[.][0-9]+') | default('0', true))
+    != adguardhome_sync_version
+  block:
+    - name: Create a staging directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: adguardhome-sync.
+      register: sync_staging
+      check_mode: false
+
+    - name: Download adguardhome-sync {{ adguardhome_sync_version }}
+      ansible.builtin.get_url:
+        url: "https://github.com/bakito/adguardhome-sync/releases/download/v{{ adguardhome_sync_version }}/adguardhome-sync_{{ adguardhome_sync_version }}_linux_{{ sync_arch }}.tar.gz"
+        dest: "{{ sync_staging.path }}/adguardhome-sync.tar.gz"
+        mode: "0644"
+      check_mode: false
+
+    - name: Extract adguardhome-sync {{ adguardhome_sync_version }}
+      ansible.builtin.unarchive:
+        src: "{{ sync_staging.path }}/adguardhome-sync.tar.gz"
+        dest: "{{ sync_staging.path }}"
+        remote_src: true
+      check_mode: false
+
+    # PRINT_CONFIG_ONLY loads and schema-checks the config without syncing.
+    # no_log: it prints the config, credentials included.
+    - name: Check the config with the new adguardhome-sync
+      ansible.builtin.command: "{{ sync_staging.path }}/adguardhome-sync run --config {{ adguardhome_sync_config_dir }}/config.yaml"
+      environment:
+        PRINT_CONFIG_ONLY: "true"
+      register: sync_config_check
+      changed_when: false
+      check_mode: false
+      no_log: true
+
+    - name: Install the new adguardhome-sync binary
+      ansible.builtin.copy:
+        src: "{{ sync_staging.path }}/adguardhome-sync"
+        dest: "{{ adguardhome_sync_install_dir }}/adguardhome-sync"
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0755"
+      notify: Restart adguardhome-sync
+
+  always:
+    - name: Remove the staging directory
+      ansible.builtin.file:
+        path: "{{ sync_staging.path }}"
+        state: absent
+      when: sync_staging.path is defined
+      check_mode: false
 
 - name: Install adguardhome-sync systemd service
   ansible.builtin.template:

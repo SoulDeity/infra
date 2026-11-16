@@ -81,8 +81,10 @@ adguard_querylog_interval_hours: 168 # 7 days; was 30 days on the SD cards
 
 # AdGuard Home Sync settings (runs on the MASTER node only)
 # Pinned on purpose: config format changes between releases. `make
-# core-update` reports newer releases but doesn't install them.
-adguardhome_sync_version: "0.6.12"
+# core-update` reports newer releases but doesn't install them. To upgrade,
+# read the release notes, bump this and run `make core ARGS="--tags sync"`;
+# the role checks the config against the new version before installing it.
+adguardhome_sync_version: "0.9.6"
 adguardhome_sync_cron: "*/5 * * * *"
 adguardhome_sync_origin_url: "http://{{ hostvars['core-pi4-1']['core_ipv4_address'] }}:3000"
 adguardhome_sync_replica_url: "http://{{ hostvars['core-pi4-2']['core_ipv4_address'] }}:3000"
