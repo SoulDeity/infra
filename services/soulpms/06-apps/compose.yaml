@@ -70,8 +70,6 @@ services:
     container_name: romm-db
     labels:
       - traefik.enable=false
-    ports:
-      - "3307:3306"
     volumes:
       - "{{ appdata_path }}/romm-db:/config"
     environment:
