@@ -43,6 +43,9 @@ hands out the VIP as the DNS server.
   lookup against the local AdGuard, so a hung AdGuard fails over too
 - **Chrony** - NTP
 - **AdGuard Home Sync** - copies settings from pi4-1 to pi4-2 every 5 minutes
+- **Tailscale** - DNS only (`tag:core`). Tailscale split DNS for the local
+  domain points at both Pis' tailnet addresses, so remote devices query AdGuard
+  directly. No routes; subnet routing stays on OPNsense
 
 ### Usage
 

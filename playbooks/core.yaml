@@ -35,6 +35,13 @@
     - role: core-keepalived
       tags: keepalived
 
+    # Passed as a role param so it wins over any tailscale_authkey in the vault
+    # (vars_files beat group_vars). Settings are in group_vars/core.yaml.
+    - role: artis3n.tailscale
+      tags: tailscale
+      vars:
+        tailscale_authkey: "{{ tailscale_core_oauth_secret }}"
+
     # Must stay before core-adguardhome-sync: that role ends the play early
     # (meta: end_host) on nodes that are not the sync origin.
     - role: core-adguardhome-config

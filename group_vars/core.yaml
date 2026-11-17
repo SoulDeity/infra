@@ -90,6 +90,22 @@ adguardhome_sync_origin_url: "http://{{ hostvars['core-pi4-1']['core_ipv4_addres
 adguardhome_sync_replica_url: "http://{{ hostvars['core-pi4-2']['core_ipv4_address'] }}:3000"
 # adguard_username and adguard_password come from vars/vault.yaml
 
+# Tailscale (artis3n.tailscale) - DNS only. Tailscale split DNS for the local
+# domain points at both Pis' 100.x addresses, so remote clients query AdGuard
+# directly and show up by tailnet IP instead of as OPNsense (10.42.0.254).
+# - OAuth client secret (tailscale_core_oauth_secret in the vault) never
+#   expires; the client must be allowed to create tag:core keys.
+# - Not ephemeral: the role defaults OAuth nodes to ephemeral, which would
+#   delete a Pi from the tailnet whenever it's offline for a while.
+# - --accept-dns=false: the Pis keep their own resolvers, so DNS on the DNS
+#   servers never depends on Tailscale.
+# - No routes: accept-routes would send LAN traffic out through OPNsense, and
+#   subnet routing stays on OPNsense for now.
+tailscale_tags: ["core"]
+tailscale_args: "--accept-dns=false"
+tailscale_oauth_ephemeral: false
+tailscale_oauth_preauthorized: true
+
 # Packages for core nodes (ironicbadger.packages)
 package_list:
   - btop
