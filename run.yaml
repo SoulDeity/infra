@@ -44,11 +44,21 @@
 - hosts: pms
   vars_files:
     - "vars/vault.yaml"
+  pre_tasks:
+    # artis3n.tailscale.machine writes tailscale.sources with its own keyring;
+    # a leftover tailscale.list from the old standalone role makes apt fail
+    # with "Conflicting values set for option Signed-By".
+    - name: Remove legacy Tailscale apt source
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/tailscale.list
+        state: absent
+      become: true
+      tags: tailscale
   roles:
     - role: ironicbadger.proxmox_nag_removal
     - role: soulhtop
     - role: geerlingguy.docker
-    - role: artis3n.tailscale
+    - role: artis3n.tailscale.machine
     - role: grog.package
     #- role: rossmcdonald.telegraf
     - role: ironicbadger.bash_aliases
@@ -72,9 +82,19 @@
 - hosts: cloud
   vars_files:
     - "vars/vault.yaml"
+  pre_tasks:
+    # artis3n.tailscale.machine writes tailscale.sources with its own keyring;
+    # a leftover tailscale.list from the old standalone role makes apt fail
+    # with "Conflicting values set for option Signed-By".
+    - name: Remove legacy Tailscale apt source
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/tailscale.list
+        state: absent
+      become: true
+      tags: tailscale
   roles:
     - role: geerlingguy.docker
-    - role: artis3n.tailscale
+    - role: artis3n.tailscale.machine
     - role: soultailnet-rules
       tags: tailnet-rules
     - role: ironicbadger.bash_aliases

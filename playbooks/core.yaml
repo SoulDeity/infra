@@ -16,6 +16,16 @@
       community.general.timezone:
         name: "{{ ntp_timezone }}"
 
+    # artis3n.tailscale.machine writes tailscale.sources with its own keyring;
+    # a leftover tailscale.list from the old standalone role makes apt fail
+    # with "Conflicting values set for option Signed-By".
+    - name: Remove legacy Tailscale apt source
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/tailscale.list
+        state: absent
+      become: true
+      tags: tailscale
+
   roles:
     - role: ironicbadger.packages
       tags: packages
@@ -37,7 +47,7 @@
 
     # Passed as a role param so it wins over any tailscale_authkey in the vault
     # (vars_files beat group_vars). Settings are in group_vars/core.yaml.
-    - role: artis3n.tailscale
+    - role: artis3n.tailscale.machine
       tags: tailscale
       vars:
         tailscale_authkey: "{{ tailscale_core_oauth_secret }}"
