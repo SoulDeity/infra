@@ -13,10 +13,24 @@
   changed_when: false
   become: true
 
-- name: Give user passwordless access to ZFS commands
+# Only `zfs create` (new tank/appdata/<app> datasets) skips the password.
+# zfs list / zpool status work without sudo; anything else asks for it.
+- name: Allow passwordless zfs create
+  copy:
+    dest: /etc/sudoers.d/zfs-create
+    content: "{{ main_username }} ALL=(root) NOPASSWD: /usr/sbin/zfs create *\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: visudo -cf %s
+  become: true
+
+- name: Remove old blanket ZFS rule from /etc/sudoers
   lineinfile:
     path: /etc/sudoers
     line: "{{ main_username }} ALL=(ALL) NOPASSWD: /usr/sbin/zfs,/usr/sbin/zpool"
+    state: absent
+    validate: visudo -cf %s
   become: true
 
 - name: Sanoid
