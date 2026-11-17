@@ -7,6 +7,10 @@ main_username: souldeity
 # 10.42.0.0/20 via the OPNsense subnet router (see roles/soultailnet-rules).
 # Auto-update is set separately with `tailscale set --auto-update`.
 tailscale_args: "--accept-routes --ssh --advertise-exit-node"
+# Tailnet policy limits tag:cloud to Uptime Kuma's checks on 10.42.0.0/20
+# (DNS, web, Proxmox, UniFi, Frigate, Plex, ping). Must match the tag set in
+# the admin console, or `tailscale up` refuses to run.
+tailscale_tags: ["cloud"]
 
 # ironicbadger.figurine
 figurine_name: "{{ hostname }}"
