@@ -4,6 +4,12 @@ hostname: soulpms
 # ironicbadger.figurine
 figurine_name: "{{ hostname }}"
 
+# artis3n.tailscale.machine - must list every non-default `tailscale up`
+# setting, or `tailscale up` refuses to run. accept-routes stays off: soulpms
+# is on the LAN and would otherwise send LAN traffic through OPNsense.
+# Auto-update is set separately with `tailscale set --auto-update`.
+tailscale_args: "--ssh"
+
 # grog.package
 package_list:
   - name: bash-completion
