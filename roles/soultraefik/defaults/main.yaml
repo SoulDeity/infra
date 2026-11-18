@@ -4,3 +4,5 @@ traefik_file_provider: false
 traefik_enable_dashboard: false
 traefik_insecure_transport: false
 traefik_exposed_by_default: false
+# respondingTimeouts on the https entrypoint, e.g. {readTimeout: 600s}. Empty = Traefik defaults.
+traefik_https_responding_timeouts: {}

@@ -141,3 +141,8 @@ traefik_file_provider: true
 traefik_enable_dashboard: true #defaults to false
 traefik_insecure_transport: true #defaults to false
 traefik_exposed_by_default: true
+# Traefik v3 defaults to a 60s read timeout, which cuts off large uploads
+# (Immich, Nextcloud) partway through.
+traefik_https_responding_timeouts:
+  readTimeout: 600s
+  idleTimeout: 600s

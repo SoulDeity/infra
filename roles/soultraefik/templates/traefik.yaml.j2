@@ -14,6 +14,11 @@ entryPoints:
           scheme: https
   https:
     address: ":443"
+{% if traefik_https_responding_timeouts %}
+    transport:
+      respondingTimeouts:
+        {{ traefik_https_responding_timeouts | to_nice_yaml(indent=2) | indent(8) | trim }}
+{% endif %}
     http:
       tls:
         certresolver: cloudflare

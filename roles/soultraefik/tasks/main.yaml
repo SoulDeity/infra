@@ -14,8 +14,8 @@
     group: "{{ main_gid }}"
   tags: traefik
 
-- name: copy traefik rules
-  copy:
+- name: template traefik rules
+  template:
     src: templates/rules.yaml.j2
     dest: "{{ appdata_path }}/traefik/rules.yml"
     owner: "{{ main_uid }}"
