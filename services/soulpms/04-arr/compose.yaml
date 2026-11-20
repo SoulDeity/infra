@@ -106,7 +106,7 @@ services:
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
   pinchflat:
-    image: ghcr.io/kieraneglin/pinchflat:latest
+    image: ghcr.io/thebadfella/pinchflat-ngx:latest
     container_name: pinchflat
     labels:
       - "traefik.http.routers.pinchflat.rule=Host(`yt.p.{{ local_domain }}`)"
