@@ -67,14 +67,6 @@ services:
       - "PGID={{ docker_compose_generator_gid }}"
       - "TZ={{ host_timezone }}"
     restart: unless-stopped
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    labels:
-      - traefik.enable=false
-    ports:
-      - "8191:8191"
-    restart: unless-stopped
   sonarr:
     image: lscr.io/linuxserver/sonarr
     container_name: sonarr
