@@ -9,12 +9,6 @@ core-update:
 	ansible-playbook playbooks/core-update.yaml $(ARGS)
 
 ### Network Infrastructure
-pihole:
-	ansible-playbook -b run.yaml --limit pihole --ask-become-pass
-
-caddy:
-	ansible-playbook -b run.yaml --limit caddy
-
 unifi:
 	ansible-playbook -b run.yaml --limit unifi
 

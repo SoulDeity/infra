@@ -1,6 +1,5 @@
 ---
-# Hosts that serve local DNS: the Pi-hole LXC (being retired) and the core
-# edge nodes. Everything here is the single source of truth for fixed IPs.
+# Hosts that serve local DNS: the core edge nodes. Everything here is the single source of truth for fixed IPs.
 #
 # - DHCP: reservations are served by OPNsense (Services > Dnsmasq DNS & DHCP >
 #   Hosts). Keep that table in sync with this list (it has CSV import/export).
@@ -20,8 +19,6 @@ dhcp_reservations:
   - { mac: dc:a6:32:96:19:1e, ip: 10.42.0.51, hostname: core-pi4-1 }
   - { mac: dc:a6:32:97:0a:fe, ip: 10.42.0.52, hostname: core-pi4-2 }
   - { mac: bc:24:11:61:9a:3e, ip: 10.42.0.250, hostname: unifi }
-  - { mac: bc:24:11:70:5a:44, ip: 10.42.0.252, hostname: caddy }
-  - { mac: bc:24:11:90:0a:9c, ip: 10.42.0.253, hostname: pihole }
   - { mac: 70:54:d2:45:9d:86, ip: 10.42.0.254, hostname: opnsense }
 
   ## Servers

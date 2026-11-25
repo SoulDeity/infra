@@ -14,22 +14,6 @@
 #         - 10-help-text
 #       when: ansible_distribution == 'Ubuntu'
 
-- hosts: pihole
-  vars_files:
-    - "vars/vault.yaml"
-  roles:
-    #- role: ironicbadger.figurine
-    - role: soul-dhcp-dns
-
-- hosts: caddy
-  vars_files:
-    - "vars/vault.yaml"
-  roles:
-    - role: geerlingguy.ntp
-    - role: ironicbadger.figurine
-    - role: soulcaddy
-      tags: caddy
-
 - hosts: unifi
   vars_files:
     - "vars/vault.yaml"

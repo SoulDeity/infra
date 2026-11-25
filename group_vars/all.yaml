@@ -51,7 +51,7 @@ package_list:
 # weareinteractive.environment
 environment_config: { "PUID": "{{ main_gid }}", "PGID": "{{ main_gid }}" }
 
-# geerlingguy.ntp
+# Timezone for the core nodes (playbooks/core.yaml) and some compose services
 ntp_timezone: "America/Chicago"
 
 # geerlingguy.security

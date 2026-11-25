@@ -6,7 +6,6 @@ roles:
   - src: geerlingguy.docker_arm
   - src: geerlingguy.security
   - src: geerlingguy.nfs
-  - src: geerlingguy.ntp
   - src: geerlingguy.github-users
 
   - src: grog.package
