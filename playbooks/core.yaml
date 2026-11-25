@@ -12,6 +12,33 @@
     - "../vars/vault.yaml"
 
   pre_tasks:
+    # dhcp_reservations (group_vars/dns.yaml) feeds the AdGuard rewrites and is
+    # the list OPNsense's DHCP hosts are copied from, so a reused MAC, IP or
+    # name must stop the run before anything changes. Names include the
+    # custom_dns aliases, since they share the local domain with hostnames.
+    - name: Check dhcp_reservations for duplicate MACs, IPs and names
+      ansible.builtin.assert:
+        that:
+          - _dupe_macs | length == 0
+          - _dupe_ips | length == 0
+          - _dupe_names | length == 0
+        fail_msg: >-
+          Duplicates in group_vars/dns.yaml -
+          MACs: {{ _dupe_macs }}, IPs: {{ _dupe_ips }}, names: {{ _dupe_names }}
+        quiet: true
+      vars:
+        _macs: "{{ dhcp_reservations | map(attribute='mac') | map('lower') | list }}"
+        _ips: "{{ dhcp_reservations | map(attribute='ip') | list }}"
+        _names: >-
+          {{ (dhcp_reservations | map(attribute='hostname') | list
+              + dhcp_reservations | map(attribute='custom_dns', default=[]) | flatten)
+             | map('lower') | list }}
+        _dupe_macs: "{{ _macs | community.general.counter | dict2items | selectattr('value', 'gt', 1) | map(attribute='key') | list }}"
+        _dupe_ips: "{{ _ips | community.general.counter | dict2items | selectattr('value', 'gt', 1) | map(attribute='key') | list }}"
+        _dupe_names: "{{ _names | community.general.counter | dict2items | selectattr('value', 'gt', 1) | map(attribute='key') | list }}"
+      run_once: true
+      tags: always
+
     - name: Set timezone
       community.general.timezone:
         name: "{{ ntp_timezone }}"
